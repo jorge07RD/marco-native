@@ -18,26 +18,35 @@ export async function getRendimientoPorDia(fechaInicio: string, fechaFin: string
   )
   const registroIdPorFecha = new Map(registros.map((r) => [r.fecha, r.id]))
 
-  const completadosPorRegistro = new Map<number, number>()
+  const conteoPorRegistro = new Map<number, { total: number; hechos: number }>()
   if (registros.length > 0) {
     const placeholders = registros.map(() => '?').join(', ')
-    const filas = await query<{ registro_id: number; n: number }>(
-      `SELECT registro_id, COUNT(*) as n FROM progreso_habitos
-       WHERE completado = 1 AND registro_id IN (${placeholders}) GROUP BY registro_id`,
+    const filas = await query<{ registro_id: number; total: number; hechos: number }>(
+      `SELECT registro_id, COUNT(*) as total,
+              SUM(CASE WHEN completado = 1 THEN 1 ELSE 0 END) as hechos
+       FROM progreso_habitos WHERE registro_id IN (${placeholders}) GROUP BY registro_id`,
       registros.map((r) => r.id),
     )
-    for (const f of filas) completadosPorRegistro.set(f.registro_id, f.n)
+    for (const f of filas) conteoPorRegistro.set(f.registro_id, { total: f.total, hechos: f.hechos })
   }
 
   const resultado: RendimientoDia[] = []
   for (const { fecha } of fechas) {
-    const letra = diaLetra(fecha)
-    const habitosDelDia = habitosList.filter(
-      (h) => diaEnLista(h.dias, letra) && h.created_at.slice(0, 10) <= fecha,
-    )
     const registroId = registroIdPorFecha.get(fecha)
-    const completados = registroId !== undefined ? (completadosPorRegistro.get(registroId) ?? 0) : 0
-    resultado.push({ fecha, habitos: habitosDelDia.length, habitos_completados: completados })
+    const conteo = registroId !== undefined ? conteoPorRegistro.get(registroId) : undefined
+
+    // Denominador: los hábitos que realmente se guardaron ese día. La regla de
+    // `created_at <= fecha` dejaba en cero todos los días anteriores a la
+    // creación del hábito, así que la gráfica salía plana en 0 para todo el
+    // historial. Solo se recurre a la programación teórica si el día tiene
+    // registro pero ninguna fila de progreso (caso degenerado).
+    const letra = diaLetra(fecha)
+    const habitosDelDia = habitosList.filter((h) => diaEnLista(h.dias, letra))
+    resultado.push({
+      fecha,
+      habitos: conteo ? conteo.total : habitosDelDia.length,
+      habitos_completados: conteo ? conteo.hechos : 0,
+    })
   }
   return resultado
 }
@@ -77,15 +86,19 @@ export async function getCumplimientoHabitos(
     let total = 0
     let completados = 0
     let fechaPrimera: string | null = null
+    // `fechas` solo trae días que tienen registro, así que la existencia de la
+    // fila de progreso es la señal de que ese día le tocaba a este hábito.
+    // Antes se decidía con `created_at` + `dias`, y `created_at` descartaba
+    // todo el historial anterior a la creación del hábito: cada tarjeta salía
+    // con total 1 (solo hoy) por muchos meses de datos que hubiera.
     for (const fecha of fechas) {
-      if (habito.created_at.slice(0, 10) > fecha) continue
-      if (!diaEnLista(habito.dias, diaLetra(fecha))) continue
+      const registroId = registroIdPorFecha.get(fecha)
+      if (registroId === undefined) continue
+      const clave = `${registroId}:${habito.id}`
+      if (!completadoPorClave.has(clave)) continue
       total += 1
       if (fechaPrimera === null) fechaPrimera = fecha
-      const registroId = registroIdPorFecha.get(fecha)
-      if (registroId !== undefined && completadoPorClave.get(`${registroId}:${habito.id}`)) {
-        completados += 1
-      }
+      if (completadoPorClave.get(clave)) completados += 1
     }
     if (total > 0 && fechaPrimera) {
       resultado.push({

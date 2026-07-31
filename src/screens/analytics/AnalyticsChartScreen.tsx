@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from '@lynx-js/react'
 import { getCumplimientoHabitos, getRendimientoPorDia } from '../../api/marco'
 import type { CumplimientoHabito, RendimientoDia } from '../../api/types'
 import { AreaChart } from '../../charts/AreaChart'
+import { BrandHeader } from '../../components/BrandHeader'
 import { ColumnChart } from '../../charts/ColumnChart'
 import { daysAgoISO, todayISO } from '../../lib/date'
 import { deriveDayStats } from '../../charts/dayStats'
@@ -82,7 +83,7 @@ export function AnalyticsChartScreen() {
 
   return (
     <view className="AnalyticsScreen ScreenEnter">
-      <text className="AnalyticsTitle">Análisis</text>
+      <BrandHeader title="Análisis" />
 
       <view className="RangoRow">
         {RANGOS.map((r) => (
@@ -91,7 +92,9 @@ export function AnalyticsChartScreen() {
             className={`RangoChip ${rangoDias === r ? 'RangoChip--active' : ''}`}
             bindtap={() => cambiarRango(r)}
           >
-            <text className="RangoChipText">{r} días</text>
+            <text className={`RangoChipText ${rangoDias === r ? 'RangoChipText--active' : ''}`}>
+              {r} días
+            </text>
           </view>
         ))}
       </view>

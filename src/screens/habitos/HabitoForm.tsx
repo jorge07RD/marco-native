@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from '@lynx-js/react'
+import { useCallback, useState } from '@lynx-js/react'
 
 import { createHabito, updateHabito } from '../../api/marco'
 import type { Categoria, Habito, HabitoCreate } from '../../api/types'
 import { Switch } from '../../components/Switch'
+import { INPUT_TEXT_COLOR } from '../../lib/colors'
 import './HabitoForm.css'
 
 const DIAS_SEMANA: { letra: string; label: string }[] = [
@@ -50,28 +51,13 @@ export function HabitoForm({ categorias, initial, onCancel, onSaved }: HabitoFor
     setDias((prev) => (prev.includes(letra) ? prev.filter((d) => d !== letra) : [...prev, letra]))
   }, [])
 
-  // El <input> de Lynx es no controlado (sin prop `value`, ver
-  // guide/interaction/event-handling) — para precargar texto en modo edición
-  // hay que setearlo imperativamente vía SelectorQuery una vez montado.
-  useEffect(() => {
-    if (!initial) return
-    const values: [string, string][] = [
-      ['#habito-form-nombre', initial.nombre],
-      ['#habito-form-descripcion', initial.descripcion ?? ''],
-      ['#habito-form-unidad', initial.unidad_medida],
-      ['#habito-form-meta', String(initial.meta_diaria)],
-    ]
-    values.forEach(([selector, value]) => {
-      lynx
-        .createSelectorQuery()
-        .select(selector)
-        .invoke({ method: 'setValue', params: { value } })
-        .exec()
-    })
-    // Solo al montar el formulario de edición — no queremos re-sobrescribir
-    // mientras el usuario escribe.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  // Nota: el <input> de esta app NO es el de Lynx, es el componente propio
+  // LynxInputComponent.kt del shell Android, y ahí `value` está expuesto como
+  // @LynxProp — o sea que se precarga y se controla por prop, como en React.
+  // (Antes esto se hacía con `invoke({method:'setValue'})` por SelectorQuery,
+  // pero ese método no existe: el único @LynxUIMethod del componente es
+  // `focus`, así que el invoke fallaba en silencio con METHOD_NOT_FOUND y los
+  // campos salían vacíos al editar.)
 
   const handleSubmit = useCallback(() => {
     const metaNum = Number(metaDiaria)
@@ -106,15 +92,19 @@ export function HabitoForm({ categorias, initial, onCancel, onSaved }: HabitoFor
 
       <text className="HabitoFormLabel">Nombre</text>
       <input
+        text-color={INPUT_TEXT_COLOR}
         id="habito-form-nombre"
         className="HabitoFormInput"
+        value={nombre}
         bindinput={(e) => setNombre(e.detail.value)}
       />
 
       <text className="HabitoFormLabel">Descripción (opcional)</text>
       <input
+        text-color={INPUT_TEXT_COLOR}
         id="habito-form-descripcion"
         className="HabitoFormInput"
+        value={descripcion}
         bindinput={(e) => setDescripcion(e.detail.value)}
       />
 
@@ -133,16 +123,20 @@ export function HabitoForm({ categorias, initial, onCancel, onSaved }: HabitoFor
 
       <text className="HabitoFormLabel">Unidad de medida</text>
       <input
+        text-color={INPUT_TEXT_COLOR}
         id="habito-form-unidad"
         className="HabitoFormInput"
+        value={unidadMedida}
         placeholder="veces, minutos, vasos…"
         bindinput={(e) => setUnidadMedida(e.detail.value)}
       />
 
       <text className="HabitoFormLabel">Meta diaria</text>
       <input
+        text-color={INPUT_TEXT_COLOR}
         id="habito-form-meta"
         className="HabitoFormInput"
+        value={metaDiaria}
         type="number"
         bindinput={(e) => setMetaDiaria(e.detail.value)}
       />

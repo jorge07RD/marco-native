@@ -1,11 +1,10 @@
 .TabBar {
   display: flex;
   flex-direction: row;
-  background-color: var(--color-bg-secondary);
+  background-color: #131018;
   border-color: var(--color-border);
   border-top-width: 1px;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding: 10px 12px 14px;
 }
 
 .TabBarItem {
@@ -14,22 +13,35 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding-top: 4px;
-  padding-bottom: 4px;
+  padding: 6px;
+  border-radius: 14px;
+  transition: background-color 0.15s;
+}
+
+/* El tab activo se marca con la pastilla, el ícono y la etiqueta a la vez;
+   antes solo cambiaba el color de la etiqueta.
+
+   El padding NO cambia entre estados a propósito: con `flex: 1` las cinco
+   columnas miden lo mismo, y ensanchar el padding del activo (como hace la
+   maqueta) dejaba sin aire a la etiqueta más larga — "Calendario" partía en
+   dos líneas al seleccionarlo. */
+.TabBarItem--active {
+  background-color: var(--color-accent-soft);
 }
 
 .TabBarIcon {
-  font-size: 18px;
-  margin-bottom: 2px;
+  width: 22px;
+  height: 22px;
+  margin-bottom: 6px;
 }
 
 .TabBarLabel {
   font-size: 11px;
-  color: var(--color-text-secondary);
+  color: var(--color-text-dim);
   transition: color 0.15s;
 }
 
 .TabBarLabel--active {
   color: var(--color-accent);
-  font-weight: 600;
+  font-weight: 700;
 }

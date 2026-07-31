@@ -1,90 +1,87 @@
-import { query, queryOne } from '../db/native'
+import { query } from '../db/native'
 import { diaEnLista } from './diasUtil'
 import { daysInMonth, diaLetra, fechaISO } from '../lib/date'
-import type { Habito, ProgresoDiaCalendario, ProgresoHabitoDiaCalendario } from './types'
+import type { Habito, ProgresoDiaCalendario } from './types'
 
-export async function getProgresoMes(year: number, month: number): Promise<ProgresoDiaCalendario[]> {
+/**
+ * Progreso diario de un mes para el calendario.
+ *
+ * `habitoIds` restringe el cálculo a un subconjunto de hábitos (el filtro de la
+ * pantalla). Sin él, cuenta todos. Antes había una segunda función
+ * `getProgresoMesHabito` para el caso filtrado, que devolvía un booleano
+ * completado/no en vez de un porcentaje; se eliminó porque con el filtro
+ * expresado como porcentaje los dos casos son el mismo y el calendario puede
+ * usar una sola escala de color para ambos.
+ */
+export async function getProgresoMes(
+  year: number,
+  month: number,
+  habitoIds?: number[],
+): Promise<ProgresoDiaCalendario[]> {
   const totalDias = daysInMonth(year, month)
   const primerDia = fechaISO(year, month, 1)
   const ultimoDia = fechaISO(year, month, totalDias)
+  const filtro = habitoIds && habitoIds.length > 0 ? habitoIds : null
 
-  const habitosUsuario = await query<Habito>('SELECT * FROM habitos WHERE activo = 1 AND created_at <= ?', [
-    `${ultimoDia}T23:59:59.999Z`,
-  ])
+  const habitosUsuario = await query<Habito>('SELECT * FROM habitos WHERE activo = 1')
+  const habitosFiltrados = filtro ? habitosUsuario.filter((h) => filtro.includes(h.id)) : habitosUsuario
+
   const registrosMes = await query<{ id: number; fecha: string }>(
     'SELECT id, fecha FROM registros WHERE fecha BETWEEN ? AND ?',
     [primerDia, ultimoDia],
   )
   const registroPorFecha = new Map(registrosMes.map((r) => [r.fecha, r]))
 
-  const progresosPorRegistro = new Map<number, number>()
+  // Se cuentan las dos cosas por registro: cuántos hábitos se guardaron ese
+  // día y cuántos se completaron. El total importa tanto como los hechos —
+  // ver el comentario del denominador más abajo.
+  const conteoPorRegistro = new Map<number, { total: number; hechos: number }>()
   if (registrosMes.length > 0) {
-    const placeholders = registrosMes.map(() => '?').join(', ')
-    const completados = await query<{ registro_id: number; n: number }>(
-      `SELECT registro_id, COUNT(*) as n FROM progreso_habitos
-       WHERE completado = 1 AND registro_id IN (${placeholders}) GROUP BY registro_id`,
-      registrosMes.map((r) => r.id),
+    const regPlaceholders = registrosMes.map(() => '?').join(', ')
+    const habPlaceholders = filtro ? filtro.map(() => '?').join(', ') : ''
+    const conteos = await query<{ registro_id: number; total: number; hechos: number }>(
+      `SELECT registro_id, COUNT(*) as total,
+              SUM(CASE WHEN completado = 1 THEN 1 ELSE 0 END) as hechos
+       FROM progreso_habitos
+       WHERE registro_id IN (${regPlaceholders})
+       ${filtro ? `AND habito_id IN (${habPlaceholders})` : ''}
+       GROUP BY registro_id`,
+      filtro ? [...registrosMes.map((r) => r.id), ...filtro] : registrosMes.map((r) => r.id),
     )
-    for (const c of completados) progresosPorRegistro.set(c.registro_id, c.n)
+    for (const c of conteos) {
+      conteoPorRegistro.set(c.registro_id, { total: c.total, hechos: c.hechos })
+    }
   }
 
   const resultado: ProgresoDiaCalendario[] = []
   for (let dia = 1; dia <= totalDias; dia++) {
     const fecha = fechaISO(year, month, dia)
     const letra = diaLetra(fecha)
-    const habitosDelDia = habitosUsuario.filter(
-      (h) => h.created_at.slice(0, 10) <= fecha && diaEnLista(h.dias, letra),
-    )
-    const totalHabitos = habitosDelDia.length
     const registro = registroPorFecha.get(fecha)
-    const habitosCompletados = registro ? (progresosPorRegistro.get(registro.id) ?? 0) : 0
+    const conteo = registro ? conteoPorRegistro.get(registro.id) : undefined
+
+    // Denominador: si el día TIENE registro, lo que vale es cuántos hábitos se
+    // guardaron ese día, no cuántos estarían programados hoy. La regla de
+    // "hábitos programados" mira `created_at <= fecha`, así que en cuanto un
+    // hábito se crea (o se restaura un backup, que reescribe created_at) todos
+    // los días anteriores con progreso real se quedaban con total 0 → 0% → el
+    // calendario los pintaba como si no existieran. La programación teórica
+    // solo se usa ya para los días sin registro.
+    const habitosDelDia = habitosFiltrados.filter((h) => diaEnLista(h.dias, letra))
+    const totalHabitos = conteo ? conteo.total : habitosDelDia.length
+    const habitosCompletados = conteo ? conteo.hechos : 0
     const porcentaje = totalHabitos > 0 ? Math.round((habitosCompletados / totalHabitos) * 1000) / 10 : 0
+
     resultado.push({
       fecha,
       total_habitos: totalHabitos,
       habitos_completados: habitosCompletados,
       porcentaje,
-      tiene_registro: registro !== undefined,
+      // "Hay algo que reportar este día", no "existe el registro del día": con
+      // un filtro activo, un día en que no tocaba ninguno de los hábitos
+      // elegidos debe salir neutro, no registrado al 0%.
+      tiene_registro: conteo !== undefined && conteo.total > 0,
     })
-  }
-  return resultado
-}
-
-export async function getProgresoMesHabito(
-  year: number,
-  month: number,
-  habitoId: number,
-): Promise<ProgresoHabitoDiaCalendario[]> {
-  const habito = await queryOne<Habito>('SELECT * FROM habitos WHERE id = ?', [habitoId])
-  if (!habito) throw new Error('Hábito no encontrado')
-  const totalDias = daysInMonth(year, month)
-  const primerDia = fechaISO(year, month, 1)
-  const ultimoDia = fechaISO(year, month, totalDias)
-
-  const registrosMes = await query<{ id: number; fecha: string }>(
-    'SELECT id, fecha FROM registros WHERE fecha BETWEEN ? AND ?',
-    [primerDia, ultimoDia],
-  )
-  const registroIdPorFecha = new Map(registrosMes.map((r) => [r.fecha, r.id]))
-
-  const completadoPorRegistro = new Map<number, boolean>()
-  if (registrosMes.length > 0) {
-    const placeholders = registrosMes.map(() => '?').join(', ')
-    const progresos = await query<{ registro_id: number; completado: number }>(
-      `SELECT registro_id, completado FROM progreso_habitos
-       WHERE habito_id = ? AND registro_id IN (${placeholders})`,
-      [habitoId, ...registrosMes.map((r) => r.id)],
-    )
-    for (const p of progresos) completadoPorRegistro.set(p.registro_id, p.completado === 1)
-  }
-
-  const resultado: ProgresoHabitoDiaCalendario[] = []
-  for (let dia = 1; dia <= totalDias; dia++) {
-    const fecha = fechaISO(year, month, dia)
-    const programado = diaEnLista(habito.dias, diaLetra(fecha)) && habito.created_at.slice(0, 10) <= fecha
-    const registroId = registroIdPorFecha.get(fecha)
-    const completado = registroId !== undefined ? (completadoPorRegistro.get(registroId) ?? false) : false
-    resultado.push({ fecha, completado, programado })
   }
   return resultado
 }

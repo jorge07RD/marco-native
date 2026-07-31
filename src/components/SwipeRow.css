@@ -1,0 +1,50 @@
+.SwipeRow {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+/* Los dos paneles ocupan todo el alto y quedan debajo de la tarjeta. No hace
+   falta z-index: en Lynx, como en el DOM, el hermano posterior (la tarjeta)
+   pinta encima. */
+.SwipeAction {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 130px;
+  display: flex;
+  align-items: center;
+  border-radius: 14px;
+  background-color: var(--color-bg-card);
+}
+
+.SwipeAction--left {
+  left: 0;
+  justify-content: flex-start;
+  padding-left: 22px;
+}
+
+.SwipeAction--right {
+  right: 0;
+  justify-content: flex-end;
+  padding-right: 22px;
+}
+
+.SwipeActionText {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.SwipeActionText--danger {
+  color: var(--color-accent);
+}
+
+/* La tarjeta tapa los paneles en reposo, así que su fondo no puede ser
+   transparente. El transform lo escribe el hilo principal durante el
+   arrastre; aquí solo se deja el estado de reposo. */
+.SwipeRowCard {
+  position: relative;
+  transform: translateX(0px);
+}

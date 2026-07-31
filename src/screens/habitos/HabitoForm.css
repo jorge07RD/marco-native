@@ -1,12 +1,12 @@
 .HabitoForm {
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 20px 20px 28px;
 }
 
 .HabitoFormTitle {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 26px;
+  font-weight: 800;
   margin-bottom: 16px;
 }
 
@@ -18,14 +18,14 @@
 }
 
 .HabitoFormInput {
-  height: 44px;
-  border-radius: 8px;
+  height: 48px;
+  border-radius: 12px;
   border-width: 1px;
-  border-color: var(--color-border);
+  border-color: var(--color-border-input);
   background-color: var(--color-bg-input);
   color: var(--color-text-primary);
-  padding-left: 14px;
-  font-size: 15px;
+  padding-left: 16px;
+  font-size: 16px;
 }
 
 .ChipRow {
@@ -35,10 +35,10 @@
 }
 
 .Chip {
-  background-color: var(--color-bg-input);
+  background-color: var(--color-bg-card);
   border-width: 1px;
-  border-color: var(--color-border);
-  border-radius: 16px;
+  border-color: var(--color-border-input);
+  border-radius: 20px;
   padding: 8px 14px;
   margin-right: 8px;
   margin-bottom: 8px;
@@ -53,10 +53,10 @@
 .DayChip {
   width: 40px;
   height: 40px;
-  border-radius: 8px;
-  background-color: var(--color-bg-input);
+  border-radius: 10px;
+  background-color: var(--color-bg-card);
   border-width: 1px;
-  border-color: var(--color-border);
+  border-color: var(--color-border-input);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -95,11 +95,12 @@
   align-items: center;
   justify-content: space-between;
   margin-top: 12px;
-  padding: 12px 14px;
+  padding: 14px 16px;
   background-color: var(--color-bg-secondary);
-  border-radius: 10px;
+  border-width: 1px;
+  border-color: var(--color-border);
+  border-radius: 12px;
 }
-
 
 .HabitoFormError {
   color: var(--color-accent);
@@ -115,8 +116,8 @@
 
 .FormButton {
   flex: 1;
-  height: 46px;
-  border-radius: 10px;
+  height: 48px;
+  border-radius: 12px;
   background-color: var(--color-accent);
   display: flex;
   align-items: center;
@@ -125,14 +126,14 @@
 }
 
 .FormButton--secondary {
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-bg-card);
   border-width: 1px;
-  border-color: var(--color-border);
+  border-color: var(--color-border-input);
   margin-left: 0;
 }
 
 .FormButtonText {
   color: #ffffff;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
 }

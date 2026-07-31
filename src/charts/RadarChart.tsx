@@ -14,13 +14,13 @@ function buildRadarMarkup(stats: HabitoStat[]): string {
   const rings = [0.5, 1].map((f) => {
     const pts = Array.from({ length: n }, (_, i) => polarToCartesian(CENTER, CENTER, MAX_RADIUS * f, i * anglePer))
     const d = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ') + ' Z'
-    return `<path d="${d}" fill="none" stroke="#533483" stroke-width="1"/>`
+    return `<path d="${d}" fill="none" stroke="#2a2732" stroke-width="1"/>`
   })
 
   const spokes = stats
     .map((_, i) => {
       const p = polarToCartesian(CENTER, CENTER, MAX_RADIUS, i * anglePer)
-      return `<line x1="${CENTER}" y1="${CENTER}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" stroke="#533483" stroke-width="1"/>`
+      return `<line x1="${CENTER}" y1="${CENTER}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" stroke="#2a2732" stroke-width="1"/>`
     })
     .join('')
 

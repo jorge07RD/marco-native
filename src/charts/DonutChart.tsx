@@ -13,7 +13,7 @@ function buildDonutMarkup(stats: HabitoStat[]): string {
   if (totalCompletados <= 0) {
     return (
       `<svg viewBox="0 0 ${SIZE} ${SIZE}" xmlns="http://www.w3.org/2000/svg">` +
-      `<circle cx="${CENTER}" cy="${CENTER}" r="${R_OUTER}" fill="none" stroke="#533483" stroke-width="2"/>` +
+      `<circle cx="${CENTER}" cy="${CENTER}" r="${R_OUTER}" fill="none" stroke="#2a2732" stroke-width="2"/>` +
       `</svg>`
     )
   }

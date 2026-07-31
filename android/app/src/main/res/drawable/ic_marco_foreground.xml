@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Foreground del ícono de Marco (diana), 512x512 según "Marco Icon.dc.html".
+
+  OJO con el nombre: NO renombrar a ic_launcher_foreground. Los AAR de
+  Sparkling (sparkling-2.0.1 y sparkling-method-2.0.1) publican su propio
+  drawable-{ldpi..xxxhdpi}/ic_launcher_foreground.png (el robot de Android).
+  Un archivo nuestro en drawable/ sin calificador de densidad PIERDE contra
+  esas variantes en cualquier dispositivo real, y el launcher acaba mostrando
+  el robot sobre nuestro color de fondo. Con un nombre propio no hay colisión.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    <!--
+      El adaptive icon recorta el lienzo de 108dp a la zona visible de 72dp,
+      así que la diana a tamaño nominal saldría ~83% del ícono. Este escalado
+      la deja en ~53%, la proporción del diseño original de 512x512.
+    -->
+    <group
+        android:pivotX="256"
+        android:pivotY="256"
+        android:scaleX="0.64"
+        android:scaleY="0.64">
+    <!-- Anillo exterior: r=132, grosor 18 -->
+    <path
+        android:fillType="evenOdd"
+        android:fillColor="#E94560"
+        android:pathData="M397,256 A141,141 0 1,1 115,256 A141,141 0 1,1 397,256 Z M379,256 A123,123 0 1,0 133,256 A123,123 0 1,0 379,256 Z" />
+    <!-- Anillo medio: r=80, grosor 18, degradado rojo-rosado -> morado -->
+    <path
+        android:fillType="evenOdd"
+        android:pathData="M345,256 A89,89 0 1,1 167,256 A89,89 0 1,1 345,256 Z M327,256 A71,71 0 1,0 185,256 A71,71 0 1,0 327,256 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="167"
+                android:startY="167"
+                android:endX="345"
+                android:endY="345"
+                android:startColor="#E94560"
+                android:endColor="#7B2CBF" />
+        </aapt:attr>
+    </path>
+    <!-- Punto central: r=30 -->
+    <path
+        android:fillColor="#7B2CBF"
+        android:pathData="M286,256 A30,30 0 1,1 226,256 A30,30 0 1,1 286,256 Z" />
+    </group>
+</vector>

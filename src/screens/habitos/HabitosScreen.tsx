@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from '@lynx-js/react'
 
 import { deleteHabito, getCategorias, getHabitos } from '../../api/marco'
 import type { Categoria, Habito } from '../../api/types'
+import { BrandHeader } from '../../components/BrandHeader'
+import { SwipeRow } from '../../components/SwipeRow'
 import { HabitoForm } from './HabitoForm'
 import './HabitosScreen.css'
 
@@ -62,12 +64,11 @@ export function HabitosScreen() {
 
   return (
     <view className="HabitosScreen ScreenEnter">
-      <view className="HabitosHeader">
-        <text className="HabitosTitle">Hábitos</text>
+      <BrandHeader title="Hábitos">
         <view className="AddButton" bindtap={() => setEditing('new')}>
           <text className="AddButtonText">+ Nuevo</text>
         </view>
-      </view>
+      </BrandHeader>
 
       {loading ? <text className="HabitosStatus">Cargando…</text> : null}
       {error ? <text className="HabitosStatus">{error}</text> : null}
@@ -75,44 +76,47 @@ export function HabitosScreen() {
         <text className="HabitosStatus">Aún no tienes hábitos. Crea el primero con "+ Nuevo".</text>
       ) : null}
 
-      {habitos.map((habito, index) => (
-        <view
-          key={habito.id}
-          className="HabitoCard StaggerIn"
-          style={{ animationDelay: `${Math.min(index, 10) * 0.045}s` }}
-        >
-          <view className="HabitoCardBar" style={{ backgroundColor: habito.color }} />
-          <view className="HabitoCardInfo">
-            <text className={`HabitoCardName ${habito.activo === 0 ? 'HabitoCardName--inactive' : ''}`}>
-              {habito.nombre}
-              {habito.activo === 0 ? ' (inactivo)' : ''}
-            </text>
-            <text className="HabitoCardMeta">
-              {categoriaNombre(habito.categoria_id)} · {habito.meta_diaria} {habito.unidad_medida}
-            </text>
-          </view>
+      {habitos.length > 0 ? (
+        <text className="HabitosHint">Arrastra una tarjeta: → para editar, ← para eliminar.</text>
+      ) : null}
 
-          {confirmDeleteId === habito.id ? (
-            <view className="ConfirmRow">
-              <text className="ConfirmText">¿Eliminar?</text>
-              <view className="HabitoCardAction" bindtap={() => handleDelete(habito.id)}>
-                <text className="HabitoCardActionText HabitoCardActionText--danger">Sí</text>
-              </view>
-              <view className="HabitoCardAction" bindtap={() => setConfirmDeleteId(null)}>
-                <text className="HabitoCardActionText">No</text>
-              </view>
+      {habitos.map((habito, index) => (
+        <SwipeRow
+          key={habito.id}
+          className="StaggerIn"
+          style={{ animationDelay: `${Math.min(index, 10) * 0.045}s` }}
+          swipeRightLabel="Editar"
+          onSwipeRight={() => setEditing(habito)}
+          swipeLeftLabel="Eliminar"
+          // Arrastrar no borra: abre la confirmación que ya existía. Un gesto
+          // es fácil de hacer sin querer, y esto no se puede deshacer.
+          onSwipeLeft={() => setConfirmDeleteId(habito.id)}
+        >
+          <view className="HabitoCard">
+            <view className="HabitoCardBar" style={{ backgroundColor: habito.color }} />
+            <view className="HabitoCardInfo">
+              <text className={`HabitoCardName ${habito.activo === 0 ? 'HabitoCardName--inactive' : ''}`}>
+                {habito.nombre}
+                {habito.activo === 0 ? ' (inactivo)' : ''}
+              </text>
+              <text className="HabitoCardMeta">
+                {categoriaNombre(habito.categoria_id)} · {habito.meta_diaria} {habito.unidad_medida}
+              </text>
             </view>
-          ) : (
-            <view className="HabitoCardActions">
-              <view className="HabitoCardAction" bindtap={() => setEditing(habito)}>
-                <text className="HabitoCardActionText">Editar</text>
+
+            {confirmDeleteId === habito.id ? (
+              <view className="ConfirmRow">
+                <text className="ConfirmText">¿Eliminar?</text>
+                <view className="HabitoCardAction" bindtap={() => handleDelete(habito.id)}>
+                  <text className="HabitoCardActionText HabitoCardActionText--danger">Sí</text>
+                </view>
+                <view className="HabitoCardAction" bindtap={() => setConfirmDeleteId(null)}>
+                  <text className="HabitoCardActionText">No</text>
+                </view>
               </view>
-              <view className="HabitoCardAction" bindtap={() => setConfirmDeleteId(habito.id)}>
-                <text className="HabitoCardActionText HabitoCardActionText--danger">Eliminar</text>
-              </view>
-            </view>
-          )}
-        </view>
+            ) : null}
+          </view>
+        </SwipeRow>
       ))}
     </view>
   )

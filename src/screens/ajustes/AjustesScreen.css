@@ -1,55 +1,51 @@
 .AjustesScreen {
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 20px 20px 28px;
   background-color: var(--color-bg-primary);
-}
-
-.AjustesTitle {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 16px;
 }
 
 .AjustesSection {
   background-color: var(--color-bg-secondary);
+  border-width: 1px;
+  border-color: var(--color-border);
   border-radius: 14px;
-  padding: 16px;
+  padding: 18px;
   margin-bottom: 16px;
 }
 
 .AjustesSectionTitle {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
   margin-bottom: 12px;
 }
 
 .AjustesLabel {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--color-text-secondary);
   margin-bottom: 6px;
   margin-top: 8px;
 }
 
 .AjustesInput {
-  height: 42px;
+  height: 46px;
   border-radius: 10px;
   border-width: 1px;
-  border-color: var(--color-border);
+  border-color: var(--color-border-input);
   background-color: var(--color-bg-input);
   color: var(--color-text-primary);
-  padding-left: 12px;
-  font-size: 14px;
+  padding-left: 16px;
+  font-size: 15px;
 }
 
 .AjustesButton {
-  height: 42px;
+  height: 46px;
   border-radius: 10px;
   background-color: var(--color-accent);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 12px;
+  margin-top: 14px;
   transition: transform 0.1s ease-out;
 }
 
@@ -59,8 +55,8 @@
 
 .AjustesButtonText {
   color: #ffffff;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
 }
 
 .AjustesRow {
@@ -71,55 +67,58 @@
 }
 
 .AjustesRowLabel {
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .AjustesCategoriaRow {
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 10px 0;
-  border-color: var(--color-border);
-  border-top-width: 1px;
+  padding: 12px 0;
+  border-color: var(--color-border-subtle);
+  border-bottom-width: 1px;
 }
 
 .AjustesCategoriaNombre {
   flex: 1;
-  font-size: 14px;
+  font-size: 15px;
 }
 
+/* Editar/Eliminar bajan de jerarquía: antes iban las dos en el rosado de
+   acento y competían con el botón principal de la sección. */
 .AjustesCategoriaActionText {
-  color: var(--color-accent);
-  font-size: 13px;
-  margin-left: 12px;
+  color: #c7c2d1;
+  font-size: 14px;
+  margin-left: 14px;
 }
 
 .AjustesCategoriaActionText--danger {
-  color: var(--color-accent);
+  color: var(--color-text-muted);
 }
 
 .AjustesAddRow {
   display: flex;
   flex-direction: row;
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .AjustesAddInput {
   flex: 1;
-  height: 40px;
+  height: 44px;
   border-radius: 10px;
   border-width: 1px;
-  border-color: var(--color-border);
+  border-color: var(--color-border-input);
   background-color: var(--color-bg-input);
   color: var(--color-text-primary);
-  padding-left: 12px;
-  font-size: 13px;
-  margin-right: 8px;
+  padding-left: 14px;
+  font-size: 14px;
+  margin-right: 10px;
 }
 
 .AjustesAddButton {
-  height: 40px;
-  padding: 0 14px;
+  height: 44px;
+  padding: 0 18px;
   border-radius: 10px;
   background-color: var(--color-accent);
   display: flex;
@@ -134,8 +133,8 @@
 
 .AjustesAddButtonText {
   color: #ffffff;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .HoraChipRow {
@@ -146,11 +145,11 @@
 }
 
 .HoraChip {
-  background-color: var(--color-bg-primary);
+  background-color: var(--color-bg-card);
   border-width: 1px;
-  border-color: var(--color-border);
-  border-radius: 16px;
-  padding: 6px 14px;
+  border-color: var(--color-border-input);
+  border-radius: 20px;
+  padding: 8px 14px;
   margin-right: 8px;
   margin-bottom: 8px;
   transition: background-color 0.15s, border-color 0.15s;
@@ -162,29 +161,29 @@
 }
 
 .HoraChipText {
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .AjustesDangerButton {
-  height: 42px;
+  height: 46px;
   border-radius: 10px;
   border-width: 1px;
   border-color: var(--color-accent);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .AjustesDangerButtonText {
   color: var(--color-accent);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
 }
 
 .AjustesConfirmBox {
-  margin-top: 12px;
-  padding: 12px;
+  margin-top: 14px;
+  padding: 14px;
   border-radius: 10px;
   background-color: var(--color-bg-primary);
 }

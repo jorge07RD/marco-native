@@ -25,14 +25,14 @@ function buildAreaChartMarkup(data: DayStat[]): string {
       ? `${linePath} L ${points[points.length - 1].x.toFixed(1)},${axisY} L ${points[0].x.toFixed(1)},${axisY} Z`
       : ''
 
-  const axis = `<line x1="${MARGIN_LEFT}" y1="${axisY.toFixed(1)}" x2="${(WIDTH - MARGIN_RIGHT).toFixed(1)}" y2="${axisY.toFixed(1)}" stroke="#533483" stroke-width="1"/>`
+  const axis = `<line x1="${MARGIN_LEFT}" y1="${axisY.toFixed(1)}" x2="${(WIDTH - MARGIN_RIGHT).toFixed(1)}" y2="${axisY.toFixed(1)}" stroke="#2a2732" stroke-width="1"/>`
 
   const step = Math.max(1, Math.ceil(data.length / 8))
   const labels = data
     .map((d, i) => {
       if (i % step !== 0) return ''
       const x = points[i].x - d.label.length * 2.5
-      return `<text x="${x.toFixed(1)}" y="${HEIGHT - 6}" font-size="8" fill="#8d99ae">${d.label}</text>`
+      return `<text x="${x.toFixed(1)}" y="${HEIGHT - 6}" font-size="8" fill="#9c98a5">${d.label}</text>`
     })
     .join('')
 

@@ -1,22 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from '@lynx-js/react'
 import { useNavigate } from 'react-router'
 
-import { getHabitos, getProgresoMes, getProgresoMesHabito } from '../../api/marco'
-import type { Habito, ProgresoDiaCalendario, ProgresoHabitoDiaCalendario } from '../../api/types'
+import { getHabitos, getProgresoMes } from '../../api/marco'
+import type { Habito, ProgresoDiaCalendario } from '../../api/types'
 import { daysInMonth, fechaISO, firstWeekdayMondayIndex, nombreMes, todayISO } from '../../lib/date'
+import { type NivelProgreso, nivelProgreso } from '../../lib/progreso'
 import './CalendarioScreen.css'
 
 const WEEK_HEADERS = ['L', 'M', 'X', 'J', 'V', 'S', 'D']
 
-// Semáforo clásico (mismos umbrales 60/80 que el gauge): rojo/ámbar/verde en
-// tonos oscuros para que se vea bien sobre el fondo del calendario.
-function colorForPorcentaje(porcentaje: number): string {
-  if (porcentaje === 0) return 'var(--color-bg-secondary)'
-  if (porcentaje < 60) return '#3d1f2a' // rojo (acento) oscuro
-  if (porcentaje < 80) return '#3d3620' // ámbar (warning) oscuro
-  if (porcentaje < 100) return '#1f3d2a' // verde (success) oscuro
-  return '#00ff88' // 100%: verde pleno
-}
+// Cada día se pinta con el escalón de la escala compartida (ver
+// lib/progreso.ts), el semáforo clásico, para que el mes se lea como un mapa
+// de calor. Los días sin nada que reportar se quedan neutros.
+const NIVELES: NivelProgreso[] = [0, 1, 2, 3, 4]
 
 export function CalendarioScreen() {
   const navigate = useNavigate()
@@ -24,11 +20,11 @@ export function CalendarioScreen() {
   const [year, setYear] = useState(hoy.getFullYear())
   const [month, setMonth] = useState(hoy.getMonth() + 1)
   const [habitos, setHabitos] = useState<Habito[]>([])
-  // Simplificación respecto al original: filtro de UN hábito a la vez (el
-  // endpoint /calendario/.../habito/{id} solo acepta uno), no multi-selección.
-  const [selectedHabitoId, setSelectedHabitoId] = useState<number | null>(null)
+  // Filtro de varios hábitos a la vez. Vacío = todos. El color del día pasa a
+  // ser el porcentaje de cumplimiento entre los hábitos elegidos, así que la
+  // vista filtrada y la completa usan exactamente la misma escala.
+  const [selectedHabitoIds, setSelectedHabitoIds] = useState<number[]>([])
   const [progresoMes, setProgresoMes] = useState<ProgresoDiaCalendario[]>([])
-  const [progresoHabito, setProgresoHabito] = useState<ProgresoHabitoDiaCalendario[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -43,15 +39,10 @@ export function CalendarioScreen() {
     setLoading(true)
     setError(null)
 
-    const request = selectedHabitoId
-      ? getProgresoMesHabito(year, month, selectedHabitoId).then((data) => {
-          if (!cancelled) setProgresoHabito(data)
-        })
-      : getProgresoMes(year, month).then((data) => {
-          if (!cancelled) setProgresoMes(data)
-        })
-
-    request
+    getProgresoMes(year, month, selectedHabitoIds)
+      .then((data) => {
+        if (!cancelled) setProgresoMes(data)
+      })
       .catch(() => {
         if (!cancelled) setError('No se pudo cargar el calendario.')
       })
@@ -62,14 +53,17 @@ export function CalendarioScreen() {
     return () => {
       cancelled = true
     }
-  }, [year, month, selectedHabitoId])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [year, month, selectedHabitoIds.join(',')])
 
-  const porFecha = useMemo(() => {
-    if (selectedHabitoId) {
-      return new Map<string, ProgresoHabitoDiaCalendario>(progresoHabito.map((p) => [p.fecha, p]))
-    }
-    return new Map<string, ProgresoDiaCalendario>(progresoMes.map((p) => [p.fecha, p]))
-  }, [selectedHabitoId, progresoHabito, progresoMes])
+  const porFecha = useMemo(
+    () => new Map<string, ProgresoDiaCalendario>(progresoMes.map((p) => [p.fecha, p])),
+    [progresoMes],
+  )
+
+  const toggleHabito = useCallback((id: number) => {
+    setSelectedHabitoIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+  }, [])
 
   const totalDias = daysInMonth(year, month)
   const offset = firstWeekdayMondayIndex(year, month)
@@ -115,13 +109,24 @@ export function CalendarioScreen() {
 
       {habitos.length > 0 ? (
         <view>
-          <text className="FiltroLabel">Filtrar por hábito</text>
+          <view className="FiltroHeader">
+            <text className="FiltroLabel">
+              {selectedHabitoIds.length > 0
+                ? `Filtrando ${selectedHabitoIds.length} de ${habitos.length} hábitos`
+                : 'Filtrar por hábito'}
+            </text>
+            {selectedHabitoIds.length > 0 ? (
+              <view bindtap={() => setSelectedHabitoIds([])}>
+                <text className="FiltroLimpiar">Limpiar</text>
+              </view>
+            ) : null}
+          </view>
           <view className="FiltroRow">
             {habitos.map((h) => (
               <view
                 key={h.id}
-                className={`FiltroChip ${selectedHabitoId === h.id ? 'FiltroChip--active' : ''}`}
-                bindtap={() => setSelectedHabitoId((prev) => (prev === h.id ? null : h.id))}
+                className={`FiltroChip ${selectedHabitoIds.includes(h.id) ? 'FiltroChip--active' : ''}`}
+                bindtap={() => toggleHabito(h.id)}
               >
                 <text className="FiltroChipText">{h.nombre}</text>
               </view>
@@ -129,6 +134,20 @@ export function CalendarioScreen() {
           </view>
         </view>
       ) : null}
+
+      <view className="LeyendaRow">
+        <view className="LeyendaItem">
+          <view className="LeyendaSwatch LeyendaSwatch--sin" />
+          <text className="LeyendaText">sin registro</text>
+        </view>
+        <view className="LeyendaEscala">
+          <text className="LeyendaText">menos</text>
+          {NIVELES.map((n) => (
+            <view key={n} className={`LeyendaSwatch LeyendaSwatch--escala LeyendaSwatch--n${n}`} />
+          ))}
+          <text className="LeyendaText">más</text>
+        </view>
+      </view>
 
       {loading ? <text className="CalendarioStatus">Cargando…</text> : null}
       {error ? <text className="CalendarioStatus">{error}</text> : null}
@@ -149,20 +168,13 @@ export function CalendarioScreen() {
           const fecha = fechaISO(year, month, day)
           const info = porFecha.get(fecha)
           const esHoy = fecha === todayISO()
-          let backgroundColor = 'var(--color-bg-secondary)'
-          let textoOscuro = false
-          if (selectedHabitoId) {
-            const p = info as ProgresoHabitoDiaCalendario | undefined
-            if (p?.programado) {
-              backgroundColor = p.completado ? '#1f3d2a' : '#3d1f2a'
-            }
-          } else {
-            const p = info as ProgresoDiaCalendario | undefined
-            if (p?.tiene_registro) {
-              backgroundColor = colorForPorcentaje(p.porcentaje)
-              textoOscuro = p.porcentaje === 100
-            }
-          }
+          // "Sin nada que reportar" y "registrado pero en cero" son cosas
+          // distintas y se pintan distinto: la primera es ausencia de dato, la
+          // segunda es el escalón 0 de la escala. Con filtro activo vale lo
+          // mismo, referido solo a los hábitos elegidos.
+          const conRegistro = info?.tiene_registro ?? false
+          const nivel: NivelProgreso = conRegistro ? nivelProgreso(info!.porcentaje) : 0
+          const escalon = conRegistro ? `n${nivel}` : 'sin'
           return (
             <view
               key={fecha}
@@ -171,13 +183,9 @@ export function CalendarioScreen() {
               bindtap={() => navigate(`/dashboard/${fecha}`)}
             >
               <view
-                className={`DayCellInner ${esHoy ? 'DayCellInner--hoy' : ''}`}
-                style={{ backgroundColor }}
+                className={`DayCellInner DayCellInner--${escalon} ${esHoy ? 'DayCellInner--hoy' : ''}`}
               >
-                <text
-                  className={`DayCellText ${esHoy ? 'DayCellText--hoy' : ''}`}
-                  style={textoOscuro ? { color: '#0e0d0d' } : undefined}
-                >
+                <text className={`DayCellText DayCellText--${escalon} ${esHoy && !conRegistro ? 'DayCellText--hoy' : ''}`}>
                   {day}
                 </text>
               </view>

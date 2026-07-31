@@ -11,8 +11,10 @@ function pctToAngle(pct: number): number {
   return -90 + Math.max(0, Math.min(1, pct)) * 180
 }
 
-// Semáforo clásico con los colores de marca: rojo (acento) 0-60%, ámbar
-// (warning) 60-80%, verde (success) 80-100%.
+// Semáforo clásico, los mismos umbrales 60/80 que el calendario y la barra
+// del Dashboard (ver lib/progreso.ts). Los colores están duplicados aquí como
+// literales porque el markup SVG va como string y no resuelve var() — si
+// cambian los --color-progreso-* de App.css, hay que tocarlos también aquí.
 function buildGaugeMarkup(pct: number): string {
   const bands = [
     { from: 0, to: 0.6, color: '#e94560' },
@@ -32,8 +34,8 @@ function buildGaugeMarkup(pct: number): string {
   const needleTip = polarToCartesian(CENTER_X, CENTER_Y, RADIUS - BAND_WIDTH - 6, needleAngle)
   const needle =
     `<line x1="${CENTER_X}" y1="${CENTER_Y}" x2="${needleTip.x.toFixed(1)}" y2="${needleTip.y.toFixed(1)}" ` +
-    `stroke="#edf2f4" stroke-width="3"/>` +
-    `<circle cx="${CENTER_X}" cy="${CENTER_Y}" r="5" fill="#edf2f4"/>`
+    `stroke="#e8e6ee" stroke-width="3"/>` +
+    `<circle cx="${CENTER_X}" cy="${CENTER_Y}" r="5" fill="#e8e6ee"/>`
 
   return (
     `<svg viewBox="0 0 ${WIDTH} 150" xmlns="http://www.w3.org/2000/svg">` + bandArcs + needle + `</svg>`

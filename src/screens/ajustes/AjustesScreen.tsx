@@ -9,6 +9,7 @@ import {
 } from '../../api/marco'
 import type { Categoria } from '../../api/types'
 import { useAuth } from '../../auth/useAuth'
+import { BrandHeader } from '../../components/BrandHeader'
 import { Switch } from '../../components/Switch'
 import { exportBackup, listBackups, restoreBackup } from '../../db/backup'
 import type { BackupFileRef } from '../../db/native'
@@ -18,6 +19,7 @@ import {
   scheduleReminder,
   showTestNotification,
 } from '../../native/reminders'
+import { INPUT_TEXT_COLOR } from '../../lib/colors'
 import './AjustesScreen.css'
 
 const HORAS_RECORDATORIO = ['07:00', '08:00', '09:00', '12:00', '18:00', '20:00', '21:00']
@@ -31,7 +33,6 @@ export function AjustesScreen() {
   const [categorias, setCategorias] = useState<Categoria[]>([])
   const [categoriasError, setCategoriasError] = useState<string | null>(null)
   const [nuevaCategoriaNombre, setNuevaCategoriaNombre] = useState('')
-  const [addInputKey, setAddInputKey] = useState(0)
   const [editingCategoriaId, setEditingCategoriaId] = useState<number | null>(null)
   const [editCategoriaNombre, setEditCategoriaNombre] = useState('')
 
@@ -65,18 +66,15 @@ export function AjustesScreen() {
     loadBackups()
   }, [loadBackups])
 
+  const [nombreDraft, setNombreDraft] = useState(user?.nombre ?? '')
+
+  // El <input> se controla por prop `value` (ver LynxInputComponent.kt, donde
+  // `value` es un @LynxProp). Este efecto solo cubre el caso de que el perfil
+  // termine de cargar después de montar la pantalla; no corre en cada tecla.
   useEffect(() => {
-    if (!user) return
-    lynx
-      .createSelectorQuery()
-      .select('#ajustes-nombre')
-      .invoke({ method: 'setValue', params: { value: user.nombre } })
-      .exec()
-    // Solo al montar / cuando cambia el usuario cargado — no en cada tecla.
+    if (user) setNombreDraft(user.nombre)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id])
-
-  const [nombreDraft, setNombreDraft] = useState(user?.nombre ?? '')
 
   const handleGuardarPerfil = useCallback(() => {
     if (!nombreDraft.trim()) {
@@ -130,7 +128,6 @@ export function AjustesScreen() {
     createCategoria({ nombre: nuevaCategoriaNombre.trim() })
       .then(() => {
         setNuevaCategoriaNombre('')
-        setAddInputKey((k) => k + 1)
         loadCategorias()
       })
       .catch(() => setCategoriasError('No se pudo crear la categoría (¿nombre repetido?).'))
@@ -140,16 +137,6 @@ export function AjustesScreen() {
     setEditingCategoriaId(cat.id)
     setEditCategoriaNombre(cat.nombre)
   }, [])
-
-  useEffect(() => {
-    if (editingCategoriaId === null) return
-    lynx
-      .createSelectorQuery()
-      .select(`#categoria-edit-${editingCategoriaId}`)
-      .invoke({ method: 'setValue', params: { value: editCategoriaNombre } })
-      .exec()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editingCategoriaId])
 
   const handleGuardarCategoria = useCallback(
     (id: number) => {
@@ -216,14 +203,16 @@ export function AjustesScreen() {
 
   return (
     <view className="AjustesScreen ScreenEnter">
-      <text className="AjustesTitle">Ajustes</text>
+      <BrandHeader title="Ajustes" />
 
       <view className="AjustesSection">
         <text className="AjustesSectionTitle">Perfil</text>
         <text className="AjustesLabel">Nombre</text>
         <input
+          text-color={INPUT_TEXT_COLOR}
           id="ajustes-nombre"
           className="AjustesInput"
+          value={nombreDraft}
           bindinput={(e) => setNombreDraft(e.detail.value)}
         />
         {perfilError ? <text className="AjustesError">{perfilError}</text> : null}
@@ -252,8 +241,10 @@ export function AjustesScreen() {
             {editingCategoriaId === cat.id ? (
               <>
                 <input
+                  text-color={INPUT_TEXT_COLOR}
                   id={`categoria-edit-${cat.id}`}
                   className="AjustesInput"
+                  value={editCategoriaNombre}
                   bindinput={(e) => setEditCategoriaNombre(e.detail.value)}
                   style={{ flex: 1 }}
                 />
@@ -282,8 +273,9 @@ export function AjustesScreen() {
         ))}
         <view className="AjustesAddRow">
           <input
-            key={addInputKey}
+            text-color={INPUT_TEXT_COLOR}
             className="AjustesAddInput"
+            value={nuevaCategoriaNombre}
             placeholder="Nueva categoría"
             bindinput={(e) => setNuevaCategoriaNombre(e.detail.value)}
           />

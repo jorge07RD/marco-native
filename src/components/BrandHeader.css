@@ -1,0 +1,18 @@
+.BrandHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.BrandHeaderMark {
+  width: 28px;
+  height: 28px;
+  margin-right: 10px;
+}
+
+.BrandHeaderTitle {
+  flex: 1;
+  font-size: 26px;
+  font-weight: 800;
+}

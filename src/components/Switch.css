@@ -1,30 +1,30 @@
 .SwitchTrack {
   width: 44px;
-  height: 24px;
-  border-radius: 12px;
+  height: 26px;
+  border-radius: 13px;
   position: relative;
-  background-color: var(--color-bg-input);
-  border-width: 1px;
-  border-color: var(--color-border);
-  transition: background-color 0.2s, border-color 0.2s;
+  background-color: #302a3c;
+  transition: background-color 0.2s;
 }
 
+/* Encendido en el rosado de marca. Antes era el verde #00ff88, que hoy queda
+   reservado para la escala de progreso: esto es un estado, no una medida. */
 .SwitchTrack--on {
-  background-color: var(--color-success);
-  border-color: var(--color-success);
+  background-color: var(--color-accent);
 }
 
 .SwitchKnob {
   position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 9px;
-  background-color: #ffffff;
-  transition: left 0.2s;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background-color: #8a8592;
+  transition: left 0.2s, background-color 0.2s;
 }
 
 .SwitchKnob--on {
-  left: 22px;
+  left: 21px;
+  background-color: #ffffff;
 }

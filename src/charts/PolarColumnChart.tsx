@@ -12,8 +12,8 @@ function buildPolarColumnMarkup(stats: HabitoStat[]): string {
   const n = Math.max(stats.length, 1)
   const anglePerSector = 360 / n
 
-  const refCircle = `<circle cx="${CENTER}" cy="${CENTER}" r="${MAX_RADIUS}" fill="none" stroke="#533483" stroke-width="1"/>`
-  const refCircleMid = `<circle cx="${CENTER}" cy="${CENTER}" r="${(MAX_RADIUS / 2).toFixed(1)}" fill="none" stroke="#533483" stroke-width="1"/>`
+  const refCircle = `<circle cx="${CENTER}" cy="${CENTER}" r="${MAX_RADIUS}" fill="none" stroke="#2a2732" stroke-width="1"/>`
+  const refCircleMid = `<circle cx="${CENTER}" cy="${CENTER}" r="${(MAX_RADIUS / 2).toFixed(1)}" fill="none" stroke="#2a2732" stroke-width="1"/>`
 
   const sectors = stats
     .map((s, i) => {

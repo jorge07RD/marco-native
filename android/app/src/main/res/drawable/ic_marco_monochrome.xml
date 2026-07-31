@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Capa monochrome (themed icons). Misma geometría que ic_marco_foreground, en blanco. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    <group
+        android:pivotX="256"
+        android:pivotY="256"
+        android:scaleX="0.64"
+        android:scaleY="0.64">
+    <path
+        android:fillType="evenOdd"
+        android:fillColor="#FFFFFF"
+        android:pathData="M397,256 A141,141 0 1,1 115,256 A141,141 0 1,1 397,256 Z M379,256 A123,123 0 1,0 133,256 A123,123 0 1,0 379,256 Z" />
+    <path
+        android:fillType="evenOdd"
+        android:fillColor="#FFFFFF"
+        android:pathData="M345,256 A89,89 0 1,1 167,256 A89,89 0 1,1 345,256 Z M327,256 A71,71 0 1,0 185,256 A71,71 0 1,0 327,256 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M286,256 A30,30 0 1,1 226,256 A30,30 0 1,1 286,256 Z" />
+    </group>
+</vector>

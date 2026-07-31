@@ -91,12 +91,6 @@ export interface ProgresoDiaCalendario {
   tiene_registro: boolean
 }
 
-export interface ProgresoHabitoDiaCalendario {
-  fecha: string
-  completado: boolean
-  programado: boolean
-}
-
 export interface CumplimientoHabito {
   fecha: string
   nombre_habito: string

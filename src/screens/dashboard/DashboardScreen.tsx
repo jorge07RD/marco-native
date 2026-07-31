@@ -5,7 +5,9 @@ import { useParams } from 'react-router'
 import { getHabitos, getRegistroPorFecha, toggleProgreso } from '../../api/marco'
 import type { Habito, RegistroConProgresos } from '../../api/types'
 import { useAuth } from '../../auth/useAuth'
+import { BrandHeader } from '../../components/BrandHeader'
 import { addDays, formatDisplay, todayISO } from '../../lib/date'
+import { nivelProgreso } from '../../lib/progreso'
 import './DashboardScreen.css'
 
 export function DashboardScreen() {
@@ -77,18 +79,9 @@ export function DashboardScreen() {
   const completados = registro?.progresos.filter((p) => p.completado).length ?? 0
   const progresoPct = totalHabitos > 0 ? (completados / totalHabitos) * 100 : 0
 
-  // Semáforo rojo/ámbar/verde (mismos umbrales 60/80 que el gauge y el
-  // calendario) en vez de un solo color plano — sugerencia: acento (#e94560)
-  // para <60%, ámbar (#ffd60a) para 60-79%, verde (#00ff88) al llegar a 80%+.
-  let progresoColor = '#e94560'
-  if (progresoPct >= 80) progresoColor = '#00ff88'
-  else if (progresoPct >= 60) progresoColor = '#ffd60a'
-
   return (
     <view className="DashboardScreen ScreenEnter">
-      <view className="DashboardHeader">
-        <text className="DashboardGreeting">Hola, {user?.nombre}</text>
-      </view>
+      <BrandHeader title={`Hola, ${user?.nombre ?? ''}`} />
 
       <view className="DateNav">
         <view className="DateNavButton" bindtap={() => setFecha((f) => addDays(f, -1))}>
@@ -109,8 +102,8 @@ export function DashboardScreen() {
       {totalHabitos > 0 ? (
         <view className="ProgressTrack">
           <view
-            className="ProgressFill"
-            style={{ width: `${progresoPct}%`, backgroundColor: progresoColor }}
+            className={`ProgressFill ProgressFill--n${nivelProgreso(progresoPct)}`}
+            style={{ width: `${progresoPct}%` }}
           />
         </view>
       ) : null}
@@ -132,7 +125,14 @@ export function DashboardScreen() {
                 // Feedback instantáneo en el hilo principal — no esperamos el
                 // viaje de red/hilo de background para que el borde reaccione.
                 const nowDone = !progreso.completado
-                event.currentTarget.setStyleProperty('border-color', nowDone ? '#00ff88' : 'transparent')
+                // Se pintan las dos propiedades que distinguen los estados
+                // (ver .HabitRow / .HabitRow--done): si solo se cambiara el
+                // borde, el fondo saltaría después, al llegar la respuesta.
+                event.currentTarget.setStyleProperty('border-color', nowDone ? '#7b2cbf' : '#26222e')
+                event.currentTarget.setStyleProperty(
+                  'background-color',
+                  nowDone ? '#1c1824' : '#161320',
+                )
                 runOnBackground(() => handleToggle(progreso.id))()
               }}
             >

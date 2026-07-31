@@ -1,6 +1,8 @@
 import { useCallback, useState } from '@lynx-js/react'
 
 import { useAuth } from '../../auth/useAuth'
+import { brandMark } from '../../components/icons'
+import { INPUT_TEXT_COLOR } from '../../lib/colors'
 import './OnboardingScreen.css'
 
 export function OnboardingScreen() {
@@ -23,10 +25,19 @@ export function OnboardingScreen() {
 
   return (
     <view className="OnboardingScreen">
+      {/* Trazo más fino que en la cabecera: a 140px el grosor 26 cerraría los
+          anillos. Misma figura que el ícono del launcher. */}
+      <svg className="OnboardingMark" content={brandMark(18)} />
       <text className="OnboardingTitle">Marco</text>
       <text className="OnboardingSubtitle">¿Cómo te llamas?</text>
 
-      <input className="OnboardingInput" placeholder="Tu nombre" bindinput={(e) => setNombre(e.detail.value)} />
+      <input
+        className="OnboardingInput"
+        text-color={INPUT_TEXT_COLOR}
+        placeholder="Tu nombre"
+        value={nombre}
+        bindinput={(e) => setNombre(e.detail.value)}
+      />
 
       {error ? <text className="OnboardingError">{error}</text> : null}
 

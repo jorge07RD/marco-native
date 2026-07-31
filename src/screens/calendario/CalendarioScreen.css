@@ -1,7 +1,7 @@
 .CalendarioScreen {
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 20px 20px 28px;
   background-color: var(--color-bg-primary);
 }
 
@@ -11,8 +11,10 @@
   align-items: center;
   justify-content: space-between;
   background-color: var(--color-bg-secondary);
-  border-radius: 12px;
-  padding: 10px 16px;
+  border-width: 1px;
+  border-color: var(--color-border);
+  border-radius: 14px;
+  padding: 14px 18px;
   margin-bottom: 12px;
 }
 
@@ -30,13 +32,13 @@
 }
 
 .CalendarioNavArrow {
-  font-size: 22px;
+  font-size: 20px;
   color: var(--color-accent);
 }
 
 .CalendarioMonthLabel {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
 }
 
 .CalendarioHoyButton {
@@ -51,30 +53,45 @@
 
 .CalendarioHoyText {
   color: var(--color-accent);
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.FiltroHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
 }
 
 .FiltroLabel {
   font-size: 13px;
   color: var(--color-text-secondary);
-  margin-bottom: 8px;
+}
+
+/* Con selección múltiple, deshacer chip por chip es tedioso. */
+.FiltroLimpiar {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-accent);
 }
 
 .FiltroRow {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .FiltroChip {
-  border-radius: 16px;
-  padding: 6px 12px;
+  border-radius: 20px;
+  padding: 8px 14px;
   margin-right: 8px;
   margin-bottom: 8px;
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-bg-card);
   border-width: 1px;
-  border-color: var(--color-border);
+  border-color: var(--color-border-input);
   transition: border-color 0.15s;
 }
 
@@ -83,7 +100,63 @@
 }
 
 .FiltroChipText {
-  font-size: 12px;
+  font-size: 13px;
+}
+
+/* Leyenda — las muestras repiten exactamente el relleno y el borde de las
+   clases .DayCellInner--* de más abajo. */
+.LeyendaRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.LeyendaItem {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-right: 14px;
+}
+
+.LeyendaSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 5px;
+}
+
+.LeyendaSwatch--sin {
+  background-color: var(--color-bg-card);
+  border-width: 1px;
+  border-color: var(--color-border);
+}
+
+.LeyendaSwatch--n0 { background-color: var(--color-progreso-0); }
+
+.LeyendaSwatch--n1 { background-color: var(--color-progreso-1); }
+.LeyendaSwatch--n2 { background-color: var(--color-progreso-2); }
+.LeyendaSwatch--n3 { background-color: var(--color-progreso-3); }
+.LeyendaSwatch--n4 { background-color: var(--color-progreso-4); }
+
+/* Los cuatro escalones van pegados, como una tira de degradado. */
+.LeyendaEscala {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+/* Modificador en vez de selector descendiente: esta hoja no usa selectores
+   anidados y en Lynx no están garantizados. */
+.LeyendaSwatch--escala {
+  margin-right: 2px;
+  margin-left: 2px;
+}
+
+.LeyendaText {
+  font-size: 11px;
+  color: var(--color-text-secondary);
 }
 
 .WeekHeaderRow {
@@ -100,8 +173,8 @@
 }
 
 .WeekHeaderText {
-  font-size: 11px;
-  color: var(--color-text-secondary);
+  font-size: 12px;
+  color: var(--color-text-muted);
 }
 
 .CalendarGrid {
@@ -112,40 +185,96 @@
 
 .DayCell {
   width: 14.28%;
-  height: 40px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2px;
+  padding: 4px;
 }
 
 .DayCellEmpty {
   width: 14.28%;
-  height: 40px;
+  height: 44px;
 }
 
 .DayCellInner {
   width: 100%;
   height: 100%;
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-bg-secondary);
+  border-width: 1px;
+  border-color: transparent;
 }
 
+/* Sin registro: neutro. Es ausencia de dato, no un escalón de la escala. */
+.DayCellInner--sin {
+  background-color: var(--color-bg-card);
+  border-color: var(--color-border);
+}
+
+/* Registrado y en cero: rojo oscuro. Se distingue del neutro de arriba
+   porque "abrí la app y no cumplí nada" no es lo mismo que "no hay dato". */
+.DayCellInner--n0 { background-color: var(--color-progreso-0); }
+
+/* Los cuatro escalones del semáforo (umbrales en lib/progreso.ts). Relleno
+   pleno: el mes se lee de un vistazo. */
+.DayCellInner--n1 { background-color: var(--color-progreso-1); }
+.DayCellInner--n2 { background-color: var(--color-progreso-2); }
+.DayCellInner--n3 { background-color: var(--color-progreso-3); }
+.DayCellInner--n4 { background-color: var(--color-progreso-4); }
+
+/* Hoy es un anillo, no un relleno: así el día de hoy sigue mostrando su
+   propio color de progreso en vez de perderlo. El fondo solo se pinta cuando
+   no hay registro, donde si no quedaría un hueco sin identidad.
+
+   El anillo va en blanco, no en el acento: con el semáforo el acento (#e94560)
+   es exactamente el color del escalón 1, así que un anillo de acento sobre un
+   día en rojo se volvía invisible. El blanco se lee sobre los cuatro
+   escalones y sobre el neutro. */
 .DayCellInner--hoy {
-  border-width: 2px;
-  border-color: var(--color-accent);
+  border-width: 1.5px;
+  border-style: solid;
+  border-color: var(--color-text-primary);
 }
 
-.DayCellText--hoy {
-  color: var(--color-accent);
-  font-weight: 700;
+.DayCellInner--sin.DayCellInner--hoy {
+  background-color: #2b2233;
 }
 
 .DayCellText {
-  font-size: 12px;
+  font-size: 14px;
+}
+
+.DayCellText--sin {
+  color: var(--color-text-muted);
+}
+
+/* Sobre el rojo oscuro del escalón 0, un rosado claro. */
+.DayCellText--n0 {
+  color: #d6a8b2;
+}
+
+.DayCellText--n1 {
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+/* El ámbar y los dos verdes son colores claros: ahí el número va en el fondo
+   de la app, no en blanco, o no se lee. */
+.DayCellText--n2,
+.DayCellText--n3,
+.DayCellText--n4 {
+  color: var(--color-bg-primary);
+  font-weight: 700;
+}
+
+/* Solo aplica al día de hoy sin registro; con relleno manda el color del
+   escalón. Va en blanco para acompañar al anillo. */
+.DayCellText--hoy {
+  color: var(--color-text-primary);
+  font-weight: 700;
 }
 
 .CalendarioStatus {
