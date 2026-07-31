@@ -43,3 +43,40 @@ ios/SparklingGo/SparklingGo/Resources/Assets/
 # Ruby / Bundler (used by CocoaPods)
 vendor/bundle/
 .bundle/
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/*.iml
+android/**/*.iml
+android/.cxx/
+android/**/.cxx/
+android/captures/
+*.keystore
+!debug.keystore
+*.jks
+
+# iOS / CocoaPods / Xcode
+ios/Pods/
+ios/build/
+ios/DerivedData/
+**/xcuserdata/
+*.xcuserstate
+*.moved-aside
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+GoogleService-Info.plist
+google-services.json
+
+# Secrets
+*.pem
+*.p12
+*.mobileprovision
