@@ -1,0 +1,59 @@
+.OnboardingScreen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px;
+  background-color: var(--color-bg-primary);
+}
+
+.OnboardingTitle {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.OnboardingSubtitle {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  margin-bottom: 24px;
+}
+
+.OnboardingInput {
+  height: 48px;
+  border-radius: 8px;
+  border-width: 1px;
+  border-color: var(--color-border);
+  background-color: var(--color-bg-input);
+  color: var(--color-text-primary);
+  padding-left: 14px;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.OnboardingError {
+  color: var(--color-accent);
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.OnboardingButton {
+  height: 48px;
+  border-radius: 10px;
+  background-color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  transition: transform 0.1s ease-out;
+}
+
+.OnboardingButton:active {
+  transform: scale(0.96);
+}
+
+.OnboardingButtonText {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}

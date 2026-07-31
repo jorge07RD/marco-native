@@ -1,0 +1,30 @@
+.SwitchTrack {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  position: relative;
+  background-color: var(--color-bg-input);
+  border-width: 1px;
+  border-color: var(--color-border);
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.SwitchTrack--on {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.SwitchKnob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background-color: #ffffff;
+  transition: left 0.2s;
+}
+
+.SwitchKnob--on {
+  left: 22px;
+}

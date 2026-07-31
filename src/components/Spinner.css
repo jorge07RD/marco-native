@@ -1,0 +1,21 @@
+.Spinner {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+  border-color: var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 16px;
+  animation-name: spin;
+  animation-duration: 0.8s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,208 @@
+.AjustesScreen {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: var(--color-bg-primary);
+}
+
+.AjustesTitle {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.AjustesSection {
+  background-color: var(--color-bg-secondary);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.AjustesSectionTitle {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.AjustesLabel {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+  margin-top: 8px;
+}
+
+.AjustesInput {
+  height: 42px;
+  border-radius: 10px;
+  border-width: 1px;
+  border-color: var(--color-border);
+  background-color: var(--color-bg-input);
+  color: var(--color-text-primary);
+  padding-left: 12px;
+  font-size: 14px;
+}
+
+.AjustesButton {
+  height: 42px;
+  border-radius: 10px;
+  background-color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  transition: transform 0.1s ease-out;
+}
+
+.AjustesButton:active {
+  transform: scale(0.96);
+}
+
+.AjustesButtonText {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.AjustesRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.AjustesRowLabel {
+  font-size: 14px;
+}
+
+.AjustesCategoriaRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 10px 0;
+  border-color: var(--color-border);
+  border-top-width: 1px;
+}
+
+.AjustesCategoriaNombre {
+  flex: 1;
+  font-size: 14px;
+}
+
+.AjustesCategoriaActionText {
+  color: var(--color-accent);
+  font-size: 13px;
+  margin-left: 12px;
+}
+
+.AjustesCategoriaActionText--danger {
+  color: var(--color-accent);
+}
+
+.AjustesAddRow {
+  display: flex;
+  flex-direction: row;
+  margin-top: 12px;
+}
+
+.AjustesAddInput {
+  flex: 1;
+  height: 40px;
+  border-radius: 10px;
+  border-width: 1px;
+  border-color: var(--color-border);
+  background-color: var(--color-bg-input);
+  color: var(--color-text-primary);
+  padding-left: 12px;
+  font-size: 13px;
+  margin-right: 8px;
+}
+
+.AjustesAddButton {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background-color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease-out;
+}
+
+.AjustesAddButton:active {
+  transform: scale(0.96);
+}
+
+.AjustesAddButtonText {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.HoraChipRow {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.HoraChip {
+  background-color: var(--color-bg-primary);
+  border-width: 1px;
+  border-color: var(--color-border);
+  border-radius: 16px;
+  padding: 6px 14px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.HoraChip--active {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent);
+}
+
+.HoraChipText {
+  font-size: 12px;
+}
+
+.AjustesDangerButton {
+  height: 42px;
+  border-radius: 10px;
+  border-width: 1px;
+  border-color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.AjustesDangerButtonText {
+  color: var(--color-accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.AjustesConfirmBox {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  background-color: var(--color-bg-primary);
+}
+
+.AjustesConfirmText {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+}
+
+.AjustesError {
+  color: var(--color-accent);
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.AjustesNotice {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 10px;
+}

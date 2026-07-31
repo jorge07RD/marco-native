@@ -1,0 +1,106 @@
+/* Paleta calcada del original (marco/frontend/src/app.css @theme) para que
+   la app mobile se vea como la misma marca, no una app genérica. */
+:root {
+  background-color: #0e0d0d;
+  --color-bg-primary: #0e0d0d;
+  --color-bg-secondary: #1a1a2e;
+  --color-bg-card: #16213e;
+  --color-bg-input: #0f0f23;
+  --color-accent: #e94560;
+  --color-accent-secondary: #7b2cbf;
+  --color-success: #00ff88;
+  --color-warning: #ffd60a;
+  --color-text-primary: #edf2f4;
+  --color-text-secondary: #8d99ae;
+  --color-border: #533483;
+}
+
+text {
+  color: var(--color-text-primary);
+}
+
+.LoadingScreen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-primary);
+}
+
+.LoadingText {
+  color: var(--color-text-secondary);
+  font-size: 16px;
+  margin-top: 12px;
+}
+
+/* Animaciones reutilizables en toda la app — ver AGENTS/plan de animaciones.
+   animation-delay se pasa inline por ítem (style={{ animationDelay: ... }})
+   para lograr la entrada escalonada de listas. */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.StaggerIn {
+  animation-name: fadeSlideIn;
+  animation-duration: 0.32s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+@keyframes popCheck {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.PopCheck {
+  animation-name: popCheck;
+  animation-duration: 0.32s;
+  animation-timing-function: ease-out;
+}
+
+/* Entrada de pantalla completa al montarse — cada Screen se monta de cero al
+   navegar a su tab (sin lazy loading, ver router.tsx), así que aplicar esto
+   a la vista raíz de cada pantalla ya produce el efecto de "transición de
+   tab" sin necesidad de orquestar nada a nivel de router. */
+@keyframes screenEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ScreenEnter {
+  animation-name: screenEnter;
+  animation-duration: 0.28s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+/* Feedback de presión — experimental, Lynx no tiene :active confirmado en
+   la documentación que revisamos; si no hace nada visible, no rompe nada. */
+.PressScale {
+  transition: transform 0.1s ease-out;
+}
+
+.PressScale:active {
+  transform: scale(0.96);
+}

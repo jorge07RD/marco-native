@@ -1,0 +1,11 @@
+.AppLayout {
+  height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-primary);
+}
+
+.AppLayoutContent {
+  flex: 1;
+}

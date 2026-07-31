@@ -1,0 +1,53 @@
+.ChartZoomOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.ChartZoomCard {
+  background-color: var(--color-bg-secondary);
+  border-width: 2px;
+  border-color: var(--color-border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.ChartZoomHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.ChartZoomTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+.ChartZoomClose {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  padding: 4px 10px;
+}
+
+.ChartZoomBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}

@@ -1,0 +1,32 @@
+.Legend {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.LegendRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.LegendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  margin-right: 8px;
+}
+
+.LegendName {
+  flex: 1;
+  font-size: 13px;
+  color: var(--color-text-primary);
+}
+
+.LegendValue {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}

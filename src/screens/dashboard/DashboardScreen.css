@@ -1,0 +1,146 @@
+.DashboardScreen {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: var(--color-bg-primary);
+}
+
+.DashboardHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.DashboardGreeting {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.DateNav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color-bg-secondary);
+  border-radius: 12px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+}
+
+.DateNavButton {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease-out;
+}
+
+.DateNavButton:active {
+  transform: scale(0.9);
+}
+
+.DateNavArrow {
+  font-size: 22px;
+  color: var(--color-accent);
+}
+
+.DateNavLabel {
+  font-size: 15px;
+}
+
+.DashboardStatus {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.DashboardStatus--error {
+  color: var(--color-accent);
+}
+
+.ProgressTrack {
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background-color: var(--color-bg-input);
+  margin-bottom: 18px;
+}
+
+.ProgressFill {
+  height: 10px;
+  border-radius: 5px;
+  background-color: var(--color-accent);
+  transition: width 0.3s, background-color 0.3s;
+}
+
+.HabitList {
+  display: flex;
+  flex-direction: column;
+}
+
+.HabitRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: var(--color-bg-secondary);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 10px;
+  border-width: 1px;
+  border-color: transparent;
+  transition: border-color 0.2s;
+}
+
+.HabitRow--done {
+  border-color: var(--color-success);
+}
+
+.HabitColorBar {
+  width: 4px;
+  align-self: stretch;
+  border-radius: 2px;
+  margin-right: 14px;
+}
+
+.HabitInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.HabitName {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.HabitMeta {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+.HabitCheckCircle {
+  width: 22px;
+  height: 22px;
+  border-radius: 11px;
+  border-width: 2px;
+  border-color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.HabitCheckCircle--done {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.HabitCheckMark {
+  font-size: 13px;
+  color: #0e0d0d;
+  font-weight: 700;
+}

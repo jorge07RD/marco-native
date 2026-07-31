@@ -1,0 +1,138 @@
+.HabitoForm {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.HabitoFormTitle {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.HabitoFormLabel {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-top: 12px;
+  margin-bottom: 6px;
+}
+
+.HabitoFormInput {
+  height: 44px;
+  border-radius: 8px;
+  border-width: 1px;
+  border-color: var(--color-border);
+  background-color: var(--color-bg-input);
+  color: var(--color-text-primary);
+  padding-left: 14px;
+  font-size: 15px;
+}
+
+.ChipRow {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.Chip {
+  background-color: var(--color-bg-input);
+  border-width: 1px;
+  border-color: var(--color-border);
+  border-radius: 16px;
+  padding: 8px 14px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.Chip--active {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.DayChip {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: var(--color-bg-input);
+  border-width: 1px;
+  border-color: var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.DayChip--active {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.ChipText {
+  font-size: 13px;
+}
+
+.ColorSwatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  margin-right: 10px;
+  margin-bottom: 8px;
+  border-width: 2px;
+  border-color: transparent;
+  transition: border-color 0.15s;
+}
+
+.ColorSwatch--active {
+  border-color: var(--color-text-primary);
+}
+
+.ActivoRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding: 12px 14px;
+  background-color: var(--color-bg-secondary);
+  border-radius: 10px;
+}
+
+
+.HabitoFormError {
+  color: var(--color-accent);
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.FormButtonRow {
+  display: flex;
+  flex-direction: row;
+  margin-top: 24px;
+}
+
+.FormButton {
+  flex: 1;
+  height: 46px;
+  border-radius: 10px;
+  background-color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+}
+
+.FormButton--secondary {
+  background-color: var(--color-bg-secondary);
+  border-width: 1px;
+  border-color: var(--color-border);
+  margin-left: 0;
+}
+
+.FormButtonText {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+}
