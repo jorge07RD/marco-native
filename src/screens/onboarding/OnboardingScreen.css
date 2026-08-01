@@ -11,10 +11,13 @@
   background-color: var(--color-bg-primary);
 }
 
+/* 140px de lienzo dejan la diana en ~77px: el PNG del launcher la dibuja al
+   55% del cuadro, la misma proporción que tenía el trazo SVG anterior. */
 .OnboardingMark {
   width: 140px;
   height: 140px;
   margin-bottom: 24px;
+  object-fit: contain;
 }
 
 .OnboardingTitle {

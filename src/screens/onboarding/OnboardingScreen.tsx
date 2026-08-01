@@ -1,8 +1,10 @@
 import { useCallback, useState } from '@lynx-js/react'
 
 import { useAuth } from '../../auth/useAuth'
-import { brandMark } from '../../components/icons'
 import { INPUT_TEXT_COLOR } from '../../lib/colors'
+// El mismo PNG que app.config.ts usa para el ícono del launcher y el splash,
+// para que la portada no dependa de una copia dibujada a mano.
+import appIcon from '../../../resource/app_icon.png'
 import './OnboardingScreen.css'
 
 export function OnboardingScreen() {
@@ -25,9 +27,9 @@ export function OnboardingScreen() {
 
   return (
     <view className="OnboardingScreen">
-      {/* Trazo más fino que en la cabecera: a 140px el grosor 26 cerraría los
-          anillos. Misma figura que el ícono del launcher. */}
-      <svg className="OnboardingMark" content={brandMark(18)} />
+      {/* El lienzo del PNG lleva el fondo #0e0d0d con esquinas transparentes,
+          igual que --color-bg-primary: sobre esta pantalla solo se ve la diana. */}
+      <image className="OnboardingMark" src={appIcon} />
       <text className="OnboardingTitle">Marco</text>
       <text className="OnboardingSubtitle">¿Cómo te llamas?</text>
 
