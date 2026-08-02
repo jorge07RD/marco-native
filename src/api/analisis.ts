@@ -4,6 +4,7 @@
 import { query } from '../db/native'
 import { diaEnLista } from './diasUtil'
 import { diaLetra } from '../lib/date'
+import { fraccionProgreso } from '../lib/progreso'
 import type { CumplimientoHabito, Habito, RendimientoDia } from './types'
 
 export async function getRendimientoPorDia(fechaInicio: string, fechaFin: string): Promise<RendimientoDia[]> {
@@ -18,16 +19,30 @@ export async function getRendimientoPorDia(fechaInicio: string, fechaFin: string
   )
   const registroIdPorFecha = new Map(registros.map((r) => [r.fecha, r.id]))
 
+  const metaPorHabito = new Map(habitosList.map((h) => [h.id, h.meta_diaria]))
+
+  // `hechos` es la suma de fracciones, no un conteo de completados: se agrega
+  // en JS con `fraccionProgreso` para no duplicar la fórmula en SQL (misma
+  // razón que en calendario.ts — los tres consumidores tienen que coincidir).
   const conteoPorRegistro = new Map<number, { total: number; hechos: number }>()
   if (registros.length > 0) {
     const placeholders = registros.map(() => '?').join(', ')
-    const filas = await query<{ registro_id: number; total: number; hechos: number }>(
-      `SELECT registro_id, COUNT(*) as total,
-              SUM(CASE WHEN completado = 1 THEN 1 ELSE 0 END) as hechos
-       FROM progreso_habitos WHERE registro_id IN (${placeholders}) GROUP BY registro_id`,
+    const filas = await query<{
+      registro_id: number
+      habito_id: number
+      valor: number
+      completado: number
+    }>(
+      `SELECT registro_id, habito_id, valor, completado
+       FROM progreso_habitos WHERE registro_id IN (${placeholders})`,
       registros.map((r) => r.id),
     )
-    for (const f of filas) conteoPorRegistro.set(f.registro_id, { total: f.total, hechos: f.hechos })
+    for (const f of filas) {
+      const acumulado = conteoPorRegistro.get(f.registro_id) ?? { total: 0, hechos: 0 }
+      acumulado.total += 1
+      acumulado.hechos += fraccionProgreso(f.valor, metaPorHabito.get(f.habito_id) ?? 0, f.completado === 1)
+      conteoPorRegistro.set(f.registro_id, acumulado)
+    }
   }
 
   const resultado: RendimientoDia[] = []
@@ -69,16 +84,30 @@ export async function getCumplimientoHabitos(
   )
   const registroIdPorFecha = new Map(registros.map((r) => [r.fecha, r.id]))
 
-  // completadoPorClave: "registroId:habitoId" -> completado, una sola consulta
-  // en vez de una por cada par (hábito, fecha).
-  const completadoPorClave = new Map<string, boolean>()
+  // fraccionPorClave: "registroId:habitoId" -> cuánto se cumplió (0..1), una
+  // sola consulta en vez de una por cada par (hábito, fecha). Guardar la
+  // fracción y no el booleano es lo que hace que un 28 de 30 cuente como 0.93
+  // en la tarjeta del hábito; la existencia de la clave sigue siendo la señal
+  // de "este día le tocaba", igual que antes.
+  const metaPorHabito = new Map(habitosList.map((h) => [h.id, h.meta_diaria]))
+  const fraccionPorClave = new Map<string, number>()
   if (registros.length > 0) {
     const placeholders = registros.map(() => '?').join(', ')
-    const filas = await query<{ registro_id: number; habito_id: number; completado: number }>(
-      `SELECT registro_id, habito_id, completado FROM progreso_habitos WHERE registro_id IN (${placeholders})`,
+    const filas = await query<{
+      registro_id: number
+      habito_id: number
+      valor: number
+      completado: number
+    }>(
+      `SELECT registro_id, habito_id, valor, completado FROM progreso_habitos WHERE registro_id IN (${placeholders})`,
       registros.map((r) => r.id),
     )
-    for (const f of filas) completadoPorClave.set(`${f.registro_id}:${f.habito_id}`, f.completado === 1)
+    for (const f of filas) {
+      fraccionPorClave.set(
+        `${f.registro_id}:${f.habito_id}`,
+        fraccionProgreso(f.valor, metaPorHabito.get(f.habito_id) ?? 0, f.completado === 1),
+      )
+    }
   }
 
   const resultado: CumplimientoHabito[] = []
@@ -95,15 +124,19 @@ export async function getCumplimientoHabitos(
       const registroId = registroIdPorFecha.get(fecha)
       if (registroId === undefined) continue
       const clave = `${registroId}:${habito.id}`
-      if (!completadoPorClave.has(clave)) continue
+      if (!fraccionPorClave.has(clave)) continue
       total += 1
       if (fechaPrimera === null) fechaPrimera = fecha
-      if (completadoPorClave.get(clave)) completados += 1
+      completados += fraccionPorClave.get(clave) ?? 0
     }
     if (total > 0 && fechaPrimera) {
       resultado.push({
         fecha: fechaPrimera,
         nombre_habito: habito.nombre,
+        // Sin redondear: este número es el numerador de los porcentajes que
+        // derivan las gráficas. Redondearlo aquí desviaba el porcentaje de la
+        // tarjeta (0.75 sobre 2 días se mostraba como 40% en vez de 37.5%).
+        // Quien redondea es el render, en AnalyticsChartScreen.
         habitos_completados: completados,
         total_habitos: total,
         color: habito.color,

@@ -9,7 +9,7 @@ import { daysAgoISO, todayISO } from '../../lib/date'
 import { deriveDayStats } from '../../charts/dayStats'
 import { DonutChart } from '../../charts/DonutChart'
 import { GaugeChart } from '../../charts/GaugeChart'
-import { deriveHabitoStats, formatPct, type HabitoStat } from '../../charts/habitoStats'
+import { deriveHabitoStats, formatCantidad, formatPct, type HabitoStat } from '../../charts/habitoStats'
 import { HorizontalBarChart } from '../../charts/HorizontalBarChart'
 import { PolarColumnChart } from '../../charts/PolarColumnChart'
 import { RadarChart } from '../../charts/RadarChart'
@@ -23,7 +23,7 @@ function HabitoSummaryCard({ stat }: { stat: HabitoStat }) {
       <view className="HabitoSummaryBar" style={{ backgroundColor: stat.color }} />
       <text className="HabitoSummaryName">{stat.nombre}</text>
       <text className="HabitoSummaryCount">
-        {stat.completados}/{stat.total}
+        {formatCantidad(stat.completados)}/{stat.total}
       </text>
       <text className="HabitoSummaryPct">{formatPct(stat.pct)}</text>
     </view>

@@ -1,0 +1,44 @@
+.ColorPicker {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contenedor con altura suficiente para que el dedo tenga dónde caer, aunque
+   la barra de color en sí sea fina. */
+.ColorBarra {
+  position: relative;
+  height: 44px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.ColorBarraEspectro {
+  display: flex;
+  flex-direction: row;
+  height: 14px;
+  width: 100%;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+/* Las franjas se reparten el ancho a partes iguales. Sin margen entre ellas:
+   juntas tienen que leerse como una sola barra continua. */
+.ColorBarraFranja {
+  flex: 1;
+  height: 14px;
+}
+
+.ColorBarraPulgar {
+  position: absolute;
+  top: 6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  border-width: 3px;
+  border-color: #ffffff;
+  /* El pulgar se centra sobre su posición: sin esto, en el extremo derecho se
+     saldría media bola fuera de la barra. */
+  margin-left: -16px;
+}

@@ -2,6 +2,7 @@ import { useCallback, useState } from '@lynx-js/react'
 
 import { createHabito, updateHabito } from '../../api/marco'
 import type { Categoria, Habito, HabitoCreate } from '../../api/types'
+import { ColorPicker } from '../../components/ColorPicker'
 import { Switch } from '../../components/Switch'
 import { INPUT_TEXT_COLOR } from '../../lib/colors'
 import './HabitoForm.css'
@@ -165,6 +166,7 @@ export function HabitoForm({ categorias, initial, onCancel, onSaved }: HabitoFor
           />
         ))}
       </view>
+      <ColorPicker value={color} onChange={setColor} />
 
       <view className="ActivoRow" bindtap={() => setActivo((a) => !a)}>
         <text className="HabitoFormLabel">Activo</text>

@@ -21,3 +21,23 @@ export function nivelProgreso(porcentaje: number): NivelProgreso {
   if (porcentaje < 100) return 3
   return 4
 }
+
+/** Cuánto aporta un hábito al día: 1 si está completado, y si no la fracción
+ *  de la meta que se registró (28 de 30 minutos → 0.933).
+ *
+ *  `completado` manda sobre el cálculo a propósito. Antes de que existiera el
+ *  registro parcial, `toggleProgreso` ya dejaba `valor` en 0 o en la meta
+ *  exacta, así que para todo el historial previo esta función devuelve los
+ *  mismos 1 y 0 que daba el conteo binario: cambiar a fracciones no reescribe
+ *  ni un número de lo ya guardado. También cubre el caso degenerado de un
+ *  hábito borrado o con meta 0, donde no hay fracción que calcular.
+ *
+ *  Los tres consumidores (barra del Dashboard, calendario y Análisis) tienen
+ *  que usar esta misma función, por lo mismo que `nivelProgreso` vive aquí. */
+export function fraccionProgreso(valor: number, metaDiaria: number, completado: boolean): number {
+  if (completado) return 1
+  if (!Number.isFinite(metaDiaria) || metaDiaria <= 0) return 0
+  const fraccion = valor / metaDiaria
+  if (!Number.isFinite(fraccion) || fraccion <= 0) return 0
+  return fraccion > 1 ? 1 : fraccion
+}

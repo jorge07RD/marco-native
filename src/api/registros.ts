@@ -100,3 +100,37 @@ export async function toggleProgreso(progresoId: number): Promise<unknown> {
   }
   return { ok: true }
 }
+
+/**
+ * Registro parcial: guarda cuánto se cumplió de la meta (28 de 30 minutos).
+ *
+ * `completado` deja de ser algo que el usuario alterna y pasa a derivarse del
+ * valor — así el toggle de un tap y el valor parcial no pueden contradecirse.
+ * No hace falta migrar nada: `valor` ya es una columna REAL del schema.
+ *
+ * El valor no se recorta hacia arriba a propósito: si alguien leyó 35 de 30
+ * minutos, se guarda 35 y el hábito queda completado. Quien acota el aporte al
+ * día a un máximo de 1 es `fraccionProgreso`, no la base de datos.
+ */
+export async function setProgresoValor(progresoId: number, valor: number): Promise<unknown> {
+  const progreso = await queryOne<{ id: number; habito_id: number }>(
+    'SELECT id, habito_id FROM progreso_habitos WHERE id = ?',
+    [progresoId],
+  )
+  if (!progreso) throw new Error('Progreso no encontrado')
+
+  const habito = await queryOne<{ meta_diaria: number }>('SELECT meta_diaria FROM habitos WHERE id = ?', [
+    progreso.habito_id,
+  ])
+  const meta = habito ? habito.meta_diaria : 0
+  const valorLimpio = Number.isFinite(valor) && valor > 0 ? valor : 0
+  const completado = meta > 0 && valorLimpio >= meta ? 1 : 0
+
+  await execute('UPDATE progreso_habitos SET valor = ?, completado = ?, updated_at = ? WHERE id = ?', [
+    valorLimpio,
+    completado,
+    nowISO(),
+    progresoId,
+  ])
+  return { ok: true }
+}
