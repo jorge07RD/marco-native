@@ -23,34 +23,51 @@ class NativeDatabaseModule(context: Context) : LynxModule(context) {
 
     private val dbHelper: MarcoDbHelper by lazy { MarcoDbHelper(androidContext()) }
 
+    // El callback SIEMPRE se tiene que invocar, pase lo que pase: del lado JS
+    // esto es una promesa que solo resuelve aquí (ver src/db/native.ts), así
+    // que una excepción escapándose no da un error — deja la app colgada para
+    // siempre en la pantalla de carga, sin nada en pantalla que lo explique.
+    // Por eso el error viaja como dato, en vez de propagarse.
+    private fun fallo(callback: Callback, e: Exception) {
+        callback.invoke(JSONObject().put("error", e.message ?: e.toString()).toString())
+    }
+
     @LynxMethod
     fun query(sql: String, paramsJson: String, callback: Callback) {
-        val args = jsonArrayToStringArgs(JSONArray(paramsJson))
-        val db = dbHelper.readableDatabase
-        val cursor = db.rawQuery(sql, args)
-        val results = JSONArray()
-        cursor.use {
-            while (it.moveToNext()) {
-                results.put(cursorRowToJson(it))
+        try {
+            val args = jsonArrayToStringArgs(JSONArray(paramsJson))
+            val db = dbHelper.readableDatabase
+            val cursor = db.rawQuery(sql, args)
+            val results = JSONArray()
+            cursor.use {
+                while (it.moveToNext()) {
+                    results.put(cursorRowToJson(it))
+                }
             }
+            callback.invoke(results.toString())
+        } catch (e: Exception) {
+            fallo(callback, e)
         }
-        callback.invoke(results.toString())
     }
 
     @LynxMethod
     fun execute(sql: String, paramsJson: String, callback: Callback) {
-        val params = JSONArray(paramsJson)
-        val args = Array<Any?>(params.length()) { i -> params.get(i).takeIf { it != JSONObject.NULL } }
-        val db = dbHelper.writableDatabase
-        db.execSQL(sql, args)
+        try {
+            val params = JSONArray(paramsJson)
+            val args = Array<Any?>(params.length()) { i -> params.get(i).takeIf { it != JSONObject.NULL } }
+            val db = dbHelper.writableDatabase
+            db.execSQL(sql, args)
 
-        val insertId = db.rawQuery("SELECT last_insert_rowid()", null).use {
-            if (it.moveToFirst()) it.getLong(0) else 0L
+            val insertId = db.rawQuery("SELECT last_insert_rowid()", null).use {
+                if (it.moveToFirst()) it.getLong(0) else 0L
+            }
+            val rowsAffected = db.rawQuery("SELECT changes()", null).use {
+                if (it.moveToFirst()) it.getInt(0) else 0
+            }
+            callback.invoke(JSONObject().put("insertId", insertId).put("rowsAffected", rowsAffected).toString())
+        } catch (e: Exception) {
+            fallo(callback, e)
         }
-        val rowsAffected = db.rawQuery("SELECT changes()", null).use {
-            if (it.moveToFirst()) it.getInt(0) else 0
-        }
-        callback.invoke(JSONObject().put("insertId", insertId).put("rowsAffected", rowsAffected).toString())
     }
 
     @LynxMethod

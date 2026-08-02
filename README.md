@@ -1,89 +1,134 @@
-# gMarco — app nativa (Android)
+# Marco — app nativa de hábitos (Android)
 
-App nativa de Android para Marco (habit tracker), construida sobre
-[Sparkling](https://tiktok.github.io/sparkling/) (TikTok), que empaqueta la
-app [Lynx](https://lynxjs.org/) del prototipo `marcomobile/` en un shell
-nativo real instalable en el teléfono (no requiere LynxExplorer).
+Seguimiento de hábitos diarios. App nativa de Android construida sobre
+[Sparkling](https://tiktok.github.io/sparkling/) (TikTok), que empaqueta una app
+[Lynx](https://lynxjs.org/) en un shell nativo instalable (no hace falta
+LynxExplorer).
 
-Backend: FastAPI en `marco/backend` (sin cambios, se reutiliza tal cual).
+**Funciona sin conexión y sin cuenta en ningún servidor**: todo vive en un
+SQLite local del teléfono. No hay backend, no hay login, no hay tokens — solo un
+perfil local con tu nombre.
 
-## Estado actual
+## Capturas
 
-Funcional en Android: Auth (login/registro), Dashboard diario con toggle de
-hábitos, CRUD de Hábitos, Calendario (heatmap), Análisis (8 gráficas SVG +
-tarjetas resumen por hábito + zoom a pantalla completa), Ajustes.
+Datos de ejemplo, no reales: cuenta recién creada con los cinco hábitos que
+siembra la app y siete semanas de historial generado.
 
-Pendiente / conocido:
-- **iOS**: no configurado (decisión: solo Android por ahora).
-- **Notificaciones push**: no implementadas. La web original usa Web Push
-  (`pywebpush` + Service Worker del navegador), que no aplica a una app
-  nativa. El reemplazo natural es FCM (Firebase Cloud Messaging), pendiente.
-- **Identidad de la app**: el paquete sigue siendo el del scaffold
-  (`com.example.sparkling.go`) en vez de `com.marco.mobile`; el ícono
-  (`resource/app_icon.png`) también es el placeholder por defecto.
-- **Backend**: solo local. La app apunta a la IP LAN de tu máquina — no hay
-  nada desplegado en la nube todavía.
-- **Storage del token**: persiste vía `SharedPreferences` real (no en
-  memoria), pero sin cifrar. Cifrado (Keystore) queda para producción.
+| Progreso | Hábitos |
+|---|---|
+| ![Progreso del día](docs/screenshots/progreso.png) | ![Lista de hábitos](docs/screenshots/habitos.png) |
+| Un hábito completo, otro a medias (7,71 de 10) y la barra del día en ámbar. | Los cinco hábitos de ejemplo con su categoría y su meta. |
+
+| Calendario | Análisis |
+|---|---|
+| ![Calendario](docs/screenshots/calendario.png) | ![Análisis](docs/screenshots/analisis.png) |
+| Mapa de calor del mes con la escala de cumplimiento. | Julio contra junio: +30 puntos, con el desglose por hábito. |
+
+## Qué hace
+
+- **Progreso diario** — la lista de hábitos del día. Un toque marca o desmarca;
+  dejar pulsada una fila abre el registro parcial (¿leíste 15 de 20 páginas?),
+  mientras una línea del color del hábito recorre el borde de la tarjeta.
+- **Hábitos** — alta y edición con categoría, unidad de medida, meta diaria,
+  días de la semana y color libre (tono, saturación y luminosidad). Se borran
+  arrastrando la fila.
+- **Calendario** — mapa de calor del mes con la escala de cumplimiento; tocar un
+  día abre el Progreso de esa fecha.
+- **Análisis** — filtro por 7/14/30 días, por mes o por año, comparación contra
+  el periodo anterior con sus diferencias, y ocho gráficas SVG con zoom a
+  pantalla completa.
+- **Ajustes** — nombre, categorías, recordatorio diario por notificación,
+  backups a la carpeta de Descargas y borrado de datos.
+
+Al crear una cuenta aparecen cinco hábitos de ejemplo con sus categorías
+(`src/api/semilla.ts`), para que ninguna pantalla arranque vacía.
 
 ## Requisitos
 
 - Node 22 o 24 (pineado vía [mise](https://mise.jdx.dev/): `mise install node@22`)
-- Android Studio + SDK (compileSdk 34, JDK 11 vía el resolver de toolchains
-  de Gradle — no requiere instalar JDK 11 a nivel de sistema)
-- Backend corriendo en local (`marco/backend`, ver su propio README/`.env.example`)
+- Android Studio + SDK (compileSdk 34)
+- **JDK 17.** El compilador de Kotlin que trae el proyecto no sabe leer la
+  versión de un JDK 21+ y falla con un `IllegalArgumentException` que solo dice
+  el número de versión. Si tu JDK por defecto es más nuevo:
+  ```bash
+  JAVA_HOME=/usr/lib/jvm/java-17-openjdk npm run run:android
+  ```
 
 ## Correr en un teléfono conectado por USB
 
-1. Levantar el backend con `--host 0.0.0.0` para que sea alcanzable desde el
-   teléfono:
+1. Teléfono con depuración USB activada y autorizada (`adb devices` debe
+   listarlo).
+2. Desde esta carpeta:
    ```bash
-   cd ../marco/backend
-   uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
+   npm run run:android
    ```
-2. Confirmar que `src/api/config.ts` (`API_BASE_URL`) apunta a la IP LAN
-   actual de la máquina que corre el backend (no `127.0.0.1`).
-3. Teléfono conectado por USB con depuración USB activada y autorizada
-   (`adb devices` debe listarlo).
-4. Desde esta carpeta:
-   ```bash
-   mise exec node@22 -- npx sparkling-app-cli run:android
-   ```
-   Esto compila el bundle de Lynx, lo empaqueta como assets de Android,
-   compila el APK debug y lo instala/lanza en el dispositivo conectado.
+   Compila el bundle de Lynx, lo empaqueta como assets de Android, compila el
+   APK debug y lo instala y lanza.
 
-Si el build termina pero la instalación falla porque el teléfono se
-desconectó, reconéctalo y corre:
+Si el build termina pero la instalación falla porque el teléfono se desconectó,
+reconéctalo y corre:
+
 ```bash
 adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
+Otros comandos:
+
+```bash
+npm run build   # solo el bundle de Lynx (dist/) y copia a los assets nativos
+npm run test    # vitest
+```
+
 ## Estructura
 
-- `src/pages/main/` — entry point de Sparkling (`App.tsx` decide
-  `AuthStack`/`AppStack` según sesión).
-- `src/{api,auth,charts,components,lib,screens,storage}/` — código de la app
-  (portado 1:1 desde `marcomobile/src/`, misma arquitectura).
-- `src/native/` — implementación nativa **de referencia** de
-  `NativeLocalStorageModule` (iOS aún no integrado; Android sí, ver abajo).
+- `src/pages/main/` — entry point de Sparkling. `App.tsx` muestra el onboarding
+  o el `AppStack` según exista o no un perfil local.
+- `src/api/` — toda la lógica de negocio contra SQLite. `marco.ts` es el barril;
+  cada archivo cubre un área (`perfil`, `habitos`, `registros`, `calendario`,
+  `analisis`, `categorias`, `semilla`).
+- `src/db/native.ts` — puente genérico hacia SQLite. Solo (de)serializa; no
+  tiene lógica.
+- `src/screens/`, `src/components/`, `src/charts/`, `src/lib/` — pantallas,
+  piezas reutilizables, gráficas SVG y utilidades puras (fechas, periodos,
+  escala de progreso, color).
 - `android/app/src/main/java/com/example/sparkling/go/`:
-  - `SparklingApplication.kt` — registro de behaviors/módulos custom de Lynx
-    (input, `<svg>` vía `xelement-svg`, `NativeLocalStorageModule`).
-  - `NativeLocalStorageModule.kt` — storage del JWT vía `SharedPreferences`.
-- `app.config.ts` — config de Sparkling (nombre de app, package/bundle id,
-  entradas de router, ícono, splash screen).
+  - `MarcoDbHelper.kt` — el esquema SQLite.
+  - `NativeDatabaseModule.kt` — el módulo nativo que ejecuta las consultas.
+  - `NativeReminderModule.kt`, `ReminderScheduler.kt`, `ReminderAlarmReceiver.kt`,
+    `BootReceiver.kt` — recordatorio diario con `AlarmManager`.
+  - `LynxInputComponent.kt` — componente `<input>` propio.
+  - `SparklingApplication.kt` — registro de módulos y behaviors de Lynx.
+- `app.config.ts` — config de Sparkling (nombre, package id, ícono, splash).
 
-## Notas técnicas relevantes
+## Notas técnicas
 
+Cosas que costaron dispositivo y no se deducen leyendo el código. Cada una está
+documentada en su archivo; esto es solo el índice.
+
+- **Los módulos nativos hay que registrarlos** en `SparklingApplication.kt` vía
+  `SparklingLynxConfig.Builder.addLynxModules(...)`. Escribir la clase no basta
+  para que exista `NativeModules.<Nombre>` del lado JS.
 - **`<svg>` no es parte del core de Lynx**: es un X-Element aparte
-  (`org.lynxsdk.lynx:xelement-svg`). Sparkling no lo trae por defecto — está
-  forzado en `android/app/build.gradle.kts` (resolución de dependencias a
-  `3.7.0`, la versión mínima con soporte de `<svg>`) y registrado a mano en
-  `SparklingApplication.kt`.
-- **Native modules propios** (storage, y cualquier otro futuro) se registran
-  vía `SparklingLynxConfig.Builder.addLynxModules(...)` en
-  `SparklingApplication.kt` — no basta con escribir la clase, hay que
-  registrarla ahí para que `NativeModules.<Nombre>` exista del lado JS.
-- **Cleartext HTTP**: habilitado solo para IPs de desarrollo local
-  (`network_security_config.xml`) — necesario porque Android bloquea HTTP
-  sin TLS por defecto desde API 28.
+  (`org.lynxsdk.lynx:xelement-svg`), forzado a `3.7.0` en
+  `android/app/build.gradle.kts` y registrado a mano.
+- **Sin code splitting.** Un import lazy se compila como bundle Lynx aparte que
+  no hereda el CSS global — texto invisible y pantallas que no se reemplazaban.
+  Ver el comentario en `src/router.tsx`.
+- **El hilo principal (`'main thread'`) no ve las estructuras de módulo**, solo
+  los números. Recorrer una tabla declarada arriba del archivo revienta en
+  silencio dentro de un handler main-thread (`DashboardScreen.tsx`).
+- **`touchstart` llega tarde y `touchend` a veces no llega.** Dentro de un
+  `scroll-view` el evento se entrega cuando el gesto ya no puede ser scroll, y
+  si se monta un modal encima, la fila que lo abrió no recibe el final del
+  gesto. Ver `DashboardScreen.tsx` y `SwipeRow.tsx`.
+- **`LynxInputComponent.kt` ignora el `color` de CSS**: el color del texto de un
+  `<input>` va por la prop `text-color` (`src/lib/colors.ts`).
+- **Sin `Intl`.** El formateo de fechas es manual en `src/lib/date.ts` porque el
+  motor JS de Lynx (PrimJS) no garantiza soporte de `Intl`.
+
+## Pendiente
+
+- **iOS**: no configurado (decisión: solo Android por ahora).
+- **Identidad**: el paquete sigue siendo el del scaffold
+  (`com.example.sparkling.go`) en vez de uno propio.
+- **Backups sin cifrar**: se exportan como JSON plano a Descargas.

@@ -82,8 +82,16 @@ export async function sembrarDatosDeEjemplo(): Promise<void> {
   const habitosExistentes = await getHabitos()
   if (habitosExistentes.length > 0) return
 
+  // El `await` va en su propia línea y NO en la cabecera del for-of
+  // (`for (const c of await getCategorias())`): esa forma hace que el motor JS
+  // de Lynx (PrimJS/QuickJS) genere bytecode inválido y el bundle de background
+  // entero deje de evaluarse — «InternalError: stack underflow» en el arranque,
+  // con la app clavada en la pantalla de carga y sin un solo error en pantalla.
+  // Verificado en un SM-S918U: con esta línea separada arranca; con el await en
+  // la cabecera, no.
+  const categorias = await getCategorias()
   const idPorCategoria = new Map<string, number>()
-  for (const categoria of await getCategorias()) {
+  for (const categoria of categorias) {
     idPorCategoria.set(categoria.nombre, categoria.id)
   }
 
