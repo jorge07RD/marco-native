@@ -87,44 +87,65 @@ function Barra({
   colorPulgar: string
   onPct: (pct: number) => void
 }) {
-  // Ancho de la barra. Vive en estado de React (y no en un MainThreadRef)
-  // porque un MainThreadRef solo se puede escribir desde el hilo principal, y
-  // esto se mide desde el de background; las funciones 'main thread' capturan
-  // valores del render sin problema.
+  // Borde izquierdo y ancho de la barra. Viven en estado de React (y no en un
+  // MainThreadRef) porque un MainThreadRef solo se puede escribir desde el hilo
+  // principal, y esto se mide desde el de background; las funciones
+  // 'main thread' capturan valores del render sin problema.
   //
   // Se reintenta porque la primera medición corre antes de que el layout esté
   // resuelto y devuelve un rect degenerado: sin reintento el deslizador salía
   // muerto unas veces sí y otras no, según cómo cayera la carrera.
-  const [ancho, setAncho] = useState(0)
+  const [geo, setGeo] = useState({ izq: 0, ancho: 0 })
   const pulgar = useMainThreadRef<MainThread.Element>(null)
   const ultimoCommit = useMainThreadRef<number>(0)
+  // Fracción pintada pero todavía sin confirmar, o -1 si no hay nada a deber.
+  const pendiente = useMainThreadRef<number>(-1)
+
+  const medir = useCallback(() => {
+    return medirRect(`#${id}`).then((r) => {
+      if (!r || r.right - r.left <= 1) return false
+      setGeo({ izq: r.left, ancho: r.right - r.left })
+      return true
+    })
+  }, [id])
 
   useEffect(() => {
     let cancelado = false
     let intentos = 0
-    const medir = () => {
-      medirRect(`#${id}`).then((r) => {
-        if (cancelado) return
-        if (r && r.right - r.left > 1) {
-          setAncho(r.right - r.left)
-          return
-        }
+    const reintentar = () => {
+      medir().then((ok) => {
+        if (cancelado || ok) return
         intentos += 1
-        if (intentos < 12) setTimeout(medir, 60)
+        if (intentos < 12) setTimeout(reintentar, 60)
       })
     }
-    medir()
+    reintentar()
     return () => {
       cancelado = true
     }
-  }, [id])
+  }, [medir])
 
-  const mover = (x: number) => {
+  // Se sacan del objeto aquí, no dentro de la función: lo que va al hilo
+  // principal se serializa, y estos dos números es todo lo que hace falta allí.
+  const { izq, ancho } = geo
+
+  const confirmar = (p: number) => {
+    'main thread'
+    ultimoCommit.current = Date.now()
+    pendiente.current = -1
+    runOnBackground(onPct)(p)
+  }
+
+  const mover = (clientX: number) => {
     'main thread'
     if (ancho <= 0) return
-    // `touches[0].x` ya viene relativo al elemento tocado (ver el tipo Touch de
-    // Lynx), así que no hace falta saber dónde empieza la barra en pantalla.
-    let p = x / ancho
+    // Se mide contra `clientX` (coordenada de pantalla) y el borde izquierdo de
+    // la barra, NO contra `touches[0].x`: ese viene relativo al elemento
+    // *tocado*, que a mitad de arrastre es una franja de ~10 px o el propio
+    // pulgar, no la barra. Usándolo, la fracción salía casi cero y el
+    // deslizador saltaba solo. Es el mismo motivo por el que SwipeRow usa
+    // `clientX`.
+    let p = (clientX - izq) / ancho
     if (p < 0) p = 0
     if (p > 1) p = 1
     // La posición se pinta desde aquí; el color del pulgar llega con el commit,
@@ -132,42 +153,67 @@ function Barra({
     // hilo de background.
     pulgar.current?.setStyleProperty('left', `${p * 100}%`)
 
-    // El valor se confirma mientras se arrastra, no al soltar: en el SM-S918U
-    // `touchend` NO llega a este elemento (igual que `touchstart` no llega a la
-    // tarjeta de SwipeRow), así que un commit en el soltar no se ejecutaba
-    // nunca y el color no se guardaba jamás.
+    // El valor se confirma mientras se arrastra, no solo al soltar: en el
+    // SM-S918U `touchend` no siempre llega a este elemento (igual que
+    // `touchstart` no llega a la tarjeta de SwipeRow), así que confiar el
+    // commit al soltar dejaba gestos enteros sin guardar.
     //
     // Se limita a un cruce de hilo cada ~90 ms para no re-renderizar el
     // formulario en cada `touchmove`, que es justo el arrastre perceptible que
     // SwipeRow evita.
+    pendiente.current = p
     const ahora = Date.now()
     if (ahora - ultimoCommit.current < 90) return
-    ultimoCommit.current = ahora
-    runOnBackground(onPct)(p)
+    confirmar(p)
   }
 
-  const alTocar = (e: MainThread.TouchEvent) => {
+  const alMover = (e: MainThread.TouchEvent) => {
     'main thread'
-    mover(e.touches[0].x)
+    mover(e.touches[0].clientX)
+  }
+
+  // Al soltar se confirma el tramo que se quedó dentro de la ventana de
+  // throttle. Sin esto el color guardado se quedaba hasta ~90 ms de arrastre
+  // por detrás del pulgar: se veía en las capturas —la bola en el violeta del
+  // extremo y el color guardado todavía en el azul de antes—. Si `touchend` no
+  // llega, no se pierde nada: el commit del último `touchmove` sigue ahí.
+  const alSoltar = () => {
+    'main thread'
+    if (pendiente.current < 0) return
+    confirmar(pendiente.current)
+  }
+
+  // Al empezar el gesto se vuelve a medir: la barra puede haberse movido desde
+  // el montaje (el formulario crece al abrir secciones) y con un borde
+  // izquierdo viejo todo el arrastre saldría desplazado. La medición es
+  // asíncrona, así que corrige de este toque en adelante.
+  const alEmpezar = (e: MainThread.TouchEvent) => {
+    'main thread'
+    runOnBackground(medir)()
+    mover(e.touches[0].clientX)
   }
 
   return (
     <view
       id={id}
       className="ColorBarra"
-      main-thread:bindtouchstart={alTocar}
-      main-thread:bindtouchmove={alTocar}
+      main-thread:bindtouchstart={alEmpezar}
+      main-thread:bindtouchmove={alMover}
+      main-thread:bindtouchend={alSoltar}
+      main-thread:bindtouchcancel={alSoltar}
     >
       <view className="ColorBarraEspectro">
         {franjas.map((c, i) => (
           <view key={i} className="ColorBarraFranja" style={{ backgroundColor: c }} />
         ))}
       </view>
-      <view
-        className="ColorBarraPulgar"
-        main-thread:ref={pulgar}
-        style={{ left: `${pct * 100}%`, backgroundColor: colorPulgar }}
-      />
+      {/* El color va en un hijo y la posición en el padre a propósito: así el
+          `style` del padre solo cambia cuando `pct` cambia —es decir, nunca
+          durante el arrastre—, y el render no pisa el `left` que acaba de
+          escribir el hilo principal. */}
+      <view className="ColorBarraPulgar" main-thread:ref={pulgar} style={{ left: `${pct * 100}%` }}>
+        <view className="ColorBarraPulgarColor" style={{ backgroundColor: colorPulgar }} />
+      </view>
     </view>
   )
 }
@@ -190,6 +236,12 @@ export function ColorPicker({
   // luminosidad, y al bajar cualquiera de las dos a cero se perdería del todo
   // (un gris no tiene tono al que volver).
   const [hsl, setHsl] = useState(() => hexAHsl(value))
+  // Posición declarada de los tres pulgares. Se separa de `hsl` porque solo se
+  // actualiza con los cambios que vienen de fuera: durante el arrastre manda el
+  // hilo principal, y si esto siguiera a `hsl` cada commit devolvería el pulgar
+  // a donde estaba hace 90 ms mientras el dedo ya va más allá — el temblor que
+  // se veía al mover.
+  const [vista, setVista] = useState(hsl)
   // Espejo del estado. El arrastre confirma cada ~90 ms desde el hilo
   // principal, y las funciones que van a ese hilo se serializan con los
   // valores del render en que se crearon: leyendo `hsl` del render, un commit
@@ -209,6 +261,7 @@ export function ColorPicker({
     const adoptado = hexAHsl(value)
     hslRef.current = adoptado
     setHsl(adoptado)
+    setVista(adoptado)
   }, [value])
 
   const aplicar = useCallback(
@@ -266,21 +319,21 @@ export function ColorPicker({
       <Barra
         id="color-barra-tono"
         franjas={tonos}
-        pct={hsl.h / 360}
+        pct={vista.h / 360}
         colorPulgar={value}
         onPct={aplicarTono}
       />
       <Barra
         id="color-barra-saturacion"
         franjas={saturaciones}
-        pct={hsl.s}
+        pct={vista.s}
         colorPulgar={value}
         onPct={aplicarSaturacion}
       />
       <Barra
         id="color-barra-luminosidad"
         franjas={luminosidades}
-        pct={hsl.l}
+        pct={vista.l}
         colorPulgar={value}
         onPct={aplicarLuminosidad}
       />

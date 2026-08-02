@@ -30,15 +30,22 @@
   height: 14px;
 }
 
+/* Solo posiciona: el color lo pinta el hijo, para que el `style` de este nodo
+   no cambie mientras se arrastra (ver ColorPicker.tsx). */
 .ColorBarraPulgar {
   position: absolute;
   top: 6px;
   width: 32px;
   height: 32px;
-  border-radius: 16px;
-  border-width: 3px;
-  border-color: #ffffff;
   /* El pulgar se centra sobre su posición: sin esto, en el extremo derecho se
      saldría media bola fuera de la barra. */
   margin-left: -16px;
+}
+
+.ColorBarraPulgarColor {
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  border-width: 3px;
+  border-color: #ffffff;
 }
