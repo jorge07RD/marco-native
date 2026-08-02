@@ -11,40 +11,19 @@
   margin-bottom: 16px;
 }
 
-.RangoRow {
-  display: flex;
-  flex-direction: row;
-  margin-bottom: 16px;
-}
-
-.RangoChip {
-  background-color: var(--color-bg-card);
-  border-width: 1px;
-  border-color: var(--color-border-input);
-  border-radius: 20px;
-  padding: 8px 18px;
-  margin-right: 10px;
-  transition: background-color 0.15s, border-color 0.15s;
-}
-
-.RangoChip--active {
-  border-color: var(--color-accent);
-  background-color: var(--color-accent);
-}
-
-.RangoChipText {
-  font-size: 14px;
-}
-
-.RangoChipText--active {
-  font-weight: 600;
-}
+/* Los chips del periodo viven en PeriodoFiltro.css, junto a su markup. */
 
 .ChartSectionTitle {
   font-size: 14px;
   font-weight: 600;
   margin-top: 20px;
   margin-bottom: 8px;
+}
+
+/* El primer título de la pantalla no necesita separarse de lo de arriba: el
+   filtro ya trae su propio margen inferior. */
+.ChartSectionTitle--primero {
+  margin-top: 0;
 }
 
 .AnalyticsCard {

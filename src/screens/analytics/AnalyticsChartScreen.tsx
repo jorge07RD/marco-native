@@ -1,16 +1,20 @@
-import { useCallback, useEffect, useMemo, useState } from '@lynx-js/react'
+import { useEffect, useMemo, useState } from '@lynx-js/react'
 
 import { getCumplimientoHabitos, getRendimientoPorDia } from '../../api/marco'
 import type { CumplimientoHabito, RendimientoDia } from '../../api/types'
 import { AreaChart } from '../../charts/AreaChart'
 import { BrandHeader } from '../../components/BrandHeader'
 import { ColumnChart } from '../../charts/ColumnChart'
-import { daysAgoISO, todayISO } from '../../lib/date'
+import { ComparacionPeriodos } from './ComparacionPeriodos'
 import { deriveDayStats } from '../../charts/dayStats'
+import { deriveMonthStats } from '../../charts/monthStats'
 import { DonutChart } from '../../charts/DonutChart'
 import { GaugeChart } from '../../charts/GaugeChart'
 import { deriveHabitoStats, formatCantidad, formatPct, type HabitoStat } from '../../charts/habitoStats'
 import { HorizontalBarChart } from '../../charts/HorizontalBarChart'
+import { MesesChart } from '../../charts/MesesChart'
+import { PeriodoFiltro } from './PeriodoFiltro'
+import { mesActual, rangoAnteriorDe, rangoDe, type Periodo } from '../../lib/periodo'
 import { PolarColumnChart } from '../../charts/PolarColumnChart'
 import { RadarChart } from '../../charts/RadarChart'
 import { SplineChart } from '../../charts/SplineChart'
@@ -30,27 +34,39 @@ function HabitoSummaryCard({ stat }: { stat: HabitoStat }) {
   )
 }
 
-const RANGOS = [7, 14, 30]
-
 export function AnalyticsChartScreen() {
-  const [rangoDias, setRangoDias] = useState(14)
+  // Arranca en el mes en curso: es el tramo con el que se piensa en hábitos
+  // ("qué tal llevo agosto"), y además es el único que tiene un anterior
+  // natural contra el que compararse.
+  const [periodo, setPeriodo] = useState<Periodo>(mesActual)
+  const [comparar, setComparar] = useState(false)
   const [rendimiento, setRendimiento] = useState<RendimientoDia[]>([])
   const [cumplimiento, setCumplimiento] = useState<CumplimientoHabito[]>([])
+  const [cumplimientoPrevio, setCumplimientoPrevio] = useState<CumplimientoHabito[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fechaFin = useMemo(() => todayISO(), [])
-  const fechaInicio = useMemo(() => daysAgoISO(rangoDias - 1), [rangoDias])
+  const rango = useMemo(() => rangoDe(periodo), [periodo])
+  const rangoPrevio = useMemo(() => rangoAnteriorDe(periodo), [periodo])
 
   useEffect(() => {
     let cancelled = false
     setLoading(true)
     setError(null)
-    Promise.all([getRendimientoPorDia(fechaInicio, fechaFin), getCumplimientoHabitos(fechaInicio, fechaFin)])
-      .then(([dias, habitos]) => {
+    Promise.all([
+      getRendimientoPorDia(rango.inicio, rango.fin),
+      getCumplimientoHabitos(rango.inicio, rango.fin),
+      // El periodo de referencia solo se pide cuando se va a enseñar: es otra
+      // pasada por toda la tabla de progresos.
+      comparar
+        ? getCumplimientoHabitos(rangoPrevio.inicio, rangoPrevio.fin)
+        : Promise.resolve([] as CumplimientoHabito[]),
+    ])
+      .then(([dias, habitos, habitosPrevios]) => {
         if (!cancelled) {
           setRendimiento(dias)
           setCumplimiento(habitos)
+          setCumplimientoPrevio(habitosPrevios)
         }
       })
       .catch(() => {
@@ -62,20 +78,26 @@ export function AnalyticsChartScreen() {
     return () => {
       cancelled = true
     }
-  }, [fechaInicio, fechaFin])
+  }, [rango.inicio, rango.fin, rangoPrevio.inicio, rangoPrevio.fin, comparar])
 
   const dayStats = useMemo(
-    () => deriveDayStats(rendimiento, fechaInicio, fechaFin),
-    [rendimiento, fechaInicio, fechaFin],
+    () => deriveDayStats(rendimiento, rango.inicio, rango.fin),
+    [rendimiento, rango.inicio, rango.fin],
   )
   const habitoStats = useMemo(() => deriveHabitoStats(cumplimiento), [cumplimiento])
+  const habitoStatsPrevios = useMemo(
+    () => deriveHabitoStats(cumplimientoPrevio),
+    [cumplimientoPrevio],
+  )
+  const monthStats = useMemo(
+    () => (periodo.tipo === 'anio' ? deriveMonthStats(rendimiento, periodo.year) : []),
+    [rendimiento, periodo],
+  )
 
   const promedioGeneral = useMemo(() => {
     if (habitoStats.length === 0) return 0
     return habitoStats.reduce((acc, s) => acc + s.pct, 0) / habitoStats.length
   }, [habitoStats])
-
-  const cambiarRango = useCallback((r: number) => setRangoDias(r), [])
 
   const { open } = useChartZoom()
 
@@ -85,19 +107,26 @@ export function AnalyticsChartScreen() {
     <view className="AnalyticsScreen ScreenEnter">
       <BrandHeader title="Análisis" />
 
-      <view className="RangoRow">
-        {RANGOS.map((r) => (
-          <view
-            key={r}
-            className={`RangoChip ${rangoDias === r ? 'RangoChip--active' : ''}`}
-            bindtap={() => cambiarRango(r)}
-          >
-            <text className={`RangoChipText ${rangoDias === r ? 'RangoChipText--active' : ''}`}>
-              {r} días
-            </text>
-          </view>
-        ))}
-      </view>
+      <PeriodoFiltro
+        periodo={periodo}
+        onPeriodo={setPeriodo}
+        comparar={comparar}
+        onComparar={setComparar}
+      />
+
+      {comparar && !loading && !error ? (
+        <>
+          <text className="ChartSectionTitle ChartSectionTitle--primero">
+            {rango.etiqueta} vs {rangoPrevio.etiqueta}
+          </text>
+          <ComparacionPeriodos
+            statsA={habitoStats}
+            statsB={habitoStatsPrevios}
+            etiquetaA={rango.etiqueta}
+            etiquetaB={rangoPrevio.etiqueta}
+          />
+        </>
+      ) : null}
 
       {loading ? <text className="AnalyticsStatus">Cargando…</text> : null}
       {error ? <text className="AnalyticsStatus">{error}</text> : null}
@@ -115,6 +144,19 @@ export function AnalyticsChartScreen() {
 
       {!loading && !error ? (
         <>
+          {periodo.tipo === 'anio' ? (
+            <>
+              <text className="ChartSectionTitle">Cumplimiento por Mes</text>
+              <view
+                className="AnalyticsCard StaggerIn"
+                style={{ animationDelay: '0s' }}
+                bindtap={() => open('Cumplimiento por Mes', <MesesChart stats={monthStats} />)}
+              >
+                <MesesChart stats={monthStats} />
+              </view>
+            </>
+          ) : null}
+
           <text className="ChartSectionTitle">Rendimiento de Hábitos por Día</text>
           <view
             className="AnalyticsCard StaggerIn"

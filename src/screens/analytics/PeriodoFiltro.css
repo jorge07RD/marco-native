@@ -1,0 +1,93 @@
+/* Reemplaza a la fila .Rango* que vivía en AnalyticsChartScreen.css: mismo
+   lenguaje de chips, pero ahora hay cinco tramos y un navegador debajo. */
+
+.PeriodoFiltro {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+/* Los cinco chips no caben de una vez en pantallas estrechas, así que la fila
+   scrollea en horizontal — igual que .HabitoSummaryRow. */
+.PeriodoChips {
+  display: flex;
+  flex-direction: row;
+  white-space: nowrap;
+}
+
+.PeriodoChip {
+  background-color: var(--color-bg-card);
+  border-width: 1px;
+  border-color: var(--color-border-input);
+  border-radius: 20px;
+  padding: 8px 18px;
+  margin-right: 10px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.PeriodoChip--active {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent);
+}
+
+/* El de comparar va en su propia línea y no estira: es un interruptor, no una
+   opción más del grupo de arriba. */
+.PeriodoChip--comparar {
+  align-self: flex-start;
+  margin-top: 10px;
+  margin-right: 0;
+}
+
+.PeriodoChipText {
+  font-size: 14px;
+}
+
+.PeriodoChipText--active {
+  font-weight: 600;
+}
+
+/* Mismo patrón que el .DateNav del Dashboard. */
+.PeriodoNav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color-bg-secondary);
+  border-width: 1px;
+  border-color: var(--color-border);
+  border-radius: 14px;
+  padding: 10px 18px;
+  margin-top: 10px;
+}
+
+.PeriodoNavButton {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease-out;
+}
+
+.PeriodoNavButton:active {
+  transform: scale(0.9);
+}
+
+/* Sin futuro que enseñar: la flecha se apaga y su pulsación no hace nada. */
+.PeriodoNavButton--off:active {
+  transform: scale(1);
+}
+
+.PeriodoNavArrow {
+  font-size: 20px;
+  color: var(--color-accent);
+}
+
+.PeriodoNavArrow--off {
+  color: var(--color-border-input);
+}
+
+.PeriodoNavLabel {
+  font-size: 16px;
+  font-weight: 600;
+}
