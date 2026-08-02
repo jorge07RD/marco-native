@@ -1,6 +1,7 @@
 // Perfil local (reemplaza auth: un solo perfil, sin contraseña/servidor).
 import { execute, queryOne, type SqlParam } from '../db/native'
 import { nowISO, toBool, toInt } from '../db/util'
+import { sembrarDatosDeEjemplo } from './semilla'
 import type { UsuarioResponse, UsuarioUpdate } from './types'
 
 interface PerfilRow {
@@ -35,6 +36,10 @@ export async function crearPerfil(nombre: string): Promise<UsuarioResponse> {
     'INSERT INTO perfil (id, nombre, ver_futuro, notificaciones_activas, hora_recordatorio, created_at) VALUES (1, ?, 0, 0, ?, ?)',
     [nombre, '08:00', nowISO()],
   )
+  // Los hábitos de ejemplo no pueden tumbar el alta: si algo falla al
+  // sembrarlos, la cuenta ya está creada y entrar a una app vacía es mucho
+  // mejor que quedarse fuera con el perfil a medio hacer.
+  await sembrarDatosDeEjemplo().catch(() => undefined)
   return getUsuarioActual()
 }
 
