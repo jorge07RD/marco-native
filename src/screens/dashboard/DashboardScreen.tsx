@@ -182,14 +182,17 @@ export function DashboardScreen() {
     }
   }, [user?.mostrar_ocultos])
 
-  const loadRegistro = useCallback((targetFecha: string) => {
-    setLoading(true)
-    setError(null)
-    getRegistroPorFecha(targetFecha)
-      .then((data) => setRegistro(data))
-      .catch(() => setError('No se pudo cargar el progreso de este día.'))
-      .finally(() => setLoading(false))
-  }, [])
+  const loadRegistro = useCallback(
+    (targetFecha: string) => {
+      setLoading(true)
+      setError(null)
+      getRegistroPorFecha(targetFecha, user?.mostrar_ocultos)
+        .then((data) => setRegistro(data))
+        .catch(() => setError('No se pudo cargar el progreso de este día.'))
+        .finally(() => setLoading(false))
+    },
+    [user?.mostrar_ocultos],
+  )
 
   useEffect(() => {
     loadRegistro(fecha)

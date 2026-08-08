@@ -41,7 +41,7 @@ export function CalendarioScreen() {
     setLoading(true)
     setError(null)
 
-    getProgresoMes(year, month, selectedHabitoIds)
+    getProgresoMes(year, month, selectedHabitoIds, user?.mostrar_ocultos)
       .then((data) => {
         if (!cancelled) setProgresoMes(data)
       })
@@ -56,7 +56,7 @@ export function CalendarioScreen() {
       cancelled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [year, month, selectedHabitoIds.join(',')])
+  }, [year, month, selectedHabitoIds.join(','), user?.mostrar_ocultos])
 
   const porFecha = useMemo(
     () => new Map<string, ProgresoDiaCalendario>(progresoMes.map((p) => [p.fecha, p])),

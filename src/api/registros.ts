@@ -26,7 +26,7 @@ function progresoRowToProgreso(row: {
   return { ...row, completado: toBool(row.completado), updated_at: row.updated_at ?? row.created_at }
 }
 
-export async function getRegistroPorFecha(fecha: string): Promise<RegistroConProgresos> {
+export async function getRegistroPorFecha(fecha: string, incluirOcultos = false): Promise<RegistroConProgresos> {
   const perfil = await getUsuarioActual()
   if (fecha > todayISO() && !perfil.ver_futuro) {
     throw new Error('No puedes ver fechas futuras')
@@ -61,7 +61,12 @@ export async function getRegistroPorFecha(fecha: string): Promise<RegistroConPro
     completado: number
     created_at: string
     updated_at: string | null
-  }>('SELECT * FROM progreso_habitos WHERE registro_id = ?', [registro.id])
+  }>(
+    `SELECT p.* FROM progreso_habitos p
+     JOIN habitos h ON h.id = p.habito_id
+     WHERE p.registro_id = ? ${incluirOcultos ? '' : 'AND h.oculto = 0'}`,
+    [registro.id],
+  )
 
   return {
     id: registro.id,
