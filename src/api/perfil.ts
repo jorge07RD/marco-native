@@ -10,6 +10,7 @@ interface PerfilRow {
   ver_futuro: number
   notificaciones_activas: number
   hora_recordatorio: string
+  mostrar_ocultos: number
   created_at: string
   updated_at: string | null
 }
@@ -21,6 +22,7 @@ function perfilRowToUsuario(row: PerfilRow): UsuarioResponse {
     ver_futuro: toBool(row.ver_futuro),
     notificaciones_activas: toBool(row.notificaciones_activas),
     hora_recordatorio: row.hora_recordatorio,
+    mostrar_ocultos: toBool(row.mostrar_ocultos),
     created_at: row.created_at,
     updated_at: row.updated_at ?? row.created_at,
   }
@@ -67,6 +69,10 @@ export async function updateUsuarioActual(body: UsuarioUpdate): Promise<UsuarioR
   if (body.hora_recordatorio !== undefined) {
     sets.push('hora_recordatorio = ?')
     params.push(body.hora_recordatorio)
+  }
+  if (body.mostrar_ocultos !== undefined) {
+    sets.push('mostrar_ocultos = ?')
+    params.push(toInt(body.mostrar_ocultos))
   }
   sets.push('updated_at = ?')
   params.push(nowISO())

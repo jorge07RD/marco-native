@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 
 import { getHabitos, getProgresoMes } from '../../api/marco'
 import type { Habito, ProgresoDiaCalendario } from '../../api/types'
+import { useAuth } from '../../auth/useAuth'
 import { daysInMonth, fechaISO, firstWeekdayMondayIndex, nombreMes, todayISO } from '../../lib/date'
 import { type NivelProgreso, nivelProgreso } from '../../lib/progreso'
 import './CalendarioScreen.css'
@@ -16,6 +17,7 @@ const NIVELES: NivelProgreso[] = [0, 1, 2, 3, 4]
 
 export function CalendarioScreen() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const hoy = useMemo(() => new Date(), [])
   const [year, setYear] = useState(hoy.getFullYear())
   const [month, setMonth] = useState(hoy.getMonth() + 1)
@@ -29,10 +31,10 @@ export function CalendarioScreen() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    getHabitos()
+    getHabitos(user?.mostrar_ocultos)
       .then(setHabitos)
       .catch(() => undefined)
-  }, [])
+  }, [user?.mostrar_ocultos])
 
   useEffect(() => {
     let cancelled = false

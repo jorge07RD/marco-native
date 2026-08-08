@@ -93,6 +93,11 @@ export function AjustesScreen() {
     updateUser({ ver_futuro: !user.ver_futuro }).catch(() => undefined)
   }, [user, updateUser])
 
+  const handleToggleMostrarOcultos = useCallback(() => {
+    if (!user) return
+    updateUser({ mostrar_ocultos: !user.mostrar_ocultos }).catch(() => undefined)
+  }, [user, updateUser])
+
   const handleToggleNotificaciones = useCallback(() => {
     if (!user) return
     if (user.notificaciones_activas) {
@@ -226,6 +231,10 @@ export function AjustesScreen() {
         <view className="AjustesRow" bindtap={handleToggleVerFuturo}>
           <text className="AjustesRowLabel">Puedo ver el futuro 🔮</text>
           <Switch on={!!user?.ver_futuro} />
+        </view>
+        <view className="AjustesRow" bindtap={handleToggleMostrarOcultos}>
+          <text className="AjustesRowLabel">Mostrar hábitos ocultos</text>
+          <Switch on={!!user?.mostrar_ocultos} />
         </view>
       </view>
 

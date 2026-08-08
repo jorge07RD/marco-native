@@ -172,7 +172,7 @@ export function DashboardScreen() {
 
   useEffect(() => {
     let cancelled = false
-    getHabitos()
+    getHabitos(user?.mostrar_ocultos)
       .then((data) => {
         if (!cancelled) setHabitos(data)
       })
@@ -180,7 +180,7 @@ export function DashboardScreen() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [user?.mostrar_ocultos])
 
   const loadRegistro = useCallback((targetFecha: string) => {
     setLoading(true)
