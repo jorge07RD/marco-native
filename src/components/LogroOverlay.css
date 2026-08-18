@@ -1,0 +1,55 @@
+/* Mismo lenguaje que ParcialOverlay (overlay oscuro a pantalla completa,
+   montado vía modalHost). Se cierra sola — el tap solo sirve para saltársela. */
+
+@keyframes logroOverlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes logroImgIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.LogroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.78);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation-name: logroOverlayIn;
+  animation-duration: 0.18s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.LogroImg {
+  width: 180px;
+  height: 180px;
+  animation-name: logroImgIn;
+  animation-duration: 0.22s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.LogroTexto {
+  margin-top: 18px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}

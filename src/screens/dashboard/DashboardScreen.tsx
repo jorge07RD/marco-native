@@ -14,6 +14,7 @@ import { getHabitos, getRegistroPorFecha, setProgresoValor, toggleProgreso } fro
 import type { Habito, ProgresoHabito, RegistroConProgresos } from '../../api/types'
 import { useAuth } from '../../auth/useAuth'
 import { BrandHeader } from '../../components/BrandHeader'
+import { LogroOverlay } from '../../components/LogroOverlay'
 import { ProgresoParcialModal } from '../../components/ProgresoParcialModal'
 import { useModalHost } from '../../components/useModalHost'
 import { addDays, formatDisplay, todayISO } from '../../lib/date'
@@ -204,15 +205,61 @@ export function DashboardScreen() {
     return map
   }, [habitos])
 
+  // % del día para un juego de progresos dado, misma fórmula que `progresoPct`
+  // más abajo. Se usa para comparar "antes" y "después" de un cambio sin
+  // esperar la vuelta de red — hace falta el resultado ANTES de que
+  // `loadRegistro` termine porque `modalHost.open()` sólo puede llamarse desde
+  // dentro de un handler síncrono: hecho desde un `useEffect` o un `.then()`,
+  // Lynx no encuentra el snapshot del componente en el hilo principal
+  // ("Snapshot not found") y el overlay nunca llega a pintarse.
+  const pctDe = useCallback(
+    (progresos: ProgresoHabito[]) => {
+      if (progresos.length === 0) return 0
+      const suma = progresos.reduce(
+        (acc, p) => acc + fraccionProgreso(p.valor, habitosById.get(p.habito_id)?.meta_diaria ?? 0, p.completado),
+        0,
+      )
+      return (suma / progresos.length) * 100
+    },
+    [habitosById],
+  )
+
+  // Si este cambio deja el día en 100% sin que ya lo estuviera, muestra el
+  // logro. Debe llamarse de forma síncrona desde el handler del gesto (ver
+  // comentario de `pctDe`).
+  const celebrarSiCompleta = useCallback(
+    (progresosDespues: ProgresoHabito[]) => {
+      if (!registro) return
+      const eraCompleto = pctDe(registro.progresos) >= 100
+      const ahoraCompleto = pctDe(progresosDespues) >= 100
+      if (!eraCompleto && ahoraCompleto) {
+        modalHost.open(<LogroOverlay onDone={modalHost.close} />)
+      }
+    },
+    [registro, pctDe, modalHost],
+  )
+
   const handleToggle = useCallback(
     (progresoId: number) => {
+      if (registro) {
+        const actual = registro.progresos.find((p) => p.id === progresoId)
+        if (actual) {
+          const nuevoCompletado = !actual.completado
+          const nuevoValor = nuevoCompletado ? (habitosById.get(actual.habito_id)?.meta_diaria ?? 1) : 0
+          celebrarSiCompleta(
+            registro.progresos.map((p) =>
+              p.id === progresoId ? { ...p, completado: nuevoCompletado, valor: nuevoValor } : p,
+            ),
+          )
+        }
+      }
       setPendingIds((prev) => (prev.includes(progresoId) ? prev : [...prev, progresoId]))
       toggleProgreso(progresoId)
         .then(() => loadRegistro(fecha))
         .catch(() => setError('No se pudo actualizar el hábito.'))
         .finally(() => setPendingIds((prev) => prev.filter((id) => id !== progresoId)))
     },
-    [fecha, loadRegistro],
+    [fecha, loadRegistro, registro, habitosById, celebrarSiCompleta],
   )
 
   const abrirParcial = useCallback(
@@ -229,6 +276,12 @@ export function DashboardScreen() {
           onCancel={modalHost.close}
           onSave={(valor) => {
             modalHost.close()
+            if (registro) {
+              const completado = habito.meta_diaria > 0 && valor >= habito.meta_diaria
+              celebrarSiCompleta(
+                registro.progresos.map((p) => (p.id === progreso.id ? { ...p, completado, valor } : p)),
+              )
+            }
             setProgresoValor(progreso.id, valor)
               .then(() => loadRegistro(fecha))
               .catch(() => setError('No se pudo guardar el avance.'))
@@ -240,7 +293,7 @@ export function DashboardScreen() {
       // va a llegar nunca.
       setTimeout(() => runOnMainThread(apagarFilaTocada)(), REMANSO_MS)
     },
-    [habitosById, modalHost, fecha, loadRegistro, apagarFilaTocada],
+    [habitosById, modalHost, fecha, loadRegistro, apagarFilaTocada, registro, celebrarSiCompleta],
   )
 
   const totalHabitos = registro?.progresos.length ?? 0
