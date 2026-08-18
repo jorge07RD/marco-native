@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from '@lynx-js/react'
 
 import { getCumplimientoHabitos, getRendimientoPorDia } from '../../api/marco'
 import type { CumplimientoHabito, RendimientoDia } from '../../api/types'
+import { useAuth } from '../../auth/useAuth'
 import { AreaChart } from '../../charts/AreaChart'
 import { BrandHeader } from '../../components/BrandHeader'
 import { ColumnChart } from '../../charts/ColumnChart'
@@ -35,6 +36,7 @@ function HabitoSummaryCard({ stat }: { stat: HabitoStat }) {
 }
 
 export function AnalyticsChartScreen() {
+  const { user } = useAuth()
   // Arranca en el mes en curso: es el tramo con el que se piensa en hábitos
   // ("qué tal llevo agosto"), y además es el único que tiene un anterior
   // natural contra el que compararse.
@@ -54,12 +56,12 @@ export function AnalyticsChartScreen() {
     setLoading(true)
     setError(null)
     Promise.all([
-      getRendimientoPorDia(rango.inicio, rango.fin),
-      getCumplimientoHabitos(rango.inicio, rango.fin),
+      getRendimientoPorDia(rango.inicio, rango.fin, user?.mostrar_ocultos),
+      getCumplimientoHabitos(rango.inicio, rango.fin, user?.mostrar_ocultos),
       // El periodo de referencia solo se pide cuando se va a enseñar: es otra
       // pasada por toda la tabla de progresos.
       comparar
-        ? getCumplimientoHabitos(rangoPrevio.inicio, rangoPrevio.fin)
+        ? getCumplimientoHabitos(rangoPrevio.inicio, rangoPrevio.fin, user?.mostrar_ocultos)
         : Promise.resolve([] as CumplimientoHabito[]),
     ])
       .then(([dias, habitos, habitosPrevios]) => {
@@ -78,7 +80,7 @@ export function AnalyticsChartScreen() {
     return () => {
       cancelled = true
     }
-  }, [rango.inicio, rango.fin, rangoPrevio.inicio, rangoPrevio.fin, comparar])
+  }, [rango.inicio, rango.fin, rangoPrevio.inicio, rangoPrevio.fin, comparar, user?.mostrar_ocultos])
 
   const dayStats = useMemo(
     () => deriveDayStats(rendimiento, rango.inicio, rango.fin),

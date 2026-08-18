@@ -2,12 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from '@lynx-js/react'
 
 import { deleteHabito, getCategorias, getHabitos } from '../../api/marco'
 import type { Categoria, Habito } from '../../api/types'
+import { useAuth } from '../../auth/useAuth'
 import { BrandHeader } from '../../components/BrandHeader'
 import { SwipeRow } from '../../components/SwipeRow'
 import { HabitoForm } from './HabitoForm'
 import './HabitosScreen.css'
 
 export function HabitosScreen() {
+  const { user } = useAuth()
   const [categorias, setCategorias] = useState<Categoria[]>([])
   const [habitos, setHabitos] = useState<Habito[]>([])
   const [loading, setLoading] = useState(true)
@@ -18,14 +20,14 @@ export function HabitosScreen() {
   const load = useCallback(() => {
     setLoading(true)
     setError(null)
-    Promise.all([getCategorias(), getHabitos()])
+    Promise.all([getCategorias(), getHabitos(user?.mostrar_ocultos)])
       .then(([cats, habs]) => {
         setCategorias(cats)
         setHabitos(habs)
       })
       .catch(() => setError('No se pudieron cargar los hábitos.'))
       .finally(() => setLoading(false))
-  }, [])
+  }, [user?.mostrar_ocultos])
 
   useEffect(() => {
     load()
@@ -98,6 +100,7 @@ export function HabitosScreen() {
               <text className={`HabitoCardName ${habito.activo === 0 ? 'HabitoCardName--inactive' : ''}`}>
                 {habito.nombre}
                 {habito.activo === 0 ? ' (inactivo)' : ''}
+                {habito.oculto === 1 ? ' (oculto)' : ''}
               </text>
               <text className="HabitoCardMeta">
                 {categoriaNombre(habito.categoria_id)} · {habito.meta_diaria} {habito.unidad_medida}

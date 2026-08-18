@@ -24,15 +24,17 @@ async function quitarHabitoDeRegistroHoy(habitoId: number): Promise<void> {
   await execute('DELETE FROM progreso_habitos WHERE registro_id = ? AND habito_id = ?', [registro.id, habitoId])
 }
 
-export const getHabitos = (): Promise<Habito[]> => query<Habito>('SELECT * FROM habitos ORDER BY id')
+export const getHabitos = (incluirOcultos = false): Promise<Habito[]> =>
+  query<Habito>(`SELECT * FROM habitos ${incluirOcultos ? '' : 'WHERE oculto = 0'} ORDER BY id`)
 
 export async function createHabito(body: HabitoCreate): Promise<Habito> {
   const activo = body.activo ?? 1
+  const oculto = body.oculto ?? 0
   const now = nowISO()
   const { insertId } = await execute(
     `INSERT INTO habitos
-       (nombre, descripcion, categoria_id, usuario_id, unidad_medida, meta_diaria, dias, color, activo, created_at)
-     VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, ?)`,
+       (nombre, descripcion, categoria_id, usuario_id, unidad_medida, meta_diaria, dias, color, activo, oculto, created_at)
+     VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)`,
     [
       body.nombre,
       body.descripcion ?? null,
@@ -42,6 +44,7 @@ export async function createHabito(body: HabitoCreate): Promise<Habito> {
       body.dias,
       body.color,
       activo,
+      oculto,
       now,
     ],
   )
@@ -71,6 +74,7 @@ export async function updateHabito(id: number, body: HabitoUpdate): Promise<Habi
     'dias',
     'color',
     'activo',
+    'oculto',
   ]
   for (const campo of campos) {
     const valor = body[campo]

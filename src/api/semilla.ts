@@ -79,7 +79,7 @@ const HABITOS_EJEMPLO: {
  * si ya existe.
  */
 export async function sembrarDatosDeEjemplo(): Promise<void> {
-  const habitosExistentes = await getHabitos()
+  const habitosExistentes = await getHabitos(true)
   if (habitosExistentes.length > 0) return
 
   // El `await` va en su propia línea y NO en la cabecera del for-of

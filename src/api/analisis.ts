@@ -7,12 +7,18 @@ import { diaLetra } from '../lib/date'
 import { fraccionProgreso } from '../lib/progreso'
 import type { CumplimientoHabito, Habito, RendimientoDia } from './types'
 
-export async function getRendimientoPorDia(fechaInicio: string, fechaFin: string): Promise<RendimientoDia[]> {
+export async function getRendimientoPorDia(
+  fechaInicio: string,
+  fechaFin: string,
+  incluirOcultos = false,
+): Promise<RendimientoDia[]> {
   const fechas = await query<{ fecha: string }>(
     'SELECT DISTINCT fecha FROM registros WHERE fecha BETWEEN ? AND ? ORDER BY fecha',
     [fechaInicio, fechaFin],
   )
-  const habitosList = await query<Habito>('SELECT * FROM habitos')
+  const habitosList = await query<Habito>(
+    `SELECT * FROM habitos ${incluirOcultos ? '' : 'WHERE oculto = 0'}`,
+  )
   const registros = await query<{ id: number; fecha: string }>(
     'SELECT id, fecha FROM registros WHERE fecha BETWEEN ? AND ?',
     [fechaInicio, fechaFin],
@@ -33,8 +39,10 @@ export async function getRendimientoPorDia(fechaInicio: string, fechaFin: string
       valor: number
       completado: number
     }>(
-      `SELECT registro_id, habito_id, valor, completado
-       FROM progreso_habitos WHERE registro_id IN (${placeholders})`,
+      `SELECT p.registro_id, p.habito_id, p.valor, p.completado
+       FROM progreso_habitos p
+       JOIN habitos h ON h.id = p.habito_id
+       WHERE p.registro_id IN (${placeholders}) ${incluirOcultos ? '' : 'AND h.oculto = 0'}`,
       registros.map((r) => r.id),
     )
     for (const f of filas) {
@@ -69,6 +77,7 @@ export async function getRendimientoPorDia(fechaInicio: string, fechaFin: string
 export async function getCumplimientoHabitos(
   fechaInicio: string,
   fechaFin: string,
+  incluirOcultos = false,
 ): Promise<CumplimientoHabito[]> {
   const fechasRows = await query<{ fecha: string }>(
     'SELECT DISTINCT fecha FROM registros WHERE fecha BETWEEN ? AND ? ORDER BY fecha',
@@ -77,7 +86,9 @@ export async function getCumplimientoHabitos(
   const fechas = fechasRows.map((r) => r.fecha)
   if (fechas.length === 0) return []
 
-  const habitosList = await query<Habito>('SELECT * FROM habitos')
+  const habitosList = await query<Habito>(
+    `SELECT * FROM habitos ${incluirOcultos ? '' : 'WHERE oculto = 0'}`,
+  )
   const registros = await query<{ id: number; fecha: string }>(
     'SELECT id, fecha FROM registros WHERE fecha BETWEEN ? AND ?',
     [fechaInicio, fechaFin],

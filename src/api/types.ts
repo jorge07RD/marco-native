@@ -7,6 +7,7 @@ export interface UsuarioResponse {
   ver_futuro: boolean
   notificaciones_activas: boolean
   hora_recordatorio: string
+  mostrar_ocultos: boolean
   created_at: string
   updated_at: string
 }
@@ -22,6 +23,7 @@ export interface Habito {
   dias: string // JSON array serializado, ej. '["L","M","X"]'
   color: string
   activo: number
+  oculto: number
   created_at: string
   updated_at: string
 }
@@ -72,6 +74,7 @@ export interface HabitoCreate {
   dias: string // JSON array serializado, ej. '["L","M","X"]'
   color: string
   activo?: number
+  oculto?: number
 }
 
 export type HabitoUpdate = Partial<HabitoCreate>
@@ -81,6 +84,7 @@ export interface UsuarioUpdate {
   ver_futuro?: boolean
   notificaciones_activas?: boolean
   hora_recordatorio?: string
+  mostrar_ocultos?: boolean
 }
 
 export interface ProgresoDiaCalendario {

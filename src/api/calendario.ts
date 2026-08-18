@@ -18,6 +18,7 @@ export async function getProgresoMes(
   year: number,
   month: number,
   habitoIds?: number[],
+  incluirOcultos = false,
 ): Promise<ProgresoDiaCalendario[]> {
   const totalDias = daysInMonth(year, month)
   const primerDia = fechaISO(year, month, 1)
@@ -30,7 +31,7 @@ export async function getProgresoMes(
   // donde importaba, en la programación teórica de los días sin registro.
   const habitosTodos = await query<Habito>('SELECT * FROM habitos')
   const metaPorHabito = new Map(habitosTodos.map((h) => [h.id, h.meta_diaria]))
-  const habitosUsuario = habitosTodos.filter((h) => h.activo === 1)
+  const habitosUsuario = habitosTodos.filter((h) => h.activo === 1 && (incluirOcultos || h.oculto === 0))
   const habitosFiltrados = filtro ? habitosUsuario.filter((h) => filtro.includes(h.id)) : habitosUsuario
 
   const registrosMes = await query<{ id: number; fecha: string }>(
@@ -58,10 +59,12 @@ export async function getProgresoMes(
       valor: number
       completado: number
     }>(
-      `SELECT registro_id, habito_id, valor, completado
-       FROM progreso_habitos
-       WHERE registro_id IN (${regPlaceholders})
-       ${filtro ? `AND habito_id IN (${habPlaceholders})` : ''}`,
+      `SELECT p.registro_id, p.habito_id, p.valor, p.completado
+       FROM progreso_habitos p
+       JOIN habitos h ON h.id = p.habito_id
+       WHERE p.registro_id IN (${regPlaceholders})
+       ${incluirOcultos ? '' : 'AND h.oculto = 0'}
+       ${filtro ? `AND p.habito_id IN (${habPlaceholders})` : ''}`,
       filtro ? [...registrosMes.map((r) => r.id), ...filtro] : registrosMes.map((r) => r.id),
     )
     for (const fila of filas) {
