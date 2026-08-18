@@ -7,8 +7,10 @@ import android.app.Activity
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.imagepipeline.core.ImagePipelineConfig
@@ -18,6 +20,9 @@ import com.lynx.tasm.behavior.Behavior
 import com.lynx.tasm.behavior.LynxContext
 import com.lynx.tasm.behavior.ui.LynxUI
 import com.lynx.xelement.svg.BehaviorGenerator as SvgBehaviorGenerator
+import com.tiktok.sparkling.Sparkling
+import com.tiktok.sparkling.SparklingActivity
+import com.tiktok.sparkling.SparklingContextTransferStation
 import com.tiktok.sparkling.hybridkit.HybridKit
 import com.tiktok.sparkling.hybridkit.config.BaseInfoConfig
 import com.tiktok.sparkling.hybridkit.config.SparklingHybridConfig
@@ -32,6 +37,13 @@ import com.example.sparkling.go.BuiltinTemplateProvider
 
 
 class SparklingApplication : Application() {
+
+    private companion object {
+        const val TAG = "SparklingApplication"
+    }
+
+    /** Guarda contra bucles: sólo intentamos rearrancar una vez por proceso. */
+    private var sparklingRecoveryDone = false
 
     override fun onCreate() {
         super.onCreate()
@@ -61,12 +73,41 @@ class SparklingApplication : Application() {
             override fun onActivityPaused(activity: Activity) {
                 if (CurrentActivityHolder.current === activity) CurrentActivityHolder.current = null
             }
-            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+                recoverFromProcessDeath(activity)
+            }
             override fun onActivityStarted(activity: Activity) {}
             override fun onActivityStopped(activity: Activity) {}
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
             override fun onActivityDestroyed(activity: Activity) {}
         })
+    }
+
+    /**
+     * Si la app queda un rato en background, Android puede matar el proceso. Al
+     * volver, el sistema restaura la tarea recreando SparklingActivity con su
+     * Intent original, pero SplashActivity ya no corre (hizo finish()) y el
+     * SparklingContext vivía sólo en el mapa estático de
+     * SparklingContextTransferStation, que murió con el proceso. SparklingActivity
+     * tolera ese null sin avisar: pinta el toolbar por defecto ("Sparkling Page")
+     * y no monta el fragment, o sea pantalla en blanco.
+     *
+     * El SDK nunca llama releaseSparklingContext, así que un contexto ausente
+     * significa siempre proceso reiniciado: rearrancamos desde SplashActivity.
+     */
+    private fun recoverFromProcessDeath(activity: Activity) {
+        if (activity !is SparklingActivity || sparklingRecoveryDone) return
+        val containerId = activity.intent?.getStringExtra(Sparkling.SPARKLING_CONTEXT_CONTAINER_ID)
+        val context = containerId?.let { SparklingContextTransferStation.getSparklingContext(it) }
+        if (context != null) return
+
+        sparklingRecoveryDone = true
+        Log.w(TAG, "SparklingContext perdido (proceso reiniciado); relanzando SplashActivity")
+        activity.startActivity(
+            Intent(activity, SplashActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        )
+        activity.finish()
     }
 
     private fun initFresco() {
