@@ -46,6 +46,7 @@ export function HabitoForm({ categorias, initial, onCancel, onSaved }: HabitoFor
   const [color, setColor] = useState(initial?.color ?? COLORES[0])
   const [activo, setActivo] = useState(initial ? initial.activo !== 0 : true)
   const [oculto, setOculto] = useState(initial ? initial.oculto === 1 : false)
+  const [marcadoPorDefecto, setMarcadoPorDefecto] = useState(initial ? initial.marcado_por_defecto === 1 : false)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
@@ -80,6 +81,7 @@ export function HabitoForm({ categorias, initial, onCancel, onSaved }: HabitoFor
       color,
       activo: activo ? 1 : 0,
       oculto: oculto ? 1 : 0,
+      marcado_por_defecto: marcadoPorDefecto ? 1 : 0,
     }
 
     const request = initial ? updateHabito(initial.id, payload) : createHabito(payload)
@@ -87,7 +89,20 @@ export function HabitoForm({ categorias, initial, onCancel, onSaved }: HabitoFor
       .then(() => onSaved())
       .catch(() => setError('No se pudo guardar el hábito.'))
       .finally(() => setSaving(false))
-  }, [nombre, descripcion, categoriaId, unidadMedida, metaDiaria, dias, color, activo, oculto, initial, onSaved])
+  }, [
+    nombre,
+    descripcion,
+    categoriaId,
+    unidadMedida,
+    metaDiaria,
+    dias,
+    color,
+    activo,
+    oculto,
+    marcadoPorDefecto,
+    initial,
+    onSaved,
+  ])
 
   return (
     <view className="HabitoForm">
@@ -178,6 +193,11 @@ export function HabitoForm({ categorias, initial, onCancel, onSaved }: HabitoFor
       <view className="ActivoRow" bindtap={() => setOculto((o) => !o)}>
         <text className="HabitoFormLabel">Ocultar hábito</text>
         <Switch on={oculto} />
+      </view>
+
+      <view className="ActivoRow" bindtap={() => setMarcadoPorDefecto((m) => !m)}>
+        <text className="HabitoFormLabel">Marcado por defecto</text>
+        <Switch on={marcadoPorDefecto} />
       </view>
 
       {error ? <text className="HabitoFormError">{error}</text> : null}

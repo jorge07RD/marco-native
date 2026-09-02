@@ -44,9 +44,11 @@ export async function getRegistroPorFecha(fecha: string, incluirOcultos = false)
     const habitosActivos = await query<Habito>('SELECT * FROM habitos WHERE activo = 1')
     for (const habito of habitosActivos) {
       if (diaEnLista(habito.dias, diaDeFecha)) {
+        const completado = habito.marcado_por_defecto === 1 ? 1 : 0
+        const valor = completado === 1 ? habito.meta_diaria : 0
         await execute(
-          'INSERT INTO progreso_habitos (registro_id, habito_id, valor, completado, created_at) VALUES (?, ?, 0, 0, ?)',
-          [insertId, habito.id, now],
+          'INSERT INTO progreso_habitos (registro_id, habito_id, valor, completado, created_at) VALUES (?, ?, ?, ?, ?)',
+          [insertId, habito.id, valor, completado, now],
         )
       }
     }

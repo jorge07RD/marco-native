@@ -24,6 +24,7 @@ export interface Habito {
   color: string
   activo: number
   oculto: number
+  marcado_por_defecto: number
   created_at: string
   updated_at: string
 }
@@ -75,6 +76,7 @@ export interface HabitoCreate {
   color: string
   activo?: number
   oculto?: number
+  marcado_por_defecto?: number
 }
 
 export type HabitoUpdate = Partial<HabitoCreate>

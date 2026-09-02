@@ -12,9 +12,15 @@ async function agregarHabitoARegistroHoy(habitoId: number): Promise<void> {
     [registro.id, habitoId],
   )
   if (existente) return
+  const habito = await queryOne<{ marcado_por_defecto: number; meta_diaria: number }>(
+    'SELECT marcado_por_defecto, meta_diaria FROM habitos WHERE id = ?',
+    [habitoId],
+  )
+  const completado = habito?.marcado_por_defecto === 1 ? 1 : 0
+  const valor = completado === 1 ? habito!.meta_diaria : 0
   await execute(
-    'INSERT INTO progreso_habitos (registro_id, habito_id, valor, completado, created_at) VALUES (?, ?, 0, 0, ?)',
-    [registro.id, habitoId, nowISO()],
+    'INSERT INTO progreso_habitos (registro_id, habito_id, valor, completado, created_at) VALUES (?, ?, ?, ?, ?)',
+    [registro.id, habitoId, valor, completado, nowISO()],
   )
 }
 
@@ -30,11 +36,12 @@ export const getHabitos = (incluirOcultos = false): Promise<Habito[]> =>
 export async function createHabito(body: HabitoCreate): Promise<Habito> {
   const activo = body.activo ?? 1
   const oculto = body.oculto ?? 0
+  const marcadoPorDefecto = body.marcado_por_defecto ?? 0
   const now = nowISO()
   const { insertId } = await execute(
     `INSERT INTO habitos
-       (nombre, descripcion, categoria_id, usuario_id, unidad_medida, meta_diaria, dias, color, activo, oculto, created_at)
-     VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)`,
+       (nombre, descripcion, categoria_id, usuario_id, unidad_medida, meta_diaria, dias, color, activo, oculto, marcado_por_defecto, created_at)
+     VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       body.nombre,
       body.descripcion ?? null,
@@ -45,6 +52,7 @@ export async function createHabito(body: HabitoCreate): Promise<Habito> {
       body.color,
       activo,
       oculto,
+      marcadoPorDefecto,
       now,
     ],
   )
@@ -75,6 +83,7 @@ export async function updateHabito(id: number, body: HabitoUpdate): Promise<Habi
     'color',
     'activo',
     'oculto',
+    'marcado_por_defecto',
   ]
   for (const campo of campos) {
     const valor = body[campo]

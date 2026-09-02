@@ -14,7 +14,7 @@ import android.database.sqlite.SQLiteOpenHelper
 // A diferencia del original, acá sí hay UNIQUE reales en `registros.fecha` y
 // `progreso_habitos(registro_id, habito_id)` — el backend solo confiaba en
 // lógica de aplicación para evitar duplicados ahí.
-class MarcoDbHelper(context: Context) : SQLiteOpenHelper(context, "marco.db", null, 2) {
+class MarcoDbHelper(context: Context) : SQLiteOpenHelper(context, "marco.db", null, 3) {
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(
             """
@@ -54,6 +54,7 @@ class MarcoDbHelper(context: Context) : SQLiteOpenHelper(context, "marco.db", nu
                 color TEXT NOT NULL,
                 activo INTEGER NOT NULL DEFAULT 1,
                 oculto INTEGER NOT NULL DEFAULT 0,
+                marcado_por_defecto INTEGER NOT NULL DEFAULT 0,
                 created_at TEXT NOT NULL,
                 updated_at TEXT
             )
@@ -91,6 +92,9 @@ class MarcoDbHelper(context: Context) : SQLiteOpenHelper(context, "marco.db", nu
         if (oldVersion < 2) {
             db.execSQL("ALTER TABLE habitos ADD COLUMN oculto INTEGER NOT NULL DEFAULT 0")
             db.execSQL("ALTER TABLE perfil ADD COLUMN mostrar_ocultos INTEGER NOT NULL DEFAULT 0")
+        }
+        if (oldVersion < 3) {
+            db.execSQL("ALTER TABLE habitos ADD COLUMN marcado_por_defecto INTEGER NOT NULL DEFAULT 0")
         }
     }
 }
