@@ -1,8 +1,22 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
 }
+
+// Firma de release. El keystore y sus contraseñas viven FUERA del repo, en un
+// keystore.properties con storeFile, storePassword, keyAlias y keyPassword.
+// Se busca en MARCO_KEYSTORE_PROPERTIES o, si no, en
+// ~/.config/marco-native/keystore.properties. Sin ese archivo el APK de
+// release sale sin firmar (el debug no cambia).
+val keystoreProps: Properties? =
+    (System.getenv("MARCO_KEYSTORE_PROPERTIES")
+        ?: "${System.getProperty("user.home")}/.config/marco-native/keystore.properties")
+        .let { file(it) }
+        .takeIf { it.isFile }
+        ?.let { f -> Properties().apply { f.inputStream().use { load(it) } } }
 
 configurations.all {
     resolutionStrategy {
@@ -32,15 +46,24 @@ android {
         applicationId = "com.example.sparkling.go"
         minSdk = 24
         targetSdk = 34
-        versionCode = 16
-        versionName = "1.15"
+        versionCode = 17
+        versionName = "1.16"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a"))
         }
+        if (keystoreProps != null) {
+            signingConfigs.create("release") {
+                storeFile = file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
         buildTypes {
             release {
+                if (keystoreProps != null) signingConfig = signingConfigs.getByName("release")
                 isMinifyEnabled = false
                 proguardFiles(
                     getDefaultProguardFile("proguard-android-optimize.txt"),

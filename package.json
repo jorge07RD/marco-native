@@ -1,6 +1,6 @@
 {
   "name": "marco-native",
-  "version": "1.0.0",
+  "version": "1.16.0",
   "description": "Brownfield Lynx app based on Sparkling",
   "homepage": "https://tiktok.github.io/sparkling/",
   "repository": {
@@ -31,7 +31,8 @@
   "engines": {
     "node": "^22 || ^24"
   },
-  "private": false,
+  "private": true,
+  "license": "MIT",
   "scripts": {
     "build": "sparkling-app-cli build --copy",
     "autolink": "sparkling-app-cli autolink",

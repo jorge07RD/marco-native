@@ -10,6 +10,14 @@ coverage/
 # Grafo de conocimiento generado por graphify
 graphify-out/
 
+# Herramientas locales de cada desarrollador (agentes, propuestas de diseño)
+.claude/
+.impeccable/
+CLAUDE.md
+
+# Firma de release: el keystore y sus contraseñas nunca van al repo
+keystore.properties
+
 # TypeScript
 *.tsbuildinfo
 

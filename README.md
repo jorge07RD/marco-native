@@ -9,10 +9,18 @@ LynxExplorer).
 SQLite local del teléfono. No hay backend, no hay login, no hay tokens — solo un
 perfil local con tu nombre.
 
+## Descargar
+
+El APK firmado de cada versión está en
+[Releases](https://github.com/jorge07RD/marco-native/releases). Para
+instalarlo, Android pide permitir la instalación desde el navegador o el gestor
+de archivos con el que lo abras.
+
 ## Capturas
 
 Datos de ejemplo, no reales: cuenta recién creada con los cinco hábitos que
-siembra la app y siete semanas de historial generado.
+siembra la app y siete semanas de historial generado. Son de antes del
+rediseño nocturno de la v1.16; están pendientes de rehacer.
 
 | Progreso | Hábitos |
 |---|---|
@@ -34,11 +42,12 @@ siembra la app y siete semanas de historial generado.
   arrastrando la fila.
 - **Calendario** — mapa de calor del mes con la escala de cumplimiento; tocar un
   día abre el Progreso de esa fecha.
-- **Análisis** — filtro por 7/14/30 días, por mes o por año, comparación contra
-  el periodo anterior con sus diferencias, y ocho gráficas SVG con zoom a
-  pantalla completa.
-- **Ajustes** — nombre, categorías, recordatorio diario por notificación,
-  backups a la carpeta de Descargas y borrado de datos.
+- **Análisis** — filtro por 7/14/30 días, por mes o por año, el cumplimiento
+  promedio contra el periodo anterior, la línea diaria, el ranking por hábito y
+  gráficas SVG (rueda, reparto, tendencia, hechos y programados, promedio y
+  equilibrio) con zoom a pantalla completa.
+- **Ajustes** — nombre, categorías, recordatorios a una o varias horas con un
+  selector propio, backups a la carpeta de Descargas y borrado de datos.
 
 Al crear una cuenta aparecen cinco hábitos de ejemplo con sus categorías
 (`src/api/semilla.ts`), para que ninguna pantalla arranque vacía.
@@ -71,6 +80,30 @@ reconéctalo y corre:
 ```bash
 adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 ```
+
+## APK de release firmado
+
+El keystore de release y sus contraseñas nunca van al repo. Gradle los lee de
+un `keystore.properties` fuera del proyecto, en
+`~/.config/marco-native/keystore.properties` o en la ruta de la variable
+`MARCO_KEYSTORE_PROPERTIES`:
+
+```properties
+storeFile=/ruta/a/marco-release.jks
+storePassword=...
+keyAlias=marco
+keyPassword=...
+```
+
+Con ese archivo en su sitio:
+
+```bash
+npm run build
+cd android && JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleRelease
+```
+
+El APK queda en `android/app/build/outputs/apk/release/app-release.apk`. Sin
+el archivo, el release sale sin firmar.
 
 Otros comandos:
 
@@ -132,3 +165,7 @@ documentada en su archivo; esto es solo el índice.
 - **Identidad**: el paquete sigue siendo el del scaffold
   (`com.example.sparkling.go`) en vez de uno propio.
 - **Backups sin cifrar**: se exportan como JSON plano a Descargas.
+
+## Licencia
+
+[MIT](LICENSE).
