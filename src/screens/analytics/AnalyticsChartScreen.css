@@ -104,10 +104,13 @@
   margin-bottom: 8px;
 }
 
+/* Mismo rótulo de sección que las categorías de Hábitos y los grupos de
+   Ajustes. */
 .PanelTitle {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--color-text-primary);
+  letter-spacing: 0.4px;
+  color: var(--color-text-muted);
 }
 
 .PanelKey {
@@ -142,13 +145,13 @@
 }
 
 .PanelHead--fuera {
-  margin: 4px 4px 8px;
+  margin: 8px 4px 8px;
 }
 
 .AnalyticsPanel--grafica {
   align-items: center;
   justify-content: center;
-  padding: 14px 8px;
+  padding: 20px 12px 12px;
 }
 
 /* Fila deslizable de tarjetas, una por hábito. */
@@ -159,28 +162,52 @@
 
 .HabitoSummaryCard {
   background-color: var(--color-bg-secondary);
-  border-radius: 16px;
-  padding: 14px 16px;
+  border-radius: 20px;
+  padding: 14px 16px 16px;
   margin-right: 10px;
-  min-width: 140px;
-}
-
-.HabitoSummaryHead {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.HabitoSummaryDot {
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
-  margin-right: 8px;
+  min-width: 150px;
 }
 
 .HabitoSummaryName {
   font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 12px;
+}
+
+.HabitoSummaryBody {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+/* El anillo de la fila del Dashboard, con las mismas medidas (ver
+   .HabitRing): pista de 4 px y el arco montado encima. */
+.HabitoSummaryRing {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  border-width: 4px;
+  border-color: var(--color-track);
+  margin-right: 12px;
+}
+
+.HabitoSummaryArc {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 40px;
+  height: 40px;
+}
+
+.HabitoSummaryCifras {
+  display: flex;
+  flex-direction: column;
+}
+
+.HabitoSummaryPct {
+  font-size: 20px;
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -188,11 +215,5 @@
 .HabitoSummaryCount {
   font-size: 12px;
   color: var(--color-text-muted);
-}
-
-.HabitoSummaryPct {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-top: 6px;
+  margin-top: 2px;
 }

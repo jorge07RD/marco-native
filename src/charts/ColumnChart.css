@@ -1,61 +1,100 @@
+.ColumnChartWrap {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 4px 4px 0;
+}
+
 .ColumnChart {
   display: flex;
   flex-direction: row;
   align-items: flex-end;
-  justify-content: space-around;
-  height: 160px;
+  height: 200px;
   width: 100%;
 }
 
 .ColumnChartCategory {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   height: 100%;
-  justify-content: flex-end;
 }
 
-.ColumnChartBars {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
+.ColumnChartCategory--fija {
+  flex: none;
+  width: 64px;
+}
+
+.ColumnChartValor {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 6px;
+}
+
+.ColumnChartValorTotal {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+/* El área ocupa el alto libre y la pista crece dentro en porcentaje, así
+   todas comparten escala sin calcular píxeles. */
+.ColumnChartArea {
   flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
 }
 
-.ColumnChartBar {
-  width: 12px;
-  border-radius: 3px;
-  margin: 0 2px;
+.ColumnChartPista {
+  width: 20px;
+  border-radius: 10px;
+  background-color: var(--color-track);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
 }
 
-.ColumnChartBar--total {
-  background-color: #3a3546;
+.ColumnChartRelleno {
+  width: 20px;
+  border-radius: 10px;
 }
 
 .ColumnChartLabel {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--color-text-secondary);
-  margin-top: 6px;
-  max-width: 48px;
+  margin-top: 8px;
 }
 
-.ColumnChartLegendRow {
+.ColumnChartKey {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  margin-top: 12px;
+  margin-top: 16px;
 }
 
-.ColumnChartLegendSwatch {
+.ColumnChartKeyPista {
   width: 10px;
   height: 10px;
-  border-radius: 2px;
+  border-radius: 5px;
+  background-color: var(--color-track);
   margin-right: 6px;
 }
 
-.ColumnChartLegendText {
+.ColumnChartKeyHecho {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: var(--color-text-secondary);
+  margin: 0 6px 0 16px;
+}
+
+.ColumnChartKeyText {
   font-size: 12px;
-  color: var(--color-text-secondary);
-  margin-right: 16px;
+  color: var(--color-text-muted);
 }

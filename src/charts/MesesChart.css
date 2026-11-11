@@ -3,8 +3,9 @@
   flex-direction: row;
   align-items: flex-end;
   justify-content: space-between;
-  height: 180px;
+  height: 190px;
   width: 100%;
+  padding: 10px 0 4px;
 }
 
 .MesesChartColumna {
@@ -20,37 +21,50 @@
    calcular píxeles. */
 .MesesChartPista {
   flex: 1;
-  width: 100%;
+  width: 14px;
+  border-radius: 7px;
+  background-color: var(--color-track);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  align-items: center;
+  overflow: hidden;
 }
 
+/* La pista entera es el 100 %, como el anillo del Dashboard. */
 .MesesChartBarra {
-  width: 12px;
-  border-radius: 3px;
+  width: 14px;
+  border-radius: 7px;
   background-color: var(--color-progreso-0);
   transition: height 0.3s;
 }
 
 /* Misma escala que la barra del Dashboard y el calendario (lib/progreso.ts):
    un mes al 65 % se ve ámbar en las tres pantallas. */
-.MesesChartBarra--n0 { background-color: var(--color-progreso-0); }
-.MesesChartBarra--n1 { background-color: var(--color-progreso-1); }
-.MesesChartBarra--n2 { background-color: var(--color-progreso-2); }
-.MesesChartBarra--n3 { background-color: var(--color-progreso-3); }
-.MesesChartBarra--n4 { background-color: var(--color-progreso-4); }
+.MesesChartBarra--n0 {
+  background-color: var(--color-progreso-0);
+}
+.MesesChartBarra--n1 {
+  background-color: var(--color-progreso-1);
+}
+.MesesChartBarra--n2 {
+  background-color: var(--color-progreso-2);
+}
+.MesesChartBarra--n3 {
+  background-color: var(--color-progreso-3);
+}
+.MesesChartBarra--n4 {
+  background-color: var(--color-progreso-4);
+}
 
 .MesesChartValor {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--color-text-secondary);
   margin-bottom: 4px;
-  height: 12px;
+  height: 14px;
 }
 
 .MesesChartLabel {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--color-text-secondary);
   margin-top: 6px;
 }

@@ -15,6 +15,7 @@ import { RadarChart } from '../../charts/RadarChart'
 import { SplineChart } from '../../charts/SplineChart'
 import { TrendChart } from '../../charts/TrendChart'
 import { BrandHeader } from '../../components/BrandHeader'
+import { arcoParcial } from '../../components/icons'
 import { useChartZoom } from '../../components/useChartZoom'
 import { mesActual, type Periodo, rangoAnteriorDe, rangoDe } from '../../lib/periodo'
 import { HabitRanking } from './HabitRanking'
@@ -31,19 +32,26 @@ function etiquetaCorta(etiqueta: string): string {
   return etiqueta.replace(/ \d{4}$/, '')
 }
 
-/** Tarjeta de un hábito en la fila deslizable: cumplidos sobre programados y
- *  el porcentaje del periodo. */
+/** Tarjeta de un hábito en la fila deslizable: el anillo del Dashboard con el
+ *  cumplimiento del periodo, el porcentaje y cumplidos sobre programados. */
 function HabitoSummaryCard({ stat }: { stat: HabitoStat }) {
+  const lleno = stat.pct >= 0.995
   return (
     <view className="HabitoSummaryCard">
-      <view className="HabitoSummaryHead">
-        <view className="HabitoSummaryDot" style={{ backgroundColor: stat.color }} />
-        <text className="HabitoSummaryName">{stat.nombre}</text>
+      <text className="HabitoSummaryName">{stat.nombre}</text>
+      <view className="HabitoSummaryBody">
+        <view className="HabitoSummaryRing" style={{ borderColor: lleno ? stat.color : '#2b2733' }}>
+          {!lleno && stat.pct > 0 ? (
+            <svg className="HabitoSummaryArc" content={arcoParcial(stat.color, stat.pct)} />
+          ) : null}
+        </view>
+        <view className="HabitoSummaryCifras">
+          <text className="HabitoSummaryPct">{Math.round(stat.pct * 100)} %</text>
+          <text className="HabitoSummaryCount">
+            {formatCantidad(stat.completados).replace('.', ',')} de {stat.total}
+          </text>
+        </view>
       </view>
-      <text className="HabitoSummaryCount">
-        {formatCantidad(stat.completados).replace('.', ',')} de {stat.total}
-      </text>
-      <text className="HabitoSummaryPct">{Math.round(stat.pct * 100)} %</text>
     </view>
   )
 }
@@ -250,54 +258,50 @@ export function AnalyticsChartScreen() {
             <HabitRanking stats={habitoStats} previos={habitoStatsPrevios} />
           </view>
 
-          <PanelTitulo titulo="Análisis polar de hábitos" />
+          <PanelTitulo titulo="Rueda de hábitos" />
           <view
             className="AnalyticsPanel AnalyticsPanel--grafica"
-            bindtap={() => open('Análisis polar de hábitos', <PolarColumnChart stats={habitoStats} size={300} />)}
+            bindtap={() => open('Rueda de hábitos', <PolarColumnChart stats={habitoStats} size={300} />)}
           >
             <PolarColumnChart stats={habitoStats} />
           </view>
 
-          <PanelTitulo titulo="Análisis de hábitos" />
+          <PanelTitulo titulo="Reparto de lo cumplido" />
           <view
             className="AnalyticsPanel AnalyticsPanel--grafica"
-            bindtap={() => open('Análisis de hábitos', <DonutChart stats={habitoStats} size={300} />)}
+            bindtap={() => open('Reparto de lo cumplido', <DonutChart stats={habitoStats} size={300} />)}
           >
             <DonutChart stats={habitoStats} />
           </view>
 
-          <PanelTitulo titulo="Progreso de hábitos por día" />
+          <PanelTitulo titulo="Tendencia" />
           <view
             className="AnalyticsPanel AnalyticsPanel--grafica"
-            bindtap={() =>
-              open('Progreso de hábitos por día', <SplineChart data={dayStats} width={320} height={260} />)
-            }
+            bindtap={() => open('Tendencia', <SplineChart data={dayStats} height={220} />)}
           >
             <SplineChart data={dayStats} />
           </view>
 
-          <PanelTitulo titulo="Comparación por hábito" />
+          <PanelTitulo titulo="Hechos y programados" />
           <view
             className="AnalyticsPanel AnalyticsPanel--grafica"
-            bindtap={() => open('Comparación por hábito', <ColumnChart stats={habitoStats} />)}
+            bindtap={() => open('Hechos y programados', <ColumnChart stats={habitoStats} />)}
           >
             <ColumnChart stats={habitoStats} />
           </view>
 
-          <PanelTitulo titulo="Promedio general de cumplimiento" />
+          <PanelTitulo titulo="Promedio del periodo" />
           <view
             className="AnalyticsPanel AnalyticsPanel--grafica"
-            bindtap={() =>
-              open('Promedio general de cumplimiento', <GaugeChart pct={prom ?? 0} width={300} height={173} />)
-            }
+            bindtap={() => open('Promedio del periodo', <GaugeChart pct={prom ?? 0} width={300} height={173} />)}
           >
             <GaugeChart pct={prom ?? 0} />
           </view>
 
-          <PanelTitulo titulo="Gráfico radar de cumplimiento" />
+          <PanelTitulo titulo="Equilibrio entre hábitos" />
           <view
             className="AnalyticsPanel AnalyticsPanel--grafica"
-            bindtap={() => open('Gráfico radar de cumplimiento', <RadarChart stats={habitoStats} size={300} />)}
+            bindtap={() => open('Equilibrio entre hábitos', <RadarChart stats={habitoStats} size={300} />)}
           >
             <RadarChart stats={habitoStats} />
           </view>

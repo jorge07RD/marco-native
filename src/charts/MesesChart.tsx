@@ -1,5 +1,4 @@
 import { nivelProgreso } from '../lib/progreso'
-import { formatPct } from './habitoStats'
 import type { MonthStat } from './monthStats'
 import './MesesChart.css'
 
@@ -17,7 +16,8 @@ export function MesesChart({ stats }: { stats: MonthStat[] }) {
     <view className="MesesChart">
       {stats.map((mes) => (
         <view key={mes.month} className="MesesChartColumna">
-          <text className="MesesChartValor">{mes.conDatos ? formatPct(mes.pct) : ''}</text>
+          {/* Solo el número: con doce columnas el " %" no cabe. */}
+          <text className="MesesChartValor">{mes.conDatos ? String(Math.round(mes.pct * 100)) : ''}</text>
           <view className="MesesChartPista">
             {/* Un mes sin datos deja la pista vacía: pintarle una barra al 0 %
                 lo haría indistinguible de un mes registrado que salió a cero. */}

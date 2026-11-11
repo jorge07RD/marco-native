@@ -1,32 +1,72 @@
 .Legend {
   display: flex;
-  flex-direction: column;
-  margin-top: 12px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 18px;
+  padding-top: 8px;
   width: 100%;
+  border-top-width: 1px;
+  border-color: var(--color-border-subtle);
 }
 
 .LegendRow {
+  width: 50%;
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 4px 0;
+  height: 34px;
+  padding: 0 10px 0 6px;
 }
 
 .LegendDot {
   width: 10px;
   height: 10px;
   border-radius: 5px;
-  margin-right: 8px;
+  margin-right: 10px;
 }
 
 .LegendName {
   flex: 1;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--color-text-primary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .LegendValue {
   font-size: 13px;
-  color: var(--color-text-secondary);
   font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-left: 6px;
+}
+
+/* Cifra en el centro de una gráfica circular (rueda, dona, medidor). El
+   contenedor mide lo mismo que el <svg> y la cifra va encima. */
+.ChartCentro {
+  position: relative;
+}
+
+.ChartCentroCapa {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.ChartCentroValor {
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.ChartCentroLabel {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
 }

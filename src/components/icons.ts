@@ -122,3 +122,34 @@ export function minusIcon(color: string): string {
     `<path d="M5 12 L19 12"/></svg>`
   )
 }
+
+export type AjusteIconName =
+  'futuro' | 'ocultos' | 'campana' | 'probar' | 'exportar' | 'restaurar' | 'borrar' | 'reiniciar'
+
+// Íconos de las filas de Ajustes, mismo trazo de 24×24 que los del nav. Solo
+// comandos absolutos (M, L, C, A): los relativos no se han probado en el
+// renderer SVG de Lynx.
+const AJUSTE_PATHS: Record<AjusteIconName, string> = {
+  futuro:
+    '<path d="M12 3 L13.9 8.1 L19 10 L13.9 11.9 L12 17 L10.1 11.9 L5 10 L10.1 8.1 Z"/><path d="M18 17 L18 21"/><path d="M16 19 L20 19"/>',
+  ocultos:
+    '<path d="M2 12 C5 6.5 8.5 5 12 5 C15.5 5 19 6.5 22 12 C19 17.5 15.5 19 12 19 C8.5 19 5 17.5 2 12 Z"/>' +
+    '<circle cx="12" cy="12" r="3"/>',
+  campana:
+    '<path d="M6 9 A6 6 0 0 1 18 9 C18 15 20.5 17 20.5 17 L3.5 17 C3.5 17 6 15 6 9 Z"/><path d="M10 21 L14 21"/>',
+  probar: '<path d="M21 3 L10 14"/><path d="M21 3 L14.5 21 L10 14 L3 9.5 Z"/>',
+  exportar: '<path d="M12 3 L12 15"/><path d="M7 10 L12 15 L17 10"/><path d="M5 20 L19 20"/>',
+  restaurar:
+    '<path d="M4 12 A8 8 0 1 0 6.34 6.34"/><path d="M6.34 2.5 L6.34 6.34 L2.5 6.34"/><path d="M12 8 L12 12 L15 14"/>',
+  borrar: '<path d="M4 6 L20 6"/><path d="M9 6 L9 3.5 L15 3.5 L15 6"/><path d="M18 6 L17 20.5 L7 20.5 L6 6"/>',
+  reiniciar: '<path d="M20 12 A8 8 0 1 1 17.66 6.34"/><path d="M17.66 2.5 L17.66 6.34 L21.5 6.34"/>',
+}
+
+export function ajusteIcon(name: AjusteIconName, color: string): string {
+  return (
+    `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" ` +
+    `stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">` +
+    AJUSTE_PATHS[name] +
+    `</svg>`
+  )
+}

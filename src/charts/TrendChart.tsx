@@ -1,4 +1,5 @@
 import type { DayStat } from './dayStats'
+import { FONDO, GUIA, LINEA, PREVIA, ROTULO } from './paleta'
 
 const WIDTH = 340
 const HEIGHT = 150
@@ -6,13 +7,6 @@ const MARGIN_LEFT = 24
 const MARGIN_RIGHT = 8
 const MARGIN_TOP = 10
 const MARGIN_BOTTOM = 18
-
-// Colores literales: el markup de `content` no resuelve var().
-const LINEA = '#d2b4f5' // --color-select-fg
-const PREVIA = '#5d5868'
-const GUIA = '#2c2834'
-const ROTULO = '#6f6a7c' // --color-text-muted
-const FONDO = '#15131a' // --color-bg-secondary, para recortar el punto final
 
 function n(v: number): string {
   return v.toFixed(1)

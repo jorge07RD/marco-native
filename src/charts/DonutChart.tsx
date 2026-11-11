@@ -1,56 +1,70 @@
+import { formatNumero } from '../lib/formato'
 import type { HabitoStat } from './habitoStats'
-import { Legend } from './Legend'
+import { ChartCentro, Legend } from './Legend'
+import { PISTA } from './paleta'
 import { annulusSectorPath } from './svgMath'
 
 const SIZE = 260
 const CENTER = SIZE / 2
-const R_OUTER = 110
-const R_INNER = R_OUTER * 0.75 // innerSize 75%, como el original en Highcharts
+const R_OUTER = 120
+const R_INNER = 96
+const GAP_DEG = 2
 
-function buildDonutMarkup(stats: HabitoStat[]): string {
-  const totalCompletados = stats.reduce((acc, s) => acc + s.completados, 0)
-
-  if (totalCompletados <= 0) {
-    return (
-      `<svg viewBox="0 0 ${SIZE} ${SIZE}" xmlns="http://www.w3.org/2000/svg">` +
-      `<circle cx="${CENTER}" cy="${CENTER}" r="${R_OUTER}" fill="none" stroke="#2a2732" stroke-width="2"/>` +
-      `</svg>`
-    )
-  }
-
-  let cursor = 0
-  const slices = stats
-    .filter((s) => s.completados > 0)
-    .map((s) => {
-      const share = s.completados / totalCompletados
-      const start = cursor * 360
-      cursor += share
-      const end = cursor * 360
-      return `<path d="${annulusSectorPath(CENTER, CENTER, R_OUTER, R_INNER, start, end)}" fill="${s.color}"/>`
-    })
-    .join('')
-
-  return `<svg viewBox="0 0 ${SIZE} ${SIZE}" xmlns="http://www.w3.org/2000/svg">${slices}</svg>`
+/** El anillo entero en dos mitades: un arco de 360° no se dibuja. */
+function anilloCompleto(color: string): string {
+  return (
+    `<path d="${annulusSectorPath(CENTER, CENTER, R_OUTER, R_INNER, 0, 180)}" fill="${color}"/>` +
+    `<path d="${annulusSectorPath(CENTER, CENTER, R_OUTER, R_INNER, 180, 360)}" fill="${color}"/>`
+  )
 }
 
-export function DonutChart({
-  stats,
-  size = SIZE,
-}: {
-  stats: HabitoStat[]
-  size?: number
-}) {
-  const totalCompletados = stats.reduce((acc, s) => acc + s.completados, 0)
+/**
+ * Cómo se reparte lo cumplido entre los hábitos: un anillo grueso, como el del
+ * Dashboard, partido en el color de cada hábito. Sin nada cumplido queda la
+ * pista vacía.
+ */
+function buildDonutMarkup(stats: HabitoStat[]): string {
+  const conDatos = stats.filter((s) => s.completados > 0)
+  const total = conDatos.reduce((acc, s) => acc + s.completados, 0)
+  let cuerpo: string
+  if (total <= 0) {
+    cuerpo = anilloCompleto(PISTA)
+  } else if (conDatos.length === 1) {
+    cuerpo = anilloCompleto(conDatos[0].color)
+  } else {
+    let cursor = 0
+    cuerpo = conDatos
+      .map((s) => {
+        const a0 = cursor * 360 + GAP_DEG / 2
+        cursor += s.completados / total
+        const a1 = cursor * 360 - GAP_DEG / 2
+        return a1 > a0
+          ? `<path d="${annulusSectorPath(CENTER, CENTER, R_OUTER, R_INNER, a0, a1)}" fill="${s.color}"/>`
+          : ''
+      })
+      .join('')
+  }
+  return `<svg viewBox="0 0 ${SIZE} ${SIZE}" xmlns="http://www.w3.org/2000/svg">${cuerpo}</svg>`
+}
+
+export function DonutChart({ stats, size = SIZE }: { stats: HabitoStat[]; size?: number }) {
+  const total = stats.reduce((acc, s) => acc + s.completados, 0)
+  const ordenados = [...stats].sort((a, b) => b.completados - a.completados)
   return (
     <>
-      <svg content={buildDonutMarkup(stats)} style={{ width: `${size}px`, height: `${size}px` }} />
+      <ChartCentro
+        markup={buildDonutMarkup(stats)}
+        width={size}
+        height={size}
+        valor={formatNumero(Math.round(total * 10) / 10, 1)}
+        label={total === 1 ? 'cumplido' : 'cumplidos'}
+      />
       <Legend
-        items={stats.map((s) => ({
+        items={ordenados.map((s) => ({
           id: s.id,
           nombre: s.nombre,
           color: s.color,
-          valueLabel:
-            totalCompletados > 0 ? `${Math.round((s.completados / totalCompletados) * 100)}%` : '0%',
+          valueLabel: total > 0 ? `${Math.round((s.completados / total) * 100)} %` : '0 %',
         }))}
       />
     </>
