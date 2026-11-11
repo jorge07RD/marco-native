@@ -42,12 +42,14 @@
   padding: 8px 14px;
   margin-right: 8px;
   margin-bottom: 8px;
-  transition: background-color 0.15s, border-color 0.15s;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
 }
 
 .Chip--active {
-  background-color: var(--color-accent);
-  border-color: var(--color-accent);
+  background-color: var(--color-select-bg);
+  border-color: var(--color-select-bg);
 }
 
 .DayChip {
@@ -62,16 +64,25 @@
   justify-content: center;
   margin-right: 8px;
   margin-bottom: 8px;
-  transition: background-color 0.15s, border-color 0.15s;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
 }
 
 .DayChip--active {
-  background-color: var(--color-accent);
-  border-color: var(--color-accent);
+  background-color: var(--color-select-bg);
+  border-color: var(--color-select-bg);
 }
 
 .ChipText {
   font-size: 13px;
+}
+
+/* Elegido: violeta tonal con el texto en violeta claro, como los chips del
+   Calendario y los segmentos de Análisis. */
+.ChipText--active {
+  color: var(--color-select-fg);
+  font-weight: 700;
 }
 
 .ColorSwatch {
@@ -103,7 +114,7 @@
 }
 
 .HabitoFormError {
-  color: var(--color-accent);
+  color: var(--color-progreso-1-text);
   font-size: 13px;
   margin-top: 12px;
 }
@@ -133,7 +144,7 @@
 }
 
 .FormButtonText {
-  color: #ffffff;
+  color: var(--color-on-accent);
   font-size: 16px;
   font-weight: 700;
 }

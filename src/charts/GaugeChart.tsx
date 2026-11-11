@@ -17,9 +17,9 @@ function pctToAngle(pct: number): number {
 // cambian los --color-progreso-* de App.css, hay que tocarlos también aquí.
 function buildGaugeMarkup(pct: number): string {
   const bands = [
-    { from: 0, to: 0.6, color: '#e94560' },
-    { from: 0.6, to: 0.8, color: '#ffd60a' },
-    { from: 0.8, to: 1, color: '#00ff88' },
+    { from: 0, to: 0.6, color: '#c4503f' },
+    { from: 0.6, to: 0.8, color: '#d8a637' },
+    { from: 0.8, to: 1, color: '#4bb377' },
   ]
 
   const bandArcs = bands
@@ -34,23 +34,13 @@ function buildGaugeMarkup(pct: number): string {
   const needleTip = polarToCartesian(CENTER_X, CENTER_Y, RADIUS - BAND_WIDTH - 6, needleAngle)
   const needle =
     `<line x1="${CENTER_X}" y1="${CENTER_Y}" x2="${needleTip.x.toFixed(1)}" y2="${needleTip.y.toFixed(1)}" ` +
-    `stroke="#e8e6ee" stroke-width="3"/>` +
-    `<circle cx="${CENTER_X}" cy="${CENTER_Y}" r="5" fill="#e8e6ee"/>`
+    `stroke="#ece8f2" stroke-width="3"/>` +
+    `<circle cx="${CENTER_X}" cy="${CENTER_Y}" r="5" fill="#ece8f2"/>`
 
-  return (
-    `<svg viewBox="0 0 ${WIDTH} 150" xmlns="http://www.w3.org/2000/svg">` + bandArcs + needle + `</svg>`
-  )
+  return `<svg viewBox="0 0 ${WIDTH} 150" xmlns="http://www.w3.org/2000/svg">` + bandArcs + needle + `</svg>`
 }
 
-export function GaugeChart({
-  pct,
-  width = WIDTH,
-  height = 150,
-}: {
-  pct: number
-  width?: number
-  height?: number
-}) {
+export function GaugeChart({ pct, width = WIDTH, height = 150 }: { pct: number; width?: number; height?: number }) {
   return (
     <view className="GaugeChart">
       <svg content={buildGaugeMarkup(pct)} style={{ width: `${width}px`, height: `${height}px` }} />

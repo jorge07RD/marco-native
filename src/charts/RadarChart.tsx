@@ -20,7 +20,8 @@ function buildRadarMarkup(stats: HabitoStat[]): string {
   const spokes = stats
     .map((_, i) => {
       const p = polarToCartesian(CENTER, CENTER, MAX_RADIUS, i * anglePer)
-      return `<line x1="${CENTER}" y1="${CENTER}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" stroke="#2a2732" stroke-width="1"/>`
+      // <path> y no <line>: el renderer SVG de Lynx ignora <line>.
+      return `<path d="M ${CENTER} ${CENTER} L ${p.x.toFixed(1)} ${p.y.toFixed(1)}" stroke="#2a2732" stroke-width="1" fill="none"/>`
     })
     .join('')
 
@@ -38,19 +39,13 @@ function buildRadarMarkup(stats: HabitoStat[]): string {
     `<svg viewBox="0 0 ${SIZE} ${SIZE}" xmlns="http://www.w3.org/2000/svg">` +
     rings.join('') +
     spokes +
-    `<path d="${dataPath}" fill="#e94560" opacity="0.7" stroke="#e94560" stroke-width="2"/>` +
+    `<path d="${dataPath}" fill="#d2b4f5" fill-opacity="0.25" stroke="#d2b4f5" stroke-width="2"/>` +
     dots +
     `</svg>`
   )
 }
 
-export function RadarChart({
-  stats,
-  size = SIZE,
-}: {
-  stats: HabitoStat[]
-  size?: number
-}) {
+export function RadarChart({ stats, size = SIZE }: { stats: HabitoStat[]; size?: number }) {
   return (
     <>
       <svg content={buildRadarMarkup(stats)} style={{ width: `${size}px`, height: `${size}px` }} />

@@ -35,7 +35,7 @@
 .ChartZoomTitle {
   font-size: 16px;
   font-weight: 700;
-  color: var(--color-accent);
+  color: var(--color-text-primary);
 }
 
 .ChartZoomClose {

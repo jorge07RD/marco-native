@@ -1,4 +1,4 @@
-// Recordatorio diario local (AlarmManager), ver NativeReminderModule.kt e
+// Recordatorios diarios locales (una o varias horas) (AlarmManager), ver NativeReminderModule.kt e
 // implementación de ReminderScheduler en el proyecto Android. Sin fallback:
 // si el módulo no está disponible (p.ej. corriendo fuera del shell nativo
 // propio), estas funciones simplemente no hacen nada.
@@ -7,8 +7,9 @@ function nativeReminder() {
   return typeof NativeModules !== 'undefined' ? NativeModules.NativeReminderModule : undefined
 }
 
-export function scheduleReminder(hour: number, minute: number): void {
-  nativeReminder()?.scheduleDailyReminder(hour, minute)
+/** Una alarma diaria por cada hora ("HH:MM"). Reemplaza las anteriores. */
+export function scheduleReminders(horas: string[]): void {
+  nativeReminder()?.scheduleDailyReminders(horas.join(','))
 }
 
 export function cancelReminder(): void {

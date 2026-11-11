@@ -1,45 +1,63 @@
-/* Paleta del rediseño — "Marco Rediseño Demo.dc.html" (proyecto de Claude
-   Design 4ae0eb6a-f50f-4236-8aea-48fc70b00da3). Este bloque es la ÚNICA
-   fuente de verdad de color en CSS: no hay otro :root en la app.
+/* Paleta "Marco Nocturno" (refinamiento de noviembre 2026, ver
+   .impeccable/propuesta/marco-nocturno.html). Este bloque es la ÚNICA fuente
+   de verdad de color en CSS: no hay otro :root en la app.
 
-   Respecto de la paleta anterior (calcada de marco/frontend) el demo mantiene
-   el rojo-rosado y el morado de marca, y reemplaza los azules marinos
-   (#1a1a2e, #16213e, #0f0f23, #533483) por una familia violeta-oscura que sale
-   del mismo fondo #0E0D0D. El verde deja de ser un color de estado general
-   (--color-success ya no existe): "hábito cumplido" se señala con el
-   rosado-morado de marca. El verde sobrevive solo en la escala de progreso de
-   más abajo, donde es el semáforo. */
+   La app se usa de noche, con poca luz, así que nada debe deslumbrar: el texto
+   principal no es blanco puro y el semáforo está calibrado a menos luminancia.
+
+   Cada color tiene UN significado:
+   - Rosa de marca (--color-accent): el ícono y la acción principal de cada
+     pantalla. Nada más. Antes también era "hábito cumplido" y "menos del 60 %",
+     y el mismo rosa decía "bien" en Progreso y "mal" en el Calendario.
+   - Violeta tonal (--color-select-*): lo seleccionado (tab activo, chips,
+     segmentos). Sale del morado del ícono.
+   - Color del hábito: "hecho". Lo elige el usuario y lo lleva el anillo.
+   - Semáforo (--color-progreso-*): "cómo va". Solo el calendario, la barra del
+     día y las guías de Análisis. */
 :root {
   background-color: #0e0d0d;
   --color-bg-primary: #0e0d0d;
-  --color-bg-secondary: #17151c; /* superficie de tarjeta */
-  --color-bg-card: #1c1824; /* fila completada, chips */
-  --color-bg-row: #161320; /* fila sin completar */
+  --color-bg-secondary: #15131a; /* superficie: listas agrupadas, paneles */
+  --color-bg-card: #1e1b25; /* superficie elevada: pistas, chips neutros */
+  --color-bg-row: #15131a;
   --color-bg-input: #231f2b;
+  --color-bg-nav: #121016;
   --color-accent: #e94560;
   --color-accent-secondary: #7b2cbf;
-  --color-accent-soft: #2b1a22; /* fondo del tab activo */
+  --color-accent-soft: #2b1a22;
+  --color-on-accent: #ffffff;
 
-  /* Escala de progreso: el semáforo clásico. Lo usan el calendario, la barra
-     del Dashboard y el gauge de Análisis, que tienen que coincidir — el
+  --color-select-bg: #2b1f3b;
+  --color-select-fg: #d2b4f5;
+
+  /* Escala de progreso: el semáforo clásico, calibrado para la noche. El
      escalón lo decide lib/progreso.ts (umbrales 60 / 80 / 100).
 
-     Es la única zona de la app donde sobrevive el verde: aquí no es un color
-     de marca sino una convención universal de "vas bien", y leerlo cuesta
-     menos que cualquier rampa que inventemos. */
-  --color-progreso-0: #3d1f2a; /* registrado pero sin nada cumplido */
-  --color-progreso-1: #e94560; /* < 60 % */
-  --color-progreso-2: #ffd60a; /* 60–79 % */
-  --color-progreso-3: #22c55e; /* 80–99 % */
-  --color-progreso-4: #00ff88; /* día completo */
+     El rojo es ladrillo y no el rosa de marca, para que "menos del 60 %" no se
+     confunda con la marca. El 100 % es menta: sigue siendo el más claro de la
+     escala, así que el día completo es lo único que brilla. */
+  --color-progreso-0: #2a1f24; /* registrado pero sin nada cumplido */
+  --color-progreso-1: #c4503f; /* < 60 % */
+  --color-progreso-2: #d8a637; /* 60–79 % */
+  --color-progreso-3: #4bb377; /* 80–99 % */
+  --color-progreso-4: #7fe0a8; /* día completo */
+  /* Versiones para texto sobre fondo oscuro y para tintes de celda. */
+  --color-progreso-1-text: #ea8e80;
+  --color-progreso-2-text: #ebc673;
+  --color-progreso-3-text: #8fdcab;
+  --color-progreso-1-tint: #3a1f1c;
+  --color-progreso-2-tint: #372c16;
+  --color-progreso-3-tint: #1b3326;
+  --color-on-progreso-4: #0f2a1b;
 
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #9c98a5;
+  --color-text-primary: #ece8f2;
+  --color-text-secondary: #a29dac;
   --color-text-muted: #6f6a7c;
   --color-text-dim: #7a7488; /* íconos y etiquetas inactivas del nav */
-  --color-border: #2a2732; /* borde de tarjeta */
+  --color-border: #2a2732;
   --color-border-input: #3a3546;
-  --color-border-subtle: #26222e; /* separadores dentro de una tarjeta */
+  --color-border-subtle: #25212d; /* divisores dentro de una lista agrupada */
+  --color-track: #2b2733; /* pista vacía del anillo y de las barras */
 }
 
 text {

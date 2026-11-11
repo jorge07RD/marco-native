@@ -53,3 +53,72 @@ export function tabIcon(name: TabIconName, color: string): string {
     `</svg>`
   )
 }
+
+/** Palomita del anillo de un hábito cumplido. El trazo va en `color` porque
+ *  sobre un color de hábito claro hace falta tinta oscura (ver textoSobre). */
+export function checkIcon(color: string): string {
+  return (
+    `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" ` +
+    `stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">` +
+    `<path d="M5 12.5 L9.5 17 L19 7.5"/>` +
+    `</svg>`
+  )
+}
+
+/** Arco del registro parcial: la fracción de la meta dibujada sobre la pista
+ *  del anillo, desde las 12 en sentido horario. 7,71 de 10 llena el 77 %.
+ *
+ *  Se dibuja con el comando A de <path> (el mismo que usa el gauge) y no con
+ *  stroke-dasharray, que el renderer SVG de Lynx no garantiza. */
+export function arcoParcial(color: string, fraccion: number): string {
+  const f = Math.min(Math.max(fraccion, 0.02), 0.999)
+  const r = 18
+  const c = 20
+  const ang = f * 2 * Math.PI
+  const x = c + r * Math.sin(ang)
+  const y = c - r * Math.cos(ang)
+  const largeArc = f > 0.5 ? 1 : 0
+  return (
+    `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">` +
+    `<path d="M ${c} ${c - r} A ${r} ${r} 0 ${largeArc} 1 ${x.toFixed(2)} ${y.toFixed(2)}" ` +
+    `fill="none" stroke="${color}" stroke-width="4" stroke-linecap="round"/>` +
+    `</svg>`
+  )
+}
+
+/** Chevrón de navegación (fecha y mes anterior/siguiente). */
+export function chevronIcon(dir: 'izq' | 'der', color: string): string {
+  const d = dir === 'izq' ? 'M15 18 L9 12 L15 6' : 'M9 18 L15 12 L9 6'
+  return (
+    `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" ` +
+    `stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">` +
+    `<path d="${d}"/></svg>`
+  )
+}
+
+/** Más del botón flotante. */
+export function plusIcon(color: string): string {
+  return (
+    `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" ` +
+    `stroke="${color}" stroke-width="2.4" stroke-linecap="round">` +
+    `<path d="M12 5 L12 19"/><path d="M5 12 L19 12"/></svg>`
+  )
+}
+
+/** Equis para quitar una pastilla. */
+export function closeIcon(color: string): string {
+  return (
+    `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" ` +
+    `stroke="${color}" stroke-width="2.4" stroke-linecap="round">` +
+    `<path d="M6 6 L18 18"/><path d="M18 6 L6 18"/></svg>`
+  )
+}
+
+/** Menos (afinar un minuto hacia atrás). */
+export function minusIcon(color: string): string {
+  return (
+    `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" ` +
+    `stroke="${color}" stroke-width="2.4" stroke-linecap="round">` +
+    `<path d="M5 12 L19 12"/></svg>`
+  )
+}

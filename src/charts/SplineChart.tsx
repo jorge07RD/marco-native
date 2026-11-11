@@ -37,24 +37,25 @@ function buildSplineChartMarkup(data: DayStat[]): string {
   }
 
   const dots = points
-    .map((p) => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2" fill="#e94560"/>`)
+    .map((p) => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2" fill="#d2b4f5"/>`)
     .join('')
 
-  const axis = `<line x1="${MARGIN_LEFT}" y1="${axisY.toFixed(1)}" x2="${(WIDTH - MARGIN_RIGHT).toFixed(1)}" y2="${axisY.toFixed(1)}" stroke="#2a2732" stroke-width="1"/>`
+  // <path> y no <line>: el renderer SVG de Lynx ignora <line>.
+  const axis = `<path d="M ${MARGIN_LEFT} ${axisY.toFixed(1)} L ${(WIDTH - MARGIN_RIGHT).toFixed(1)} ${axisY.toFixed(1)}" stroke="#2a2732" stroke-width="1" fill="none"/>`
 
   const step = Math.max(1, Math.ceil(data.length / 8))
   const labels = data
     .map((d, i) => {
       if (i % step !== 0) return ''
       const x = points[i].x - d.label.length * 2.5
-      return `<text x="${x.toFixed(1)}" y="${HEIGHT - 6}" font-size="8" fill="#9c98a5">${d.label}</text>`
+      return `<text x="${x.toFixed(1)}" y="${HEIGHT - 6}" font-size="8" fill="#a29dac">${d.label}</text>`
     })
     .join('')
 
   return (
     `<svg viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">` +
     axis +
-    `<path d="${path}" fill="none" stroke="#e94560" stroke-width="2"/>` +
+    `<path d="${path}" fill="none" stroke="#d2b4f5" stroke-width="2"/>` +
     dots +
     labels +
     `</svg>`

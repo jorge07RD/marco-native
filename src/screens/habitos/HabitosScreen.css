@@ -1,57 +1,65 @@
 .HabitosScreen {
   display: flex;
   flex-direction: column;
-  padding: 20px 20px 28px;
+  /* Abajo deja sitio al botón flotante para que no tape el último hábito. */
+  padding: 12px 16px 104px;
   background-color: var(--color-bg-primary);
-}
-
-.AddButton {
-  background-color: var(--color-accent);
-  border-radius: 10px;
-  padding: 8px 14px;
-  transition: transform 0.1s ease-out;
-}
-
-.AddButton:active {
-  transform: scale(0.96);
-}
-
-.AddButtonText {
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 700;
 }
 
 .HabitosStatus {
   color: var(--color-text-secondary);
   font-size: 14px;
+  margin: 0 4px 12px;
 }
 
-/* El gesto no se ve por sí solo; sin esta línea nadie lo descubriría. */
 .HabitosHint {
   color: var(--color-text-muted);
-  font-size: 12px;
-  margin-bottom: 14px;
+  font-size: 13px;
+  margin: 14px 4px 0;
+}
+
+.HabitosGrupo {
+  display: flex;
+  flex-direction: column;
+}
+
+.HabitosGrupoLabel {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: var(--color-text-muted);
+  padding: 14px 4px 8px;
+}
+
+/* Una superficie por categoría, con divisores entre hábitos. Recorta los
+   paneles de deslizar a sus esquinas. */
+.HabitosGrupoLista {
+  background-color: var(--color-bg-secondary);
+  border-radius: 20px;
+  overflow: hidden;
 }
 
 /* Mismo lenguaje que .HabitRow del Dashboard: son la misma entidad vista en
-   dos pantallas. */
+   dos pantallas. El fondo es opaco porque tapa los paneles de SwipeRow. */
 .HabitoCard {
   display: flex;
   flex-direction: row;
   align-items: center;
-  background-color: var(--color-bg-row);
-  border-width: 1px;
-  border-color: var(--color-border-subtle);
-  border-radius: 14px;
-  padding: 16px 18px;
+  min-height: 68px;
+  background-color: var(--color-bg-secondary);
+  padding: 12px 16px 12px 18px;
 }
 
-.HabitoCardBar {
-  width: 4px;
-  align-self: stretch;
-  border-radius: 2px;
-  margin-right: 14px;
+.HabitoCard--divided {
+  border-top-width: 1px;
+  border-color: var(--color-border-subtle);
+}
+
+.HabitoCardDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  margin-right: 16px;
 }
 
 .HabitoCardInfo {
@@ -62,7 +70,8 @@
 
 .HabitoCardName {
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 500;
+  color: var(--color-text-primary);
 }
 
 .HabitoCardName--inactive {
@@ -70,7 +79,7 @@
 }
 
 .HabitoCardMeta {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--color-text-secondary);
   margin-top: 2px;
 }
@@ -85,7 +94,7 @@
 }
 
 /* Despriorizados en gris, igual que en Ajustes: la acción de acento en esta
-   pantalla es "+ Nuevo". */
+   pantalla es "Nuevo hábito". */
 .HabitoCardActionText {
   color: #c7c2d1;
   font-size: 14px;

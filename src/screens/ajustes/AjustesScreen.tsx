@@ -16,13 +16,19 @@ import type { BackupFileRef } from '../../db/native'
 import {
   cancelReminder,
   requestNotificationPermission,
-  scheduleReminder,
+  scheduleReminders,
   showTestNotification,
 } from '../../native/reminders'
 import { INPUT_TEXT_COLOR } from '../../lib/colors'
+import { HoraPickerSheet } from '../../components/HoraPickerSheet'
+import { closeIcon, plusIcon } from '../../components/icons'
+import { useModalHost } from '../../components/useModalHost'
+import { agregarHora, describirHoras, parseHoras, quitarHora, serializarHoras } from '../../lib/recordatorios'
 import './AjustesScreen.css'
 
-const HORAS_RECORDATORIO = ['07:00', '08:00', '09:00', '12:00', '18:00', '20:00', '21:00']
+// Literales: el SVG de `content` no resuelve var().
+const PILL_ICON = '#d2b4f5' // --color-select-fg
+const ADD_ICON = '#a29dac' // --color-text-secondary
 
 export function AjustesScreen() {
   const { user, updateUser, reiniciarApp } = useAuth()
@@ -106,8 +112,8 @@ export function AjustesScreen() {
       return
     }
     requestNotificationPermission().finally(() => {
-      const [hour, minute] = (user.hora_recordatorio || '08:00').split(':').map(Number)
-      scheduleReminder(hour, minute)
+      const horas = parseHoras(user.hora_recordatorio)
+      scheduleReminders(horas.length > 0 ? horas : ['08:00'])
       updateUser({ notificaciones_activas: true }).catch(() => undefined)
     })
   }, [user, updateUser])
@@ -116,17 +122,50 @@ export function AjustesScreen() {
     requestNotificationPermission().finally(() => showTestNotification())
   }, [])
 
-  const handleElegirHoraRecordatorio = useCallback(
-    (hora: string) => {
+  const guardarHoras = useCallback(
+    (horas: string[]) => {
       if (!user) return
-      updateUser({ hora_recordatorio: hora }).catch(() => undefined)
-      if (user.notificaciones_activas) {
-        const [hour, minute] = hora.split(':').map(Number)
-        scheduleReminder(hour, minute)
-      }
+      updateUser({ hora_recordatorio: serializarHoras(horas) }).catch(() => undefined)
+      if (user.notificaciones_activas) scheduleReminders(horas)
     },
     [user, updateUser],
   )
+
+  // Cualquier hora: abre el selector propio (HoraPickerSheet) y la añade como
+  // pastilla. Arranca una hora después de la última elegida, que suele ser la
+  // siguiente que se quiere y además no está repetida. Se abre desde el propio
+  // handler del tap: montar el modal desde un efecto o un .then() falla en
+  // Lynx (ver el comentario de `pctDe` en DashboardScreen).
+  const modalHost = useModalHost()
+  const handleAgregarHora = useCallback(() => {
+    if (!user) return
+    const actuales = parseHoras(user.hora_recordatorio)
+    const ultima = actuales[actuales.length - 1]
+    const siguiente = ultima ? `${String((Number(ultima.slice(0, 2)) + 1) % 24).padStart(2, '0')}:00` : '20:00'
+    modalHost.open(
+      <HoraPickerSheet
+        inicial={siguiente}
+        existentes={actuales}
+        onCancel={modalHost.close}
+        onAdd={(hora) => {
+          modalHost.close()
+          guardarHoras(agregarHora(actuales, hora))
+        }}
+      />,
+    )
+  }, [user, guardarHoras, modalHost])
+
+  // Siempre queda al menos una hora (ver quitarHora): la última pastilla no
+  // lleva equis.
+  const handleQuitarHora = useCallback(
+    (hora: string) => {
+      if (!user) return
+      guardarHoras(quitarHora(parseHoras(user.hora_recordatorio), hora))
+    },
+    [user, guardarHoras],
+  )
+
+  const horasRecordatorio = parseHoras(user?.hora_recordatorio)
 
   const handleAgregarCategoria = useCallback(() => {
     if (!nuevaCategoriaNombre.trim()) return
@@ -301,16 +340,24 @@ export function AjustesScreen() {
           <Switch on={!!user?.notificaciones_activas} />
         </view>
         {user?.notificaciones_activas ? (
-          <view className="HoraChipRow">
-            {HORAS_RECORDATORIO.map((hora) => (
-              <view
-                key={hora}
-                className={`HoraChip ${user?.hora_recordatorio === hora ? 'HoraChip--active' : ''}`}
-                bindtap={() => handleElegirHoraRecordatorio(hora)}
-              >
-                <text className="HoraChipText">{hora}</text>
+          <view style={{ marginTop: '10px' }}>
+            <text className="AjustesNotice">{`Te avisaremos a las ${describirHoras(horasRecordatorio)}.`}</text>
+            <view className="HoraChipRow">
+              {horasRecordatorio.map((hora) => (
+                <view key={hora} className="HoraPill">
+                  <text className="HoraPillText">{hora}</text>
+                  {horasRecordatorio.length > 1 ? (
+                    <view className="HoraPillQuitar" bindtap={() => handleQuitarHora(hora)}>
+                      <svg className="HoraPillQuitarIcon" content={closeIcon(PILL_ICON)} />
+                    </view>
+                  ) : null}
+                </view>
+              ))}
+              <view className="HoraPill HoraPill--agregar" bindtap={handleAgregarHora}>
+                <svg className="HoraPillAgregarIcon" content={plusIcon(ADD_ICON)} />
+                <text className="HoraPillText HoraPillText--agregar">Añadir hora</text>
               </view>
-            ))}
+            </view>
           </view>
         ) : null}
         <view className="AjustesButton" style={{ marginTop: '12px' }} bindtap={handleProbarNotificacion}>

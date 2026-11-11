@@ -9,7 +9,7 @@ import './MesesChart.css'
  * periodo es tan largo.
  *
  * Es una gráfica de vistas y no de SVG (como ColumnChart y a diferencia de
- * AreaChart) porque el color de cada columna sale de la escala de progreso, y
+ * TrendChart) porque el color de cada columna sale de la escala de progreso, y
  * esos tokens son `var()` de :root: solo se resuelven aplicados por clase.
  */
 export function MesesChart({ stats }: { stats: MonthStat[] }) {

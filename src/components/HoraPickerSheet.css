@@ -1,0 +1,236 @@
+/* Hoja inferior del selector de hora (Material 3 "bottom sheet"), con la
+   paleta de la app: superficie oscura, lo elegido en violeta tonal y la acción
+   principal en el rosa de marca. */
+
+@keyframes horaOverlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes horaSheetIn {
+  from {
+    opacity: 0;
+    transform: translateY(48px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.HoraSheetOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  animation-name: horaOverlayIn;
+  animation-duration: 0.18s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.HoraSheet {
+  background-color: var(--color-bg-secondary);
+  border-top-left-radius: 28px;
+  border-top-right-radius: 28px;
+  padding: 10px 20px 28px;
+  display: flex;
+  flex-direction: column;
+  animation-name: horaSheetIn;
+  animation-duration: 0.26s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.HoraSheetAsa {
+  width: 32px;
+  height: 4px;
+  border-radius: 2px;
+  background-color: var(--color-border-input);
+  align-self: center;
+  margin-bottom: 18px;
+}
+
+.HoraSheetTitulo {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 4px 18px;
+}
+
+/* La hora grande: dos casillas, la activa en violeta tonal. */
+.HoraDisplay {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 22px;
+}
+
+.HoraCasilla {
+  width: 104px;
+  height: 80px;
+  border-radius: 16px;
+  background-color: var(--color-bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s;
+}
+
+.HoraCasilla--on {
+  background-color: var(--color-select-bg);
+}
+
+.HoraCasillaText {
+  font-size: 52px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.HoraCasillaText--on {
+  color: var(--color-select-fg);
+}
+
+.HoraDosPuntos {
+  font-size: 52px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  margin: 0 10px 6px;
+}
+
+.HoraGridHead {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 40px;
+  margin: 0 4px 6px;
+}
+
+.HoraGridLabel {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: var(--color-text-muted);
+}
+
+.HoraAfinar {
+  display: flex;
+  flex-direction: row;
+}
+
+.HoraAfinarBoton {
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  border-width: 1px;
+  border-color: var(--color-border-input);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+}
+
+.HoraAfinarIcon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Cuadrícula de 6 columnas: 24 horas en 4 filas o 12 minutos en 2. La altura
+   es siempre la de 4 filas, para que la hoja no salte al pasar a minutos. */
+.HoraGrid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  height: 208px;
+  margin-bottom: 20px;
+}
+
+.HoraCeldaHueco {
+  width: 16.66%;
+  height: 52px;
+  padding: 3px;
+}
+
+.HoraCelda {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.12s;
+}
+
+.HoraCelda--on {
+  background-color: var(--color-select-bg);
+}
+
+.HoraCeldaText {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.HoraCeldaText--on {
+  color: var(--color-select-fg);
+  font-weight: 700;
+}
+
+.HoraSheetAcciones {
+  display: flex;
+  flex-direction: row;
+}
+
+.HoraBoton {
+  flex: 1;
+  height: 52px;
+  border-radius: 14px;
+  background-color: var(--color-bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  transition: transform 0.1s ease-out;
+}
+
+.HoraBoton:active {
+  transform: scale(0.96);
+}
+
+.HoraBoton--primario {
+  flex: 1.4;
+  background-color: var(--color-accent);
+  margin-right: 0;
+}
+
+.HoraBoton--off {
+  background-color: var(--color-bg-card);
+}
+
+.HoraBotonText {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.HoraBotonText--primario {
+  color: var(--color-on-accent);
+  font-weight: 700;
+}
+
+.HoraBotonText--off {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}

@@ -1,0 +1,75 @@
+.Rank {
+  display: flex;
+  flex-direction: column;
+}
+
+.RankRow {
+  padding: 8px 0 10px;
+}
+
+.RankTop {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.RankDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.RankName {
+  flex: 1;
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+.RankValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.RankDelta {
+  width: 40px;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.RankDelta--sube {
+  color: var(--color-progreso-3-text);
+}
+
+.RankDelta--baja {
+  color: var(--color-progreso-1-text);
+}
+
+.RankDelta--igual {
+  color: var(--color-text-muted);
+}
+
+.RankTrack {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background-color: var(--color-bg-card);
+}
+
+.RankFill {
+  height: 6px;
+  border-radius: 3px;
+}
+
+/* Dónde estaba el hábito en el periodo anterior. */
+.RankTick {
+  position: absolute;
+  top: -3px;
+  width: 2px;
+  height: 12px;
+  border-radius: 1px;
+  background-color: var(--color-text-secondary);
+}

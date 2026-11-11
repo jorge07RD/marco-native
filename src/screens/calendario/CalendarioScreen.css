@@ -1,162 +1,144 @@
 .CalendarioScreen {
   display: flex;
   flex-direction: column;
-  padding: 20px 20px 28px;
+  padding: 12px 16px 28px;
   background-color: var(--color-bg-primary);
 }
 
-.CalendarioHeader {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  background-color: var(--color-bg-secondary);
-  border-width: 1px;
-  border-color: var(--color-border);
-  border-radius: 14px;
-  padding: 14px 18px;
-  margin-bottom: 12px;
-}
-
-.CalendarioNavButton {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.1s ease-out;
-}
-
-.CalendarioNavButton:active {
-  transform: scale(0.9);
-}
-
-.CalendarioNavArrow {
-  font-size: 20px;
-  color: var(--color-accent);
-}
-
-.CalendarioMonthLabel {
-  font-size: 17px;
-  font-weight: 700;
-}
-
-.CalendarioHoyButton {
-  align-self: center;
-  margin-bottom: 16px;
-  transition: transform 0.1s ease-out;
-}
-
-.CalendarioHoyButton:active {
-  transform: scale(0.94);
-}
-
-.CalendarioHoyText {
-  color: var(--color-accent);
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.FiltroHeader {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
+/* Fila de chips de Material 3 que se desliza en horizontal. */
+.CalChipScroll {
+  width: 100%;
+  height: 52px;
   margin-bottom: 8px;
 }
 
-.FiltroLabel {
-  font-size: 13px;
+.CalChipRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 52px;
+  padding: 0 4px;
+}
+
+.CalChip {
+  height: 36px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 14px;
+  margin-right: 8px;
+  border-radius: 10px;
+  border-width: 1px;
+  border-color: var(--color-border-input);
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
+}
+
+.CalChip--on {
+  background-color: var(--color-select-bg);
+  border-color: var(--color-select-bg);
+  padding-left: 10px;
+}
+
+.CalChip--hoy {
+  background-color: var(--color-bg-card);
+  border-color: var(--color-bg-card);
+}
+
+.CalChipCheck {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+}
+
+.CalChipText {
+  font-size: 14px;
   color: var(--color-text-secondary);
 }
 
-/* Con selección múltiple, deshacer chip por chip es tedioso. */
-.FiltroLimpiar {
-  font-size: 13px;
+.CalChipText--on {
+  color: var(--color-select-fg);
   font-weight: 600;
-  color: var(--color-accent);
 }
 
-.FiltroRow {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
+.CalChipText--hoy {
+  color: var(--color-text-primary);
+  font-weight: 600;
 }
 
-.FiltroChip {
-  border-radius: 20px;
-  padding: 8px 14px;
-  margin-right: 8px;
-  margin-bottom: 8px;
-  background-color: var(--color-bg-card);
-  border-width: 1px;
-  border-color: var(--color-border-input);
-  transition: border-color 0.15s;
-}
-
-.FiltroChip--active {
-  border-color: var(--color-accent);
-}
-
-.FiltroChipText {
-  font-size: 13px;
-}
-
-/* Leyenda — las muestras repiten exactamente el relleno y el borde de las
-   clases .DayCellInner--* de más abajo. */
+/* Leyenda — las muestras repiten el relleno de .DayCellInner--* de abajo. */
 .LeyendaRow {
   display: flex;
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
-  margin-bottom: 14px;
-}
-
-.LeyendaItem {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-right: 14px;
+  margin: 16px 4px 0;
 }
 
 .LeyendaSwatch {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
-  margin-right: 5px;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  margin: 0 3px;
 }
 
+/* Modificadores en vez de selectores descendientes: en Lynx no están
+   garantizados. */
 .LeyendaSwatch--sin {
   background-color: var(--color-bg-card);
-  border-width: 1px;
-  border-color: var(--color-border);
 }
 
-.LeyendaSwatch--n0 { background-color: var(--color-progreso-0); }
-
-.LeyendaSwatch--n1 { background-color: var(--color-progreso-1); }
-.LeyendaSwatch--n2 { background-color: var(--color-progreso-2); }
-.LeyendaSwatch--n3 { background-color: var(--color-progreso-3); }
-.LeyendaSwatch--n4 { background-color: var(--color-progreso-4); }
-
-/* Los cuatro escalones van pegados, como una tira de degradado. */
-.LeyendaEscala {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+.LeyendaSwatch--aparte {
+  margin-left: 16px;
 }
 
-/* Modificador en vez de selector descendiente: esta hoja no usa selectores
-   anidados y en Lynx no están garantizados. */
-.LeyendaSwatch--escala {
-  margin-right: 2px;
-  margin-left: 2px;
+.LeyendaSwatch--n0 {
+  background-color: var(--color-progreso-0);
+}
+.LeyendaSwatch--n1 {
+  background-color: var(--color-progreso-1-tint);
+}
+.LeyendaSwatch--n2 {
+  background-color: var(--color-progreso-2-tint);
+}
+.LeyendaSwatch--n3 {
+  background-color: var(--color-progreso-3-tint);
+}
+.LeyendaSwatch--n4 {
+  background-color: var(--color-progreso-4);
 }
 
 .LeyendaText {
-  font-size: 11px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin: 0 3px;
+}
+
+.ResumenMes {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 18px 0 0;
+  padding: 14px 16px;
+  background-color: var(--color-bg-secondary);
+  border-radius: 16px;
+}
+
+.ResumenMesLabel {
+  font-size: 14px;
   color: var(--color-text-secondary);
+}
+
+.ResumenMesValor {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.ResumenMesFuerte {
+  color: var(--color-text-primary);
+  font-weight: 600;
 }
 
 .WeekHeaderRow {
@@ -185,22 +167,22 @@
 
 .DayCell {
   width: 14.28%;
-  height: 44px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  padding: 3px;
 }
 
 .DayCellEmpty {
   width: 14.28%;
-  height: 44px;
+  height: 52px;
 }
 
 .DayCellInner {
   width: 100%;
   height: 100%;
-  border-radius: 10px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -210,63 +192,71 @@
 
 /* Sin registro: neutro. Es ausencia de dato, no un escalón de la escala. */
 .DayCellInner--sin {
-  background-color: var(--color-bg-card);
-  border-color: var(--color-border);
+  background-color: var(--color-bg-secondary);
 }
 
 /* Registrado y en cero: rojo oscuro. Se distingue del neutro de arriba
    porque "abrí la app y no cumplí nada" no es lo mismo que "no hay dato". */
-.DayCellInner--n0 { background-color: var(--color-progreso-0); }
+.DayCellInner--n0 {
+  background-color: var(--color-progreso-0);
+}
 
-/* Los cuatro escalones del semáforo (umbrales en lib/progreso.ts). Relleno
-   pleno: el mes se lee de un vistazo. */
-.DayCellInner--n1 { background-color: var(--color-progreso-1); }
-.DayCellInner--n2 { background-color: var(--color-progreso-2); }
-.DayCellInner--n3 { background-color: var(--color-progreso-3); }
-.DayCellInner--n4 { background-color: var(--color-progreso-4); }
+/* Los escalones del semáforo (umbrales en lib/progreso.ts) van como tinte
+   oscuro con el número en su color: un mes casi todo ámbar sólido era lo más
+   brillante del teléfono a oscuras. Solo el día completo se pinta sólido, así
+   que el mejor día es lo único que brilla. */
+.DayCellInner--n1 {
+  background-color: var(--color-progreso-1-tint);
+}
+.DayCellInner--n2 {
+  background-color: var(--color-progreso-2-tint);
+}
+.DayCellInner--n3 {
+  background-color: var(--color-progreso-3-tint);
+}
+.DayCellInner--n4 {
+  background-color: var(--color-progreso-4);
+}
 
 /* Hoy es un anillo, no un relleno: así el día de hoy sigue mostrando su
    propio color de progreso en vez de perderlo. El fondo solo se pinta cuando
    no hay registro, donde si no quedaría un hueco sin identidad.
 
-   El anillo va en blanco, no en el acento: con el semáforo el acento (#e94560)
-   es exactamente el color del escalón 1, así que un anillo de acento sobre un
-   día en rojo se volvía invisible. El blanco se lee sobre los cuatro
-   escalones y sobre el neutro. */
+   El anillo va en el color del texto: se lee sobre los tintes, sobre el
+   neutro y sobre la menta del día completo. */
 .DayCellInner--hoy {
   border-width: 1.5px;
   border-style: solid;
   border-color: var(--color-text-primary);
 }
 
-.DayCellInner--sin.DayCellInner--hoy {
-  background-color: #2b2233;
-}
-
 .DayCellText {
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .DayCellText--sin {
   color: var(--color-text-muted);
 }
 
-/* Sobre el rojo oscuro del escalón 0, un rosado claro. */
+/* Sobre el rojo oscuro del escalón 0, un rosado apagado. */
 .DayCellText--n0 {
-  color: #d6a8b2;
+  color: #b98a94;
 }
 
 .DayCellText--n1 {
-  color: var(--color-text-primary);
-  font-weight: 700;
+  color: var(--color-progreso-1-text);
+}
+.DayCellText--n2 {
+  color: var(--color-progreso-2-text);
+}
+.DayCellText--n3 {
+  color: var(--color-progreso-3-text);
 }
 
-/* El ámbar y los dos verdes son colores claros: ahí el número va en el fondo
-   de la app, no en blanco, o no se lee. */
-.DayCellText--n2,
-.DayCellText--n3,
+/* La menta del día completo es clara: el número va en verde muy oscuro. */
 .DayCellText--n4 {
-  color: var(--color-bg-primary);
+  color: var(--color-on-progreso-4);
   font-weight: 700;
 }
 

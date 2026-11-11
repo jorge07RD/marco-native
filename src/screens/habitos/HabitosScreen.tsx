@@ -4,7 +4,9 @@ import { deleteHabito, getCategorias, getHabitos } from '../../api/marco'
 import type { Categoria, Habito } from '../../api/types'
 import { useAuth } from '../../auth/useAuth'
 import { BrandHeader } from '../../components/BrandHeader'
+import { useFab } from '../../components/fabContext'
 import { SwipeRow } from '../../components/SwipeRow'
+import { formatNumero, unidadPara } from '../../lib/formato'
 import { HabitoForm } from './HabitoForm'
 import './HabitosScreen.css'
 
@@ -33,10 +35,34 @@ export function HabitosScreen() {
     load()
   }, [load])
 
-  const categoriaNombre = useMemo(() => {
-    const map = new Map(categorias.map((c) => [c.id, c.nombre]))
-    return (id: number) => map.get(id) ?? '—'
-  }, [categorias])
+  // Hábitos agrupados por categoría, en el orden de las categorías. Los que
+  // apuntan a una categoría que ya no existe van al final, sin perderse.
+  const grupos = useMemo(() => {
+    const porCategoria = new Map<number, Habito[]>()
+    habitos.forEach((h) => {
+      const lista = porCategoria.get(h.categoria_id) ?? []
+      lista.push(h)
+      porCategoria.set(h.categoria_id, lista)
+    })
+    const resultado: { id: number; nombre: string; habitos: Habito[] }[] = []
+    categorias.forEach((c) => {
+      const lista = porCategoria.get(c.id)
+      if (lista) resultado.push({ id: c.id, nombre: c.nombre, habitos: lista })
+      porCategoria.delete(c.id)
+    })
+    const huerfanos: Habito[] = []
+    porCategoria.forEach((lista) => huerfanos.push(...lista))
+    if (huerfanos.length > 0) resultado.push({ id: -1, nombre: 'Sin categoría', habitos: huerfanos })
+    return resultado
+  }, [categorias, habitos])
+
+  // El botón flotante "Nuevo hábito" vive en AppLayout; se quita mientras el
+  // formulario está abierto y al salir de la pantalla.
+  const { setFab } = useFab()
+  useEffect(() => {
+    setFab(editing === null ? { label: 'Nuevo hábito', onPress: () => setEditing('new') } : null)
+    return () => setFab(null)
+  }, [editing, setFab])
 
   const handleDelete = useCallback(
     (id: number) => {
@@ -64,63 +90,71 @@ export function HabitosScreen() {
     )
   }
 
+  let indice = 0
   return (
     <view className="HabitosScreen ScreenEnter">
-      <BrandHeader title="Hábitos">
-        <view className="AddButton" bindtap={() => setEditing('new')}>
-          <text className="AddButtonText">+ Nuevo</text>
-        </view>
-      </BrandHeader>
+      <BrandHeader title="Hábitos" />
 
       {loading ? <text className="HabitosStatus">Cargando…</text> : null}
       {error ? <text className="HabitosStatus">{error}</text> : null}
       {!loading && !error && habitos.length === 0 ? (
-        <text className="HabitosStatus">Aún no tienes hábitos. Crea el primero con "+ Nuevo".</text>
+        <text className="HabitosStatus">Aún no tienes hábitos. Crea el primero con «Nuevo hábito».</text>
       ) : null}
 
-      {habitos.length > 0 ? (
-        <text className="HabitosHint">Arrastra una tarjeta: → para editar, ← para eliminar.</text>
-      ) : null}
+      {grupos.map((grupo) => (
+        <view key={grupo.id} className="HabitosGrupo">
+          <text className="HabitosGrupoLabel">{grupo.nombre}</text>
+          <view className="HabitosGrupoLista">
+            {grupo.habitos.map((habito, i) => {
+              const delay = Math.min(indice++, 10) * 0.045
+              return (
+                <SwipeRow
+                  key={habito.id}
+                  className="StaggerIn"
+                  style={{ animationDelay: `${delay}s` }}
+                  swipeRightLabel="Editar"
+                  onSwipeRight={() => setEditing(habito)}
+                  swipeLeftLabel="Eliminar"
+                  // Arrastrar no borra: abre la confirmación que ya existía. Un
+                  // gesto es fácil de hacer sin querer, y esto no se puede deshacer.
+                  onSwipeLeft={() => setConfirmDeleteId(habito.id)}
+                >
+                  <view className={`HabitoCard ${i > 0 ? 'HabitoCard--divided' : ''}`}>
+                    <view className="HabitoCardDot" style={{ backgroundColor: habito.color }} />
+                    <view className="HabitoCardInfo">
+                      <text className={`HabitoCardName ${habito.activo === 0 ? 'HabitoCardName--inactive' : ''}`}>
+                        {habito.nombre}
+                        {habito.activo === 0 ? ' (inactivo)' : ''}
+                        {habito.oculto === 1 ? ' (oculto)' : ''}
+                      </text>
+                      <text className="HabitoCardMeta">
+                        {formatNumero(habito.meta_diaria)} {unidadPara(habito.meta_diaria, habito.unidad_medida)} al día
+                      </text>
+                    </view>
 
-      {habitos.map((habito, index) => (
-        <SwipeRow
-          key={habito.id}
-          className="StaggerIn"
-          style={{ animationDelay: `${Math.min(index, 10) * 0.045}s` }}
-          swipeRightLabel="Editar"
-          onSwipeRight={() => setEditing(habito)}
-          swipeLeftLabel="Eliminar"
-          // Arrastrar no borra: abre la confirmación que ya existía. Un gesto
-          // es fácil de hacer sin querer, y esto no se puede deshacer.
-          onSwipeLeft={() => setConfirmDeleteId(habito.id)}
-        >
-          <view className="HabitoCard">
-            <view className="HabitoCardBar" style={{ backgroundColor: habito.color }} />
-            <view className="HabitoCardInfo">
-              <text className={`HabitoCardName ${habito.activo === 0 ? 'HabitoCardName--inactive' : ''}`}>
-                {habito.nombre}
-                {habito.activo === 0 ? ' (inactivo)' : ''}
-                {habito.oculto === 1 ? ' (oculto)' : ''}
-              </text>
-              <text className="HabitoCardMeta">
-                {categoriaNombre(habito.categoria_id)} · {habito.meta_diaria} {habito.unidad_medida}
-              </text>
-            </view>
-
-            {confirmDeleteId === habito.id ? (
-              <view className="ConfirmRow">
-                <text className="ConfirmText">¿Eliminar?</text>
-                <view className="HabitoCardAction" bindtap={() => handleDelete(habito.id)}>
-                  <text className="HabitoCardActionText HabitoCardActionText--danger">Sí</text>
-                </view>
-                <view className="HabitoCardAction" bindtap={() => setConfirmDeleteId(null)}>
-                  <text className="HabitoCardActionText">No</text>
-                </view>
-              </view>
-            ) : null}
+                    {confirmDeleteId === habito.id ? (
+                      <view className="ConfirmRow">
+                        <text className="ConfirmText">¿Eliminar?</text>
+                        <view className="HabitoCardAction" bindtap={() => handleDelete(habito.id)}>
+                          <text className="HabitoCardActionText HabitoCardActionText--danger">Sí</text>
+                        </view>
+                        <view className="HabitoCardAction" bindtap={() => setConfirmDeleteId(null)}>
+                          <text className="HabitoCardActionText">No</text>
+                        </view>
+                      </view>
+                    ) : null}
+                  </view>
+                </SwipeRow>
+              )
+            })}
           </view>
-        </SwipeRow>
+        </view>
       ))}
+
+      {/* El gesto no se ve por sí solo; sin esta línea nadie lo descubriría. */}
+      {habitos.length > 0 ? (
+        <text className="HabitosHint">Desliza un hábito: → para editar, ← para eliminar.</text>
+      ) : null}
     </view>
   )
 }

@@ -12,7 +12,7 @@
  *  placeholder (le antepone el alfa 0x40). Sin esta prop el EditText se queda
  *  con el color por defecto de la plataforma — casi negro, ilegible sobre el
  *  fondo oscuro de los campos. Debe seguir a --color-text-primary. */
-export const INPUT_TEXT_COLOR = '#ffffff'
+export const INPUT_TEXT_COLOR = '#ece8f2'
 
 /** Blanco o negro, el que se lea sobre `fondo`.
  *

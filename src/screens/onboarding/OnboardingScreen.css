@@ -46,7 +46,7 @@
 }
 
 .OnboardingError {
-  color: var(--color-accent);
+  color: var(--color-progreso-1-text);
   font-size: 14px;
   margin-bottom: 12px;
 }
@@ -68,7 +68,7 @@
 }
 
 .OnboardingButtonText {
-  color: #ffffff;
+  color: var(--color-on-accent);
   font-size: 16px;
   font-weight: 700;
 }

@@ -16,9 +16,10 @@ private const val REQUEST_CODE_NOTIFICATIONS = 4210
 class NativeReminderModule(context: Context) : LynxModule(context) {
     private fun androidContext(): Context = (mContext as LynxContext).getContext()
 
+    /** Varias horas al día, separadas por coma: "08:00,21:00". */
     @LynxMethod
-    fun scheduleDailyReminder(hour: Double, minute: Double) {
-        ReminderScheduler.schedule(androidContext(), hour.toInt(), minute.toInt())
+    fun scheduleDailyReminders(times: String) {
+        ReminderScheduler.scheduleAll(androidContext(), times)
     }
 
     @LynxMethod

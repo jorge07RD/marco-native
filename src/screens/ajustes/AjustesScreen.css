@@ -54,7 +54,7 @@
 }
 
 .AjustesButtonText {
-  color: #ffffff;
+  color: var(--color-on-accent);
   font-size: 15px;
   font-weight: 700;
 }
@@ -132,7 +132,7 @@
 }
 
 .AjustesAddButtonText {
-  color: #ffffff;
+  color: var(--color-on-accent);
   font-size: 14px;
   font-weight: 700;
 }
@@ -144,31 +144,65 @@
   margin-top: 10px;
 }
 
-.HoraChip {
-  background-color: var(--color-bg-card);
+/* Pastillas de las horas del recordatorio: una por hora elegida, con una
+   equis para quitarla, y al final la pastilla para añadir otra. */
+.HoraPill {
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 4px 0 14px;
+  margin: 0 8px 8px 0;
+  border-radius: 20px;
+  background-color: var(--color-select-bg);
+}
+
+.HoraPillText {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-select-fg);
+  margin-right: 10px;
+}
+
+/* Área táctil de 32 px para la equis, dentro de la pastilla. */
+.HoraPillQuitar {
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -6px;
+}
+
+.HoraPillQuitarIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.HoraPill--agregar {
+  background-color: transparent;
   border-width: 1px;
   border-color: var(--color-border-input);
-  border-radius: 20px;
-  padding: 8px 14px;
-  margin-right: 8px;
-  margin-bottom: 8px;
-  transition: background-color 0.15s, border-color 0.15s;
+  padding: 0 4px 0 10px;
 }
 
-.HoraChip--active {
-  border-color: var(--color-accent);
-  background-color: var(--color-accent);
+.HoraPillAgregarIcon {
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
 }
 
-.HoraChipText {
-  font-size: 13px;
+.HoraPillText--agregar {
+  color: var(--color-text-secondary);
+  font-weight: 600;
 }
 
 .AjustesDangerButton {
   height: 46px;
   border-radius: 10px;
   border-width: 1px;
-  border-color: var(--color-accent);
+  border-color: var(--color-progreso-1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -176,7 +210,7 @@
 }
 
 .AjustesDangerButtonText {
-  color: var(--color-accent);
+  color: var(--color-progreso-1-text);
   font-size: 15px;
   font-weight: 600;
 }
@@ -195,7 +229,7 @@
 }
 
 .AjustesError {
-  color: var(--color-accent);
+  color: var(--color-progreso-1-text);
   font-size: 13px;
   margin-top: 8px;
 }

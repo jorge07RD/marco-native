@@ -1,18 +1,44 @@
+/* Barra superior de cada pantalla: la diana de marca y el título de la
+   pantalla (escala de Material: Headline Small). `children` va a la derecha:
+   los botones de fecha de Progreso y Calendario. */
 .BrandHeader {
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-bottom: 16px;
+  min-height: 64px;
+  margin-bottom: 4px;
 }
 
 .BrandHeaderMark {
-  width: 28px;
-  height: 28px;
-  margin-right: 10px;
+  width: 26px;
+  height: 26px;
+  margin-right: 12px;
 }
 
 .BrandHeaderTitle {
   flex: 1;
-  font-size: 26px;
-  font-weight: 800;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Botón de ícono de 48 dp (mínimo táctil de Material). Lo usan las flechas de
+   fecha y de mes. */
+.IconButton {
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease-out;
+}
+
+.IconButton:active {
+  transform: scale(0.9);
+}
+
+.IconButtonIcon {
+  width: 24px;
+  height: 24px;
 }
