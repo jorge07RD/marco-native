@@ -1,108 +1,129 @@
 .DashboardScreen {
   display: flex;
   flex-direction: column;
-  padding: 20px 20px 28px;
+  padding: 12px 16px 28px;
   background-color: var(--color-bg-primary);
-}
-
-.DateNav {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  background-color: var(--color-bg-secondary);
-  border-width: 1px;
-  border-color: var(--color-border);
-  border-radius: 14px;
-  padding: 14px 18px;
-  margin-bottom: 16px;
-}
-
-.DateNavButton {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.1s ease-out;
-}
-
-.DateNavButton:active {
-  transform: scale(0.9);
-}
-
-.DateNavArrow {
-  font-size: 20px;
-  color: var(--color-accent);
-}
-
-.DateNavLabel {
-  font-size: 16px;
-  font-weight: 600;
 }
 
 .DashboardStatus {
   color: var(--color-text-secondary);
   font-size: 14px;
-  margin-bottom: 12px;
+  margin: 0 4px 12px;
 }
 
 .DashboardStatus--error {
-  color: var(--color-accent);
+  color: var(--color-progreso-1-text);
+}
+
+/* Resumen del día: "Ana, llevas 2 de 4 · 71 %" sobre la barra. */
+.DaySummary {
+  padding: 2px 4px 18px;
+}
+
+.DaySummaryLine {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.DaySummaryText {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+}
+
+.DaySummaryCount {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.DaySummaryPct {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.DaySummaryPct--n1 {
+  color: var(--color-progreso-1-text);
+}
+.DaySummaryPct--n2 {
+  color: var(--color-progreso-2-text);
+}
+.DaySummaryPct--n3 {
+  color: var(--color-progreso-3-text);
+}
+.DaySummaryPct--n4 {
+  color: var(--color-progreso-4);
 }
 
 .ProgressTrack {
   width: 100%;
-  height: 10px;
-  border-radius: 5px;
-  background-color: var(--color-bg-input);
-  margin-bottom: 18px;
+  height: 6px;
+  border-radius: 3px;
+  background-color: var(--color-bg-card);
+  overflow: hidden;
 }
 
 /* La barra usa la misma escala que el calendario (umbrales en lib/progreso.ts),
    para que un día al 65% se vea ámbar en las dos pantallas.
 
-   Color plano por escalón, no degradado: un semáforo es discreto — lo que
-   importa es en qué franja estás, y un degradado sugeriría una transición
-   continua que la escala no tiene. */
+   Color plano por escalón, no degradado: un semáforo es discreto. El largo va
+   por scaleX desde la izquierda (inline en DashboardScreen.tsx). */
 .ProgressFill {
-  height: 10px;
-  border-radius: 5px;
+  width: 100%;
+  height: 6px;
   background-color: var(--color-progreso-0);
-  transition: width 0.3s, background-color 0.3s;
+  transform-origin: left center;
+  transition:
+    transform 0.3s ease-out,
+    background-color 0.3s;
 }
 
-.ProgressFill--n0 { background-color: var(--color-progreso-0); }
-.ProgressFill--n1 { background-color: var(--color-progreso-1); }
-.ProgressFill--n2 { background-color: var(--color-progreso-2); }
-.ProgressFill--n3 { background-color: var(--color-progreso-3); }
-.ProgressFill--n4 { background-color: var(--color-progreso-4); }
+.ProgressFill--n0 {
+  background-color: var(--color-progreso-0);
+}
+.ProgressFill--n1 {
+  background-color: var(--color-progreso-1);
+}
+.ProgressFill--n2 {
+  background-color: var(--color-progreso-2);
+}
+.ProgressFill--n3 {
+  background-color: var(--color-progreso-3);
+}
+.ProgressFill--n4 {
+  background-color: var(--color-progreso-4);
+}
 
+/* Una sola superficie con divisores en lugar de una tarjeta con borde por
+   hábito: el estado se lee en el anillo, no en el contorno de la fila. */
 .HabitList {
   display: flex;
   flex-direction: column;
 }
 
-/* El grosor del borde es el mismo en los dos estados a propósito: el toggle
-   optimista del hilo principal solo repinta color de borde y fondo, y si el
-   grosor cambiara la fila daría un salto de tamaño al marcarla. */
+.HabitList--filled {
+  background-color: var(--color-bg-secondary);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
 .HabitRow {
   display: flex;
   flex-direction: row;
   align-items: center;
   /* Los tramos de .HabitCarga se posicionan contra la fila. */
   position: relative;
-  background-color: var(--color-bg-row);
-  border-radius: 14px;
-  padding: 16px 18px;
-  margin-bottom: 12px;
-  border-width: 1.5px;
-  border-color: var(--color-border-subtle);
-  /* Recorta los tramos de .HabitCarga con la curva de la tarjeta: son barras
-     rectas y sin esto sus puntas asoman por fuera del redondeo, dibujando un
-     rectángulo de esquinas en pico sobre una tarjeta redondeada. */
+  min-height: 76px;
+  padding: 0 12px 0 20px;
+  /* Recorta los tramos de .HabitCarga a la fila. */
   overflow: hidden;
-  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.HabitRow--divided {
+  border-top-width: 1px;
+  border-color: var(--color-border-subtle);
 }
 
 /* Los cuatro tramos de la línea que recorre el borde mientras se mantiene
@@ -154,27 +175,17 @@
   transform-origin: center bottom;
 }
 
-.HabitRow--done {
-  background-color: var(--color-bg-card);
-  border-color: var(--color-accent-secondary);
-}
-
-.HabitColorBar {
-  width: 4px;
-  align-self: stretch;
-  border-radius: 2px;
-  margin-right: 14px;
-}
-
 .HabitInfo {
   flex: 1;
   display: flex;
   flex-direction: column;
+  padding: 14px 0;
 }
 
 .HabitName {
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-primary);
 }
 
 .HabitMeta {
@@ -183,40 +194,55 @@
   margin-top: 2px;
 }
 
-.HabitCheckCircle {
-  width: 32px;
-  height: 32px;
-  border-radius: 16px;
-  border-width: 1.5px;
-  border-color: #4a4555;
+.HabitMeta--done {
+  color: var(--color-text-muted);
+}
+
+/* Área táctil de 48 dp alrededor del anillo de 40. */
+.HabitRingHit {
+  width: 48px;
+  height: 48px;
+  margin-left: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s, border-color 0.2s;
 }
 
-.HabitCheckCircle--done {
-  background-color: var(--color-accent);
-  border-color: var(--color-accent);
+/* Pista del anillo. Relleno y color del borde van inline: los reescribe el
+   tap en el hilo principal (ver DashboardScreen.tsx). */
+.HabitRing {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  border-width: 4px;
+  border-color: var(--color-track);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
 }
 
-/* Estado parcial (empezado sin llegar a la meta), el que deja el long-press.
-   Se pinta el círculo y la meta, NUNCA el borde ni el fondo de .HabitRow: esos
-   dos los escribe el handler main-thread del tap con setStyleProperty, y un
-   estilo inline le gana a la clase — la fila se quedaría con el color del
-   último tap en vez del ámbar. */
-.HabitCheckCircle--partial {
-  border-color: var(--color-progreso-2);
-  border-width: 3px;
+/* El arco se monta encima del borde: mismo tamaño exterior que el anillo. */
+.HabitRingArc {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 40px;
+  height: 40px;
 }
 
-.HabitMeta--partial {
-  color: var(--color-progreso-2);
-  font-weight: 700;
+.HabitRingCheck {
+  width: 22px;
+  height: 22px;
+  transition: opacity 0.15s;
 }
 
-.HabitCheckMark {
-  font-size: 16px;
-  color: #ffffff;
-  font-weight: 700;
+/* El gesto de mantener pulsado no se ve por sí solo. */
+.DashboardHelper {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin: 14px 4px 0;
 }

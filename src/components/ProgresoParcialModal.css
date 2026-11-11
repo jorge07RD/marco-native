@@ -124,7 +124,7 @@
 }
 
 .ParcialError {
-  color: var(--color-accent);
+  color: var(--color-progreso-1-text);
   font-size: 13px;
   margin-top: 8px;
 }

@@ -9,3 +9,31 @@
 .AppLayoutContent {
   flex: 1;
 }
+
+/* Botón flotante extendido de Material 3, encima de la barra de navegación.
+   Es el único rosa de la pantalla que lo muestra: la acción principal. */
+.Fab {
+  position: absolute;
+  right: 16px;
+  bottom: 92px;
+  height: 56px;
+  padding: 0 20px 0 16px;
+  border-radius: 16px;
+  background-color: var(--color-accent);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+}
+
+.FabIcon {
+  width: 22px;
+  height: 22px;
+  margin-right: 10px;
+}
+
+.FabLabel {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-on-accent);
+}

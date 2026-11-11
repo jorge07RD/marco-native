@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.88);
+  background-color: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,10 +13,8 @@
 
 .ChartZoomCard {
   background-color: var(--color-bg-secondary);
-  border-width: 2px;
-  border-color: var(--color-border);
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: 28px;
+  padding: 8px 16px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -29,20 +27,23 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .ChartZoomTitle {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--color-accent);
+  font-size: 20px;
+  font-weight: 600;
+  margin-left: 4px;
+  color: var(--color-text-primary);
 }
 
 .ChartZoomClose {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--color-text-secondary);
-  padding: 4px 10px;
+  margin-right: -8px;
+}
+
+.ChartZoomCloseIcon {
+  width: 22px;
+  height: 22px;
 }
 
 .ChartZoomBody {

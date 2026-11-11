@@ -2,7 +2,6 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  margin-bottom: 12px;
 }
 
 /* Los dos paneles ocupan todo el alto y quedan debajo de la tarjeta. No hace
@@ -15,7 +14,6 @@
   width: 130px;
   display: flex;
   align-items: center;
-  border-radius: 14px;
   background-color: var(--color-bg-card);
 }
 
@@ -38,7 +36,7 @@
 }
 
 .SwipeActionText--danger {
-  color: var(--color-accent);
+  color: var(--color-progreso-1-text);
 }
 
 /* La tarjeta tapa los paneles en reposo, así que su fondo no puede ser

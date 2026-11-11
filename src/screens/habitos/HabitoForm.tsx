@@ -134,7 +134,7 @@ export function HabitoForm({ categorias, initial, onCancel, onSaved }: HabitoFor
             className={`Chip ${categoriaId === cat.id ? 'Chip--active' : ''}`}
             bindtap={() => setCategoriaId(cat.id)}
           >
-            <text className="ChipText">{cat.nombre}</text>
+            <text className={`ChipText ${categoriaId === cat.id ? 'ChipText--active' : ''}`}>{cat.nombre}</text>
           </view>
         ))}
       </view>
@@ -167,7 +167,7 @@ export function HabitoForm({ categorias, initial, onCancel, onSaved }: HabitoFor
             className={`DayChip ${dias.includes(d.letra) ? 'DayChip--active' : ''}`}
             bindtap={() => toggleDia(d.letra)}
           >
-            <text className="ChipText">{d.label}</text>
+            <text className={`ChipText ${dias.includes(d.letra) ? 'ChipText--active' : ''}`}>{d.label}</text>
           </view>
         ))}
       </view>

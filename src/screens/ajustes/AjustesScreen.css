@@ -1,125 +1,121 @@
+/* Ajustes como lista agrupada de Material 3, con el mismo lenguaje que
+   Hábitos: rótulo de grupo fuera, una superficie por grupo y divisores entre
+   filas. El rosa queda solo para «Guardar» el nombre; lo demás son filas. */
+
 .AjustesScreen {
   display: flex;
   flex-direction: column;
-  padding: 20px 20px 28px;
+  padding: 12px 16px 32px;
   background-color: var(--color-bg-primary);
 }
 
-.AjustesSection {
+.AjGrupo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+}
+
+.AjGrupoLabel {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: var(--color-text-muted);
+  padding: 14px 4px 8px;
+}
+
+.AjGrupoLista {
+  display: flex;
+  flex-direction: column;
   background-color: var(--color-bg-secondary);
-  border-width: 1px;
-  border-color: var(--color-border);
-  border-radius: 14px;
-  padding: 18px;
-  margin-bottom: 16px;
+  border-radius: 20px;
+  overflow: hidden;
 }
 
-.AjustesSectionTitle {
-  font-size: 17px;
-  font-weight: 700;
-  margin-bottom: 12px;
+.AjDividida {
+  border-top-width: 1px;
+  border-color: var(--color-border-subtle);
 }
 
-.AjustesLabel {
+.AjFila {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-height: 68px;
+  padding: 12px 16px 12px 18px;
+}
+
+.AjFila:active {
+  background-color: var(--color-bg-card);
+}
+
+.AjFilaIcono {
+  width: 22px;
+  height: 22px;
+  margin-right: 18px;
+}
+
+.AjFilaTexto {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-right: 12px;
+}
+
+.AjFilaTitulo {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.AjFilaTitulo--peligro {
+  color: var(--color-progreso-1-text);
+}
+
+.AjFilaDesc {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+.AjChevron {
+  width: 20px;
+  height: 20px;
+}
+
+/* Campo de texto con su rótulo, dentro del grupo. */
+.AjCampo {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px 16px 18px;
+}
+
+.AjCampoLabel {
   font-size: 13px;
   color: var(--color-text-secondary);
-  margin-bottom: 6px;
-  margin-top: 8px;
+  margin-bottom: 8px;
 }
 
-.AjustesInput {
-  height: 46px;
-  border-radius: 10px;
-  border-width: 1px;
-  border-color: var(--color-border-input);
-  background-color: var(--color-bg-input);
-  color: var(--color-text-primary);
-  padding-left: 16px;
-  font-size: 15px;
-}
-
-.AjustesButton {
-  height: 46px;
-  border-radius: 10px;
-  background-color: var(--color-accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 14px;
-  transition: transform 0.1s ease-out;
-}
-
-.AjustesButton:active {
-  transform: scale(0.96);
-}
-
-.AjustesButtonText {
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.AjustesRow {
+.AjCampoFila {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
 }
 
-.AjustesRowLabel {
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.AjustesCategoriaRow {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 12px 0;
-  border-color: var(--color-border-subtle);
-  border-bottom-width: 1px;
-}
-
-.AjustesCategoriaNombre {
+.AjInput {
   flex: 1;
-  font-size: 15px;
-}
-
-/* Editar/Eliminar bajan de jerarquía: antes iban las dos en el rosado de
-   acento y competían con el botón principal de la sección. */
-.AjustesCategoriaActionText {
-  color: #c7c2d1;
-  font-size: 14px;
-  margin-left: 14px;
-}
-
-.AjustesCategoriaActionText--danger {
-  color: var(--color-text-muted);
-}
-
-.AjustesAddRow {
-  display: flex;
-  flex-direction: row;
-  margin-top: 14px;
-}
-
-.AjustesAddInput {
-  flex: 1;
-  height: 44px;
-  border-radius: 10px;
-  border-width: 1px;
-  border-color: var(--color-border-input);
+  height: 48px;
+  border-radius: 12px;
   background-color: var(--color-bg-input);
   color: var(--color-text-primary);
   padding-left: 14px;
-  font-size: 14px;
-  margin-right: 10px;
+  font-size: 16px;
 }
 
-.AjustesAddButton {
-  height: 44px;
-  padding: 0 18px;
-  border-radius: 10px;
+.AjBotonGuardar {
+  height: 48px;
+  padding: 0 20px;
+  margin-left: 10px;
+  border-radius: 24px;
   background-color: var(--color-accent);
   display: flex;
   align-items: center;
@@ -127,81 +123,194 @@
   transition: transform 0.1s ease-out;
 }
 
-.AjustesAddButton:active {
+.AjBotonGuardar:active {
   transform: scale(0.96);
 }
 
-.AjustesAddButtonText {
-  color: #ffffff;
-  font-size: 14px;
+.AjBotonGuardarText {
+  font-size: 15px;
   font-weight: 700;
+  color: var(--color-on-accent);
 }
 
-.HoraChipRow {
+/* Categorías: nombre y acciones de texto de 48 dp de alto. */
+.AjCategoria {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
-  margin-top: 10px;
+  align-items: center;
+  min-height: 60px;
+  padding: 6px 8px 6px 18px;
 }
 
-.HoraChip {
-  background-color: var(--color-bg-card);
-  border-width: 1px;
-  border-color: var(--color-border-input);
-  border-radius: 20px;
-  padding: 8px 14px;
-  margin-right: 8px;
-  margin-bottom: 8px;
-  transition: background-color 0.15s, border-color 0.15s;
+.AjCategoriaNombre {
+  flex: 1;
+  font-size: 16px;
+  color: var(--color-text-primary);
 }
 
-.HoraChip--active {
-  border-color: var(--color-accent);
-  background-color: var(--color-accent);
-}
-
-.HoraChipText {
-  font-size: 13px;
-}
-
-.AjustesDangerButton {
-  height: 46px;
-  border-radius: 10px;
-  border-width: 1px;
-  border-color: var(--color-accent);
+.AjAccion {
+  height: 48px;
+  padding: 0 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.AjAccionText {
+  font-size: 14px;
+  font-weight: 500;
+  color: #c7c2d1;
+}
+
+.AjAccionText--suave {
+  color: var(--color-text-muted);
+}
+
+.AjAccionText--fuerte {
+  color: var(--color-select-fg);
+  font-weight: 700;
+}
+
+/* Botón tonal redondo para añadir la categoría: violeta de selección, no el
+   rosa, para no competir con «Guardar». */
+.AjAgregar {
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  margin-left: 10px;
+  background-color: var(--color-select-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.AjAgregarIcono {
+  width: 22px;
+  height: 22px;
+}
+
+.AjHoras {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 0 16px 10px 58px;
+}
+
+.AjConfirma {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 16px 18px 18px;
+  background-color: var(--color-progreso-1-tint);
+}
+
+.AjConfirmaTexto {
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+.AjConfirmaBotones {
+  display: flex;
+  flex-direction: row;
   margin-top: 14px;
 }
 
-.AjustesDangerButtonText {
-  color: var(--color-accent);
+.AjBoton {
+  flex: 1;
+  height: 48px;
+  border-radius: 24px;
+  background-color: var(--color-bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease-out;
+}
+
+.AjBoton:active {
+  transform: scale(0.96);
+}
+
+.AjBoton--peligro {
+  margin-left: 10px;
+  background-color: var(--color-progreso-1);
+}
+
+.AjBotonText {
   font-size: 15px;
   font-weight: 600;
-}
-
-.AjustesConfirmBox {
-  margin-top: 14px;
-  padding: 14px;
-  border-radius: 10px;
-  background-color: var(--color-bg-primary);
-}
-
-.AjustesConfirmText {
-  font-size: 13px;
   color: var(--color-text-secondary);
-  margin-bottom: 8px;
+}
+
+.AjBotonText--peligro {
+  color: #ffffff;
+  font-weight: 700;
 }
 
 .AjustesError {
-  color: var(--color-accent);
+  color: var(--color-progreso-1-text);
   font-size: 13px;
   margin-top: 8px;
+}
+
+.AjustesError--grupo {
+  margin: 0;
+  padding: 0 18px 14px;
 }
 
 .AjustesNotice {
   font-size: 13px;
   color: var(--color-text-secondary);
-  margin-bottom: 10px;
+}
+
+/* Pastillas de las horas del recordatorio: una por hora elegida, con una
+   equis para quitarla, y al final la pastilla para añadir otra. */
+.HoraPill {
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 4px 0 14px;
+  margin: 0 8px 8px 0;
+  border-radius: 20px;
+  background-color: var(--color-select-bg);
+}
+
+.HoraPillText {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-select-fg);
+  margin-right: 10px;
+}
+
+/* Área táctil de 32 px para la equis, dentro de la pastilla. */
+.HoraPillQuitar {
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -6px;
+}
+
+.HoraPillQuitarIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.HoraPill--agregar {
+  background-color: transparent;
+  border-width: 1px;
+  border-color: var(--color-border-input);
+  padding: 0 4px 0 10px;
+}
+
+.HoraPillAgregarIcon {
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+}
+
+.HoraPillText--agregar {
+  color: var(--color-text-secondary);
+  font-weight: 600;
 }

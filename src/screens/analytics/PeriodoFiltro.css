@@ -1,93 +1,61 @@
-/* Reemplaza a la fila .Rango* que vivía en AnalyticsChartScreen.css: mismo
-   lenguaje de chips, pero ahora hay cinco tramos y un navegador debajo. */
-
 .PeriodoFiltro {
   display: flex;
   flex-direction: column;
-  margin-bottom: 16px;
+  margin-bottom: 4px;
 }
 
-/* Los cinco chips no caben de una vez en pantallas estrechas, así que la fila
-   scrollea en horizontal — igual que .HabitoSummaryRow. */
-.PeriodoChips {
+/* Botón segmentado de Material 3: un contorno, divisores y el segmento
+   elegido en violeta tonal. */
+.Segmentado {
   display: flex;
   flex-direction: row;
-  white-space: nowrap;
-}
-
-.PeriodoChip {
-  background-color: var(--color-bg-card);
+  height: 40px;
   border-width: 1px;
   border-color: var(--color-border-input);
   border-radius: 20px;
-  padding: 8px 18px;
-  margin-right: 10px;
-  transition: background-color 0.15s, border-color 0.15s;
+  overflow: hidden;
+  margin: 4px 4px 6px;
 }
 
-.PeriodoChip--active {
-  border-color: var(--color-accent);
-  background-color: var(--color-accent);
+.Segmento {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s;
 }
 
-/* El de comparar va en su propia línea y no estira: es un interruptor, no una
-   opción más del grupo de arriba. */
-.PeriodoChip--comparar {
-  align-self: flex-start;
-  margin-top: 10px;
-  margin-right: 0;
+.Segmento--divided {
+  border-left-width: 1px;
+  border-color: var(--color-border-input);
 }
 
-.PeriodoChipText {
+.Segmento--on {
+  background-color: var(--color-select-bg);
+}
+
+.SegmentoText {
   font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
 }
 
-.PeriodoChipText--active {
-  font-weight: 600;
+.SegmentoText--on {
+  color: var(--color-select-fg);
+  font-weight: 700;
 }
 
-/* Mismo patrón que el .DateNav del Dashboard. */
 .PeriodoNav {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  background-color: var(--color-bg-secondary);
-  border-width: 1px;
-  border-color: var(--color-border);
-  border-radius: 14px;
-  padding: 10px 18px;
-  margin-top: 10px;
-}
-
-.PeriodoNavButton {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.1s ease-out;
-}
-
-.PeriodoNavButton:active {
-  transform: scale(0.9);
-}
-
-/* Sin futuro que enseñar: la flecha se apaga y su pulsación no hace nada. */
-.PeriodoNavButton--off:active {
-  transform: scale(1);
-}
-
-.PeriodoNavArrow {
-  font-size: 20px;
-  color: var(--color-accent);
-}
-
-.PeriodoNavArrow--off {
-  color: var(--color-border-input);
+  min-height: 52px;
+  padding-left: 4px;
 }
 
 .PeriodoNavLabel {
-  font-size: 16px;
+  flex: 1;
+  font-size: 18px;
   font-weight: 600;
+  color: var(--color-text-primary);
 }

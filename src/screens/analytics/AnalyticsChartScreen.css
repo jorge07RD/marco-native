@@ -1,90 +1,219 @@
 .AnalyticsScreen {
   display: flex;
   flex-direction: column;
-  padding: 20px 20px 28px;
+  padding: 12px 16px 28px;
   background-color: var(--color-bg-primary);
-}
-
-.AnalyticsSubtitle {
-  color: var(--color-text-secondary);
-  font-size: 13px;
-  margin-bottom: 16px;
-}
-
-/* Los chips del periodo viven en PeriodoFiltro.css, junto a su markup. */
-
-.ChartSectionTitle {
-  font-size: 14px;
-  font-weight: 600;
-  margin-top: 20px;
-  margin-bottom: 8px;
-}
-
-/* El primer título de la pantalla no necesita separarse de lo de arriba: el
-   filtro ya trae su propio margen inferior. */
-.ChartSectionTitle--primero {
-  margin-top: 0;
-}
-
-.AnalyticsCard {
-  background-color: var(--color-bg-secondary);
-  border-width: 1px;
-  border-color: var(--color-border);
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.AnalyticsSummary {
-  margin-top: 16px;
-  font-size: 14px;
-  color: var(--color-text-secondary);
 }
 
 .AnalyticsStatus {
   color: var(--color-text-secondary);
   font-size: 14px;
-  margin-bottom: 12px;
+  margin: 4px 4px 12px;
 }
 
+/* La cifra del periodo y su diferencia contra el anterior. */
+.Cifra {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 4px 16px;
+}
+
+.CifraTexto {
+  display: flex;
+  flex-direction: column;
+}
+
+.CifraValor {
+  font-size: 44px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.CifraLabel {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
+.Delta {
+  height: 36px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 12px;
+  border-radius: 8px;
+}
+
+.Delta--sube {
+  background-color: var(--color-progreso-3-tint);
+}
+.Delta--baja {
+  background-color: var(--color-progreso-1-tint);
+}
+.Delta--igual {
+  background-color: var(--color-bg-card);
+}
+
+.Delta--off {
+  border-width: 1px;
+  border-color: var(--color-border-input);
+}
+
+.DeltaText {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.DeltaText--sube {
+  color: var(--color-progreso-3-text);
+}
+.DeltaText--baja {
+  color: var(--color-progreso-1-text);
+}
+.DeltaText--igual {
+  color: var(--color-text-secondary);
+}
+
+.DeltaText--off {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.DeltaVs {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+/* Un panel por pieza, sin borde: la superficie basta para separarlo. */
+.AnalyticsPanel {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-secondary);
+  border-radius: 20px;
+  padding: 6px 16px;
+  margin-bottom: 16px;
+}
+
+.PanelHead {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+/* Mismo rótulo de sección que las categorías de Hábitos y los grupos de
+   Ajustes. */
+.PanelTitle {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: var(--color-text-muted);
+}
+
+.PanelKey {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.KeyLine {
+  width: 14px;
+  height: 2px;
+  border-radius: 1px;
+  background-color: var(--color-select-fg);
+  margin: 0 6px 0 10px;
+}
+
+.KeyLine--previo {
+  background-color: #5d5868;
+}
+
+.KeyTick {
+  width: 2px;
+  height: 12px;
+  border-radius: 1px;
+  background-color: var(--color-text-secondary);
+  margin-right: 6px;
+}
+
+.KeyText {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.PanelHead--fuera {
+  margin: 8px 4px 8px;
+}
+
+.AnalyticsPanel--grafica {
+  align-items: center;
+  justify-content: center;
+  padding: 20px 12px 12px;
+}
+
+/* Fila deslizable de tarjetas, una por hábito. */
 .HabitoSummaryRow {
   flex-direction: row;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 
 .HabitoSummaryCard {
   background-color: var(--color-bg-secondary);
-  border-width: 1px;
-  border-color: var(--color-border);
-  border-radius: 12px;
-  padding: 14px;
+  border-radius: 20px;
+  padding: 14px 16px 16px;
   margin-right: 10px;
-  min-width: 130px;
-}
-
-.HabitoSummaryBar {
-  height: 4px;
-  border-radius: 2px;
-  margin-bottom: 6px;
+  min-width: 150px;
 }
 
 .HabitoSummaryName {
   font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 4px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 12px;
 }
 
-.HabitoSummaryCount {
-  font-size: 11px;
-  color: var(--color-text-secondary);
+.HabitoSummaryBody {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+/* El anillo de la fila del Dashboard, con las mismas medidas (ver
+   .HabitRing): pista de 4 px y el arco montado encima. */
+.HabitoSummaryRing {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  border-width: 4px;
+  border-color: var(--color-track);
+  margin-right: 12px;
+}
+
+.HabitoSummaryArc {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 40px;
+  height: 40px;
+}
+
+.HabitoSummaryCifras {
+  display: flex;
+  flex-direction: column;
 }
 
 .HabitoSummaryPct {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--color-accent);
-  margin-top: 6px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.HabitoSummaryCount {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
 }

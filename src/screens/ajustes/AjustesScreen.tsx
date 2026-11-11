@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from '@lynx-js/react'
+import type { ReactNode } from 'react'
 
 import {
   createCategoria,
@@ -16,13 +17,132 @@ import type { BackupFileRef } from '../../db/native'
 import {
   cancelReminder,
   requestNotificationPermission,
-  scheduleReminder,
+  scheduleReminders,
   showTestNotification,
 } from '../../native/reminders'
 import { INPUT_TEXT_COLOR } from '../../lib/colors'
+import { HoraPickerSheet } from '../../components/HoraPickerSheet'
+import { type AjusteIconName, ajusteIcon, chevronIcon, closeIcon, plusIcon } from '../../components/icons'
+import { useModalHost } from '../../components/useModalHost'
+import { agregarHora, describirHoras, parseHoras, quitarHora, serializarHoras } from '../../lib/recordatorios'
 import './AjustesScreen.css'
 
-const HORAS_RECORDATORIO = ['07:00', '08:00', '09:00', '12:00', '18:00', '20:00', '21:00']
+// Literales: el SVG de `content` no resuelve var().
+const PILL_ICON = '#d2b4f5' // --color-select-fg
+const ADD_ICON = '#a29dac' // --color-text-secondary
+const ROW_ICON = '#a29dac' // --color-text-secondary
+const DANGER_ICON = '#ea8e80' // --color-progreso-1-text
+const CHEVRON = '#6f6a7c' // --color-text-muted
+
+const MESES = [
+  'enero',
+  'febrero',
+  'marzo',
+  'abril',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
+  'octubre',
+  'noviembre',
+  'diciembre',
+]
+
+/** "marco_backup_2026-10-14T11-50-17-722Z.json" → título "14 de octubre de
+ *  2026" y la hora local "13:50". Si el nombre no sigue ese patrón (un archivo
+ *  renombrado a mano), se enseña tal cual. */
+function describirBackup(nombre: string): { titulo: string; hora: string | null } {
+  const m = nombre.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2})-(\d{2})-(\d{2})/)
+  if (!m) return { titulo: nombre, hora: null }
+  const fecha = new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}Z`)
+  if (Number.isNaN(fecha.getTime())) return { titulo: nombre, hora: null }
+  const hh = String(fecha.getHours()).padStart(2, '0')
+  const mm = String(fecha.getMinutes()).padStart(2, '0')
+  return {
+    titulo: `${fecha.getDate()} de ${MESES[fecha.getMonth()]} de ${fecha.getFullYear()}`,
+    hora: `${hh}:${mm}`,
+  }
+}
+
+/** Rótulo de un grupo, fuera de la superficie, como las categorías de Hábitos. */
+function Grupo({ titulo, children }: { titulo: string; children: ReactNode }) {
+  return (
+    <view className="AjGrupo">
+      <text className="AjGrupoLabel">{titulo}</text>
+      <view className="AjGrupoLista">{children}</view>
+    </view>
+  )
+}
+
+/** Fila de ajuste de Material 3: ícono, título con línea de apoyo y, a la
+ *  derecha, el control (interruptor, chevrón o texto). Toda la fila es el
+ *  área táctil. */
+function Fila({
+  icono,
+  titulo,
+  descripcion,
+  final,
+  onTap,
+  dividida,
+  peligro,
+}: {
+  icono?: AjusteIconName
+  titulo: string
+  descripcion?: string
+  final?: ReactNode
+  onTap?: () => void
+  dividida?: boolean
+  peligro?: boolean
+}) {
+  return (
+    <view className={`AjFila ${dividida ? 'AjDividida' : ''}`} bindtap={onTap}>
+      {icono ? <svg className="AjFilaIcono" content={ajusteIcon(icono, peligro ? DANGER_ICON : ROW_ICON)} /> : null}
+      <view className="AjFilaTexto">
+        <text className={`AjFilaTitulo ${peligro ? 'AjFilaTitulo--peligro' : ''}`}>{titulo}</text>
+        {descripcion ? <text className="AjFilaDesc">{descripcion}</text> : null}
+      </view>
+      {final}
+    </view>
+  )
+}
+
+function Chevron() {
+  return <svg className="AjChevron" content={chevronIcon('der', CHEVRON)} />
+}
+
+/** Confirmación en línea, dentro del mismo grupo: el texto y dos botones,
+ *  el de confirmar en ladrillo porque las tres acciones que la usan borran. */
+function Confirmacion({
+  texto,
+  error,
+  ocupado,
+  ocupadoTexto,
+  onConfirmar,
+  onCancelar,
+}: {
+  texto: string
+  error?: string | null
+  ocupado: boolean
+  ocupadoTexto: string
+  onConfirmar: () => void
+  onCancelar: () => void
+}) {
+  return (
+    <view className="AjConfirma AjDividida">
+      <text className="AjConfirmaTexto">{texto}</text>
+      {error ? <text className="AjustesError">{error}</text> : null}
+      <view className="AjConfirmaBotones">
+        <view className="AjBoton" bindtap={onCancelar}>
+          <text className="AjBotonText">Cancelar</text>
+        </view>
+        <view className="AjBoton AjBoton--peligro" bindtap={onConfirmar}>
+          <text className="AjBotonText AjBotonText--peligro">{ocupado ? ocupadoTexto : 'Confirmar'}</text>
+        </view>
+      </view>
+    </view>
+  )
+}
 
 export function AjustesScreen() {
   const { user, updateUser, reiniciarApp } = useAuth()
@@ -106,8 +226,8 @@ export function AjustesScreen() {
       return
     }
     requestNotificationPermission().finally(() => {
-      const [hour, minute] = (user.hora_recordatorio || '08:00').split(':').map(Number)
-      scheduleReminder(hour, minute)
+      const horas = parseHoras(user.hora_recordatorio)
+      scheduleReminders(horas.length > 0 ? horas : ['08:00'])
       updateUser({ notificaciones_activas: true }).catch(() => undefined)
     })
   }, [user, updateUser])
@@ -116,17 +236,50 @@ export function AjustesScreen() {
     requestNotificationPermission().finally(() => showTestNotification())
   }, [])
 
-  const handleElegirHoraRecordatorio = useCallback(
-    (hora: string) => {
+  const guardarHoras = useCallback(
+    (horas: string[]) => {
       if (!user) return
-      updateUser({ hora_recordatorio: hora }).catch(() => undefined)
-      if (user.notificaciones_activas) {
-        const [hour, minute] = hora.split(':').map(Number)
-        scheduleReminder(hour, minute)
-      }
+      updateUser({ hora_recordatorio: serializarHoras(horas) }).catch(() => undefined)
+      if (user.notificaciones_activas) scheduleReminders(horas)
     },
     [user, updateUser],
   )
+
+  // Cualquier hora: abre el selector propio (HoraPickerSheet) y la añade como
+  // pastilla. Arranca una hora después de la última elegida, que suele ser la
+  // siguiente que se quiere y además no está repetida. Se abre desde el propio
+  // handler del tap: montar el modal desde un efecto o un .then() falla en
+  // Lynx (ver el comentario de `pctDe` en DashboardScreen).
+  const modalHost = useModalHost()
+  const handleAgregarHora = useCallback(() => {
+    if (!user) return
+    const actuales = parseHoras(user.hora_recordatorio)
+    const ultima = actuales[actuales.length - 1]
+    const siguiente = ultima ? `${String((Number(ultima.slice(0, 2)) + 1) % 24).padStart(2, '0')}:00` : '20:00'
+    modalHost.open(
+      <HoraPickerSheet
+        inicial={siguiente}
+        existentes={actuales}
+        onCancel={modalHost.close}
+        onAdd={(hora) => {
+          modalHost.close()
+          guardarHoras(agregarHora(actuales, hora))
+        }}
+      />,
+    )
+  }, [user, guardarHoras, modalHost])
+
+  // Siempre queda al menos una hora (ver quitarHora): la última pastilla no
+  // lleva equis.
+  const handleQuitarHora = useCallback(
+    (hora: string) => {
+      if (!user) return
+      guardarHoras(quitarHora(parseHoras(user.hora_recordatorio), hora))
+    },
+    [user, guardarHoras],
+  )
+
+  const horasRecordatorio = parseHoras(user?.hora_recordatorio)
 
   const handleAgregarCategoria = useCallback(() => {
     if (!nuevaCategoriaNombre.trim()) return
@@ -206,45 +359,96 @@ export function AjustesScreen() {
       })
   }, [pendingRestoreUri])
 
+  const nombreCambiado = !!user && nombreDraft.trim() !== '' && nombreDraft.trim() !== user.nombre
+  const notificaciones = !!user?.notificaciones_activas
+
   return (
     <view className="AjustesScreen ScreenEnter">
       <BrandHeader title="Ajustes" />
 
-      <view className="AjustesSection">
-        <text className="AjustesSectionTitle">Perfil</text>
-        <text className="AjustesLabel">Nombre</text>
-        <input
-          text-color={INPUT_TEXT_COLOR}
-          id="ajustes-nombre"
-          className="AjustesInput"
-          value={nombreDraft}
-          bindinput={(e) => setNombreDraft(e.detail.value)}
+      <Grupo titulo="Perfil">
+        <view className="AjCampo">
+          <text className="AjCampoLabel">Tu nombre</text>
+          <view className="AjCampoFila">
+            <input
+              text-color={INPUT_TEXT_COLOR}
+              id="ajustes-nombre"
+              className="AjInput"
+              value={nombreDraft}
+              placeholder="Cómo te llamamos"
+              bindinput={(e) => setNombreDraft(e.detail.value)}
+            />
+            {/* Guardar solo aparece cuando hay algo que guardar: es la única
+                acción en rosa de la pantalla. */}
+            {nombreCambiado || perfilSaving ? (
+              <view className="AjBotonGuardar" bindtap={handleGuardarPerfil}>
+                <text className="AjBotonGuardarText">{perfilSaving ? 'Guardando…' : 'Guardar'}</text>
+              </view>
+            ) : null}
+          </view>
+          {perfilError ? <text className="AjustesError">{perfilError}</text> : null}
+        </view>
+      </Grupo>
+
+      <Grupo titulo="Progreso">
+        <Fila
+          icono="futuro"
+          titulo="Puedo ver el futuro 🔮"
+          descripcion="Abre y marca días que aún no llegan"
+          final={<Switch on={!!user?.ver_futuro} />}
+          onTap={handleToggleVerFuturo}
         />
-        {perfilError ? <text className="AjustesError">{perfilError}</text> : null}
-        <view className="AjustesButton" bindtap={handleGuardarPerfil}>
-          <text className="AjustesButtonText">{perfilSaving ? 'Guardando…' : 'Guardar cambios'}</text>
-        </view>
-      </view>
+        <Fila
+          dividida
+          icono="ocultos"
+          titulo="Mostrar hábitos ocultos"
+          descripcion="Los incluye en Progreso, Calendario y Análisis"
+          final={<Switch on={!!user?.mostrar_ocultos} />}
+          onTap={handleToggleMostrarOcultos}
+        />
+      </Grupo>
 
-      <view className="AjustesSection">
-        <text className="AjustesSectionTitle">Progreso</text>
-        <view className="AjustesRow" bindtap={handleToggleVerFuturo}>
-          <text className="AjustesRowLabel">Puedo ver el futuro 🔮</text>
-          <Switch on={!!user?.ver_futuro} />
-        </view>
-        <view className="AjustesRow" bindtap={handleToggleMostrarOcultos}>
-          <text className="AjustesRowLabel">Mostrar hábitos ocultos</text>
-          <Switch on={!!user?.mostrar_ocultos} />
-        </view>
-      </view>
+      <Grupo titulo="Notificaciones">
+        <Fila
+          icono="campana"
+          titulo="Recordatorio diario"
+          descripcion={notificaciones ? `A las ${describirHoras(horasRecordatorio)}` : 'Apagado'}
+          final={<Switch on={notificaciones} />}
+          onTap={handleToggleNotificaciones}
+        />
+        {notificaciones ? (
+          <view className="AjHoras">
+            {horasRecordatorio.map((hora) => (
+              <view key={hora} className="HoraPill">
+                <text className="HoraPillText">{hora}</text>
+                {horasRecordatorio.length > 1 ? (
+                  <view className="HoraPillQuitar" bindtap={() => handleQuitarHora(hora)}>
+                    <svg className="HoraPillQuitarIcon" content={closeIcon(PILL_ICON)} />
+                  </view>
+                ) : null}
+              </view>
+            ))}
+            <view className="HoraPill HoraPill--agregar" bindtap={handleAgregarHora}>
+              <svg className="HoraPillAgregarIcon" content={plusIcon(ADD_ICON)} />
+              <text className="HoraPillText HoraPillText--agregar">Añadir hora</text>
+            </view>
+          </view>
+        ) : null}
+        <Fila
+          dividida
+          icono="probar"
+          titulo="Probar notificación"
+          descripcion="Te llega una ahora mismo"
+          final={<Chevron />}
+          onTap={handleProbarNotificacion}
+        />
+      </Grupo>
 
-      <view className="AjustesSection">
-        <text className="AjustesSectionTitle">Categorías</text>
-        {categoriasError ? <text className="AjustesError">{categoriasError}</text> : null}
+      <Grupo titulo="Categorías">
         {categorias.map((cat, index) => (
           <view
             key={cat.id}
-            className="AjustesCategoriaRow StaggerIn"
+            className={`AjCategoria StaggerIn ${index > 0 ? 'AjDividida' : ''}`}
             style={{ animationDelay: `${Math.min(index, 10) * 0.04}s` }}
           >
             {editingCategoriaId === cat.id ? (
@@ -252,155 +456,113 @@ export function AjustesScreen() {
                 <input
                   text-color={INPUT_TEXT_COLOR}
                   id={`categoria-edit-${cat.id}`}
-                  className="AjustesInput"
+                  className="AjInput"
                   value={editCategoriaNombre}
                   bindinput={(e) => setEditCategoriaNombre(e.detail.value)}
-                  style={{ flex: 1 }}
                 />
-                <text className="AjustesCategoriaActionText" bindtap={() => handleGuardarCategoria(cat.id)}>
-                  Guardar
-                </text>
-                <text className="AjustesCategoriaActionText" bindtap={() => setEditingCategoriaId(null)}>
-                  Cancelar
-                </text>
+                <view className="AjAccion" bindtap={() => handleGuardarCategoria(cat.id)}>
+                  <text className="AjAccionText AjAccionText--fuerte">Guardar</text>
+                </view>
+                <view className="AjAccion" bindtap={() => setEditingCategoriaId(null)}>
+                  <text className="AjAccionText">Cancelar</text>
+                </view>
               </>
             ) : (
               <>
-                <text className="AjustesCategoriaNombre">{cat.nombre}</text>
-                <text className="AjustesCategoriaActionText" bindtap={() => startEditCategoria(cat)}>
-                  Editar
-                </text>
-                <text
-                  className="AjustesCategoriaActionText AjustesCategoriaActionText--danger"
-                  bindtap={() => handleEliminarCategoria(cat.id)}
-                >
-                  Eliminar
-                </text>
+                <text className="AjCategoriaNombre">{cat.nombre}</text>
+                <view className="AjAccion" bindtap={() => startEditCategoria(cat)}>
+                  <text className="AjAccionText">Editar</text>
+                </view>
+                <view className="AjAccion" bindtap={() => handleEliminarCategoria(cat.id)}>
+                  <text className="AjAccionText AjAccionText--suave">Eliminar</text>
+                </view>
               </>
             )}
           </view>
         ))}
-        <view className="AjustesAddRow">
+        <view className={`AjCategoria ${categorias.length > 0 ? 'AjDividida' : ''}`}>
           <input
             text-color={INPUT_TEXT_COLOR}
-            className="AjustesAddInput"
+            className="AjInput"
             value={nuevaCategoriaNombre}
             placeholder="Nueva categoría"
             bindinput={(e) => setNuevaCategoriaNombre(e.detail.value)}
           />
-          <view className="AjustesAddButton" bindtap={handleAgregarCategoria}>
-            <text className="AjustesAddButtonText">Agregar</text>
+          <view className="AjAgregar" bindtap={handleAgregarCategoria}>
+            <svg className="AjAgregarIcono" content={plusIcon(PILL_ICON)} />
           </view>
         </view>
-      </view>
+        {categoriasError ? <text className="AjustesError AjustesError--grupo">{categoriasError}</text> : null}
+      </Grupo>
 
-      <view className="AjustesSection">
-        <text className="AjustesSectionTitle">Notificaciones</text>
-        <view className="AjustesRow" bindtap={handleToggleNotificaciones}>
-          <text className="AjustesRowLabel">Recordatorio diario</text>
-          <Switch on={!!user?.notificaciones_activas} />
-        </view>
-        {user?.notificaciones_activas ? (
-          <view className="HoraChipRow">
-            {HORAS_RECORDATORIO.map((hora) => (
-              <view
-                key={hora}
-                className={`HoraChip ${user?.hora_recordatorio === hora ? 'HoraChip--active' : ''}`}
-                bindtap={() => handleElegirHoraRecordatorio(hora)}
-              >
-                <text className="HoraChipText">{hora}</text>
-              </view>
-            ))}
-          </view>
-        ) : null}
-        <view className="AjustesButton" style={{ marginTop: '12px' }} bindtap={handleProbarNotificacion}>
-          <text className="AjustesButtonText">Probar notificación</text>
-        </view>
-      </view>
-
-      <view className="AjustesSection">
-        <text className="AjustesSectionTitle">Backup</text>
-        <text className="AjustesNotice">
-          Tus datos viven solo en este teléfono. Exporta un backup de vez en cuando para no perderlos.
-        </text>
-        {backupStatus ? <text className="AjustesError">{backupStatus}</text> : null}
-        <view className="AjustesButton" bindtap={handleExportarBackup}>
-          <text className="AjustesButtonText">{exporting ? 'Exportando…' : 'Exportar backup'}</text>
-        </view>
-
-        {backups.length > 0 ? (
-          <view style={{ marginTop: '12px' }}>
-            <text className="AjustesLabel">Backups encontrados en Descargas</text>
-            {backups.map((backup) => (
-              <view key={backup.uri} className="AjustesCategoriaRow">
-                <text className="AjustesCategoriaNombre">{backup.nombre}</text>
-                <text className="AjustesCategoriaActionText" bindtap={() => setPendingRestoreUri(backup.uri)}>
-                  Restaurar
-                </text>
-              </view>
-            ))}
-          </view>
-        ) : null}
-
+      <Grupo titulo="Backup">
+        <Fila
+          icono="exportar"
+          titulo={exporting ? 'Exportando…' : 'Exportar backup'}
+          descripcion="Tus datos viven solo en este teléfono. Guarda una copia en Descargas de vez en cuando."
+          final={<Chevron />}
+          onTap={handleExportarBackup}
+        />
+        {backups.map((backup) => {
+          const { titulo, hora } = describirBackup(backup.nombre)
+          return (
+            <Fila
+              key={backup.uri}
+              dividida
+              icono="restaurar"
+              titulo={titulo}
+              descripcion={hora ? `${hora} · en Descargas` : 'En Descargas'}
+              final={<text className="AjAccionText">Restaurar</text>}
+              onTap={() => setPendingRestoreUri(backup.uri)}
+            />
+          )
+        })}
         {pendingRestoreUri ? (
-          <view className="AjustesConfirmBox">
-            <text className="AjustesConfirmText">
-              Esto sobrescribirá todos tus datos actuales con lo que haya en ese backup. ¿Continuar?
-            </text>
-            <view className="AjustesButton" bindtap={handleRestaurarBackup}>
-              <text className="AjustesButtonText">{restoring ? 'Restaurando…' : 'Confirmar'}</text>
-            </view>
-            <view
-              className="AjustesButton"
-              style={{ backgroundColor: 'transparent' }}
-              bindtap={() => setPendingRestoreUri(null)}
-            >
-              <text className="AjustesButtonText" style={{ color: 'var(--color-text-secondary)' }}>
-                Cancelar
-              </text>
-            </view>
-          </view>
+          <Confirmacion
+            texto="Esto sobrescribirá todos tus datos actuales con lo que haya en ese backup. ¿Continuar?"
+            ocupado={restoring}
+            ocupadoTexto="Restaurando…"
+            onConfirmar={handleRestaurarBackup}
+            onCancelar={() => setPendingRestoreUri(null)}
+          />
         ) : null}
-      </view>
+        {backupStatus ? <text className="AjustesNotice AjustesError--grupo">{backupStatus}</text> : null}
+      </Grupo>
 
-      <view className="AjustesSection">
-        <text className="AjustesSectionTitle">Datos</text>
-
-        {deleteAction === null ? (
-          <>
-            <view className="AjustesDangerButton" bindtap={() => setDeleteAction('datos')}>
-              <text className="AjustesDangerButtonText">Eliminar todos los datos</text>
-            </view>
-            <view className="AjustesDangerButton" bindtap={() => setDeleteAction('cuenta')}>
-              <text className="AjustesDangerButtonText">Reiniciar app</text>
-            </view>
-          </>
-        ) : (
-          <view className="AjustesConfirmBox">
-            <text className="AjustesConfirmText">
-              {deleteAction === 'cuenta'
+      <Grupo titulo="Datos">
+        <Fila
+          peligro
+          icono="borrar"
+          titulo="Eliminar todos los datos"
+          descripcion="Borra registros y progreso; mantiene hábitos y categorías"
+          onTap={() => setDeleteAction('datos')}
+        />
+        <Fila
+          dividida
+          peligro
+          icono="reiniciar"
+          titulo="Reiniciar app"
+          descripcion="Borra todo, también tu perfil"
+          onTap={() => setDeleteAction('cuenta')}
+        />
+        {deleteAction !== null ? (
+          <Confirmacion
+            texto={
+              deleteAction === 'cuenta'
                 ? 'Esto borrará absolutamente todo (hábitos, categorías, historial y tu perfil) de forma irreversible. ¿Confirmas?'
-                : 'Esto borrará tus registros y progreso (mantiene hábitos y categorías). ¿Confirmas?'}
-            </text>
-            {deleteError ? <text className="AjustesError">{deleteError}</text> : null}
-            <view className="AjustesButton" bindtap={handleConfirmarBorrado}>
-              <text className="AjustesButtonText">{deleting ? 'Procesando…' : 'Confirmar'}</text>
-            </view>
-            <view
-              className="AjustesButton"
-              style={{ backgroundColor: 'transparent' }}
-              bindtap={() => {
-                setDeleteAction(null)
-                setDeleteError(null)
-              }}
-            >
-              <text className="AjustesButtonText" style={{ color: 'var(--color-text-secondary)' }}>
-                Cancelar
-              </text>
-            </view>
-          </view>
-        )}
-      </view>
+                : 'Esto borrará tus registros y progreso (mantiene hábitos y categorías). ¿Confirmas?'
+            }
+            error={deleteError}
+            ocupado={deleting}
+            ocupadoTexto="Procesando…"
+            onConfirmar={handleConfirmarBorrado}
+            onCancelar={() => {
+              setDeleteAction(null)
+              setDeleteError(null)
+            }}
+          />
+        ) : null}
+      </Grupo>
     </view>
   )
 }

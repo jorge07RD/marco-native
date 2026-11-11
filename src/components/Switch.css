@@ -7,10 +7,11 @@
   transition: background-color 0.2s;
 }
 
-/* Encendido en el rosado de marca. Antes era el verde #00ff88, que hoy queda
-   reservado para la escala de progreso: esto es un estado, no una medida. */
+/* Encendido en el violeta de selección, como el resto de estados elegidos
+   (tabs, chips, segmentos). El rosa queda para la acción principal y el verde
+   para la escala de progreso: esto es un estado, no una medida. */
 .SwitchTrack--on {
-  background-color: var(--color-accent);
+  background-color: var(--color-select-fg);
 }
 
 .SwitchKnob {
@@ -21,10 +22,12 @@
   height: 20px;
   border-radius: 10px;
   background-color: #8a8592;
-  transition: left 0.2s, background-color 0.2s;
+  transition:
+    left 0.2s,
+    background-color 0.2s;
 }
 
 .SwitchKnob--on {
   left: 21px;
-  background-color: #ffffff;
+  background-color: var(--color-select-bg);
 }

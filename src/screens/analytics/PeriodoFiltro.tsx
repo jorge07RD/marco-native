@@ -1,3 +1,4 @@
+import { chevronIcon } from '../../components/icons'
 import { anioActual, mesActual, rangoDe, type Periodo } from '../../lib/periodo'
 import './PeriodoFiltro.css'
 
@@ -18,93 +19,78 @@ function desplazar(periodo: Periodo, delta: number): Periodo {
   if (periodo.tipo === 'mes') {
     // El mes se mueve en base 0 para que el desbordamiento en los dos sentidos
     // (diciembre → enero y enero → diciembre) salga de la misma cuenta.
-    const indice = (periodo.year * 12 + (periodo.month - 1)) + delta
+    const indice = periodo.year * 12 + (periodo.month - 1) + delta
     return { tipo: 'mes', year: Math.floor(indice / 12), month: (indice % 12) + 1 }
   }
   if (periodo.tipo === 'anio') return { tipo: 'anio', year: periodo.year + delta }
   return periodo
 }
 
-/** Filtro de la pantalla de Análisis: qué tramo se mira y si se compara con el
- *  anterior. El rango en fechas lo resuelve `rangoDe`; aquí solo se elige. */
-export function PeriodoFiltro({
-  periodo,
-  onPeriodo,
-  comparar,
-  onComparar,
-}: {
-  periodo: Periodo
-  onPeriodo: (p: Periodo) => void
-  comparar: boolean
-  onComparar: (v: boolean) => void
-}) {
+// Literales: el SVG de `content` no resuelve var().
+const CHEVRON_ON = '#a29dac' // --color-text-secondary
+const CHEVRON_OFF = '#3a3546' // --color-border-input
+
+const SEGMENTOS: { clave: string; etiqueta: string; elegir: () => Periodo }[] = [
+  ...RANGOS_DIAS.map((d) => ({
+    clave: `d${d}`,
+    etiqueta: `${d} d`,
+    elegir: (): Periodo => ({ tipo: 'dias', dias: d }),
+  })),
+  // Al cambiar de tipo se entra por el periodo en curso, que es el que el
+  // usuario tiene en la cabeza al pulsar «Mes» o «Año».
+  { clave: 'mes', etiqueta: 'Mes', elegir: mesActual },
+  { clave: 'anio', etiqueta: 'Año', elegir: anioActual },
+]
+
+function claveDe(periodo: Periodo): string {
+  if (periodo.tipo === 'dias') return `d${periodo.dias}`
+  return periodo.tipo
+}
+
+/** Filtro de la pantalla de Análisis: qué tramo se mira. Botón segmentado de
+ *  Material 3 (los cinco caben enteros en el ancho, sin scroll) y, para mes y
+ *  año, el navegador anterior/siguiente. El rango en fechas lo resuelve
+ *  `rangoDe`; aquí solo se elige. */
+export function PeriodoFiltro({ periodo, onPeriodo }: { periodo: Periodo; onPeriodo: (p: Periodo) => void }) {
   const navegable = periodo.tipo === 'mes' || periodo.tipo === 'anio'
+  const activa = claveDe(periodo)
+  const ultimo = esUltimo(periodo)
+  const etiqueta = rangoDe(periodo).etiqueta
 
   return (
     <view className="PeriodoFiltro">
-      <scroll-view className="PeriodoChips" scroll-orientation="horizontal">
-        {RANGOS_DIAS.map((d) => {
-          const activo = periodo.tipo === 'dias' && periodo.dias === d
+      <view className="Segmentado">
+        {SEGMENTOS.map((seg, i) => {
+          const on = seg.clave === activa
           return (
             <view
-              key={d}
-              className={`PeriodoChip ${activo ? 'PeriodoChip--active' : ''}`}
-              bindtap={() => onPeriodo({ tipo: 'dias', dias: d })}
+              key={seg.clave}
+              className={`Segmento ${i > 0 ? 'Segmento--divided' : ''} ${on ? 'Segmento--on' : ''}`}
+              bindtap={() => onPeriodo(seg.elegir())}
             >
-              <text className={`PeriodoChipText ${activo ? 'PeriodoChipText--active' : ''}`}>
-                {d} días
-              </text>
+              <text className={`SegmentoText ${on ? 'SegmentoText--on' : ''}`}>{seg.etiqueta}</text>
             </view>
           )
         })}
-        <view
-          className={`PeriodoChip ${periodo.tipo === 'mes' ? 'PeriodoChip--active' : ''}`}
-          // Al cambiar de tipo se entra por el periodo en curso, que es el que
-          // el usuario tiene en la cabeza al pulsar «Mes» o «Año».
-          bindtap={() => onPeriodo(mesActual())}
-        >
-          <text className={`PeriodoChipText ${periodo.tipo === 'mes' ? 'PeriodoChipText--active' : ''}`}>
-            Mes
-          </text>
-        </view>
-        <view
-          className={`PeriodoChip ${periodo.tipo === 'anio' ? 'PeriodoChip--active' : ''}`}
-          bindtap={() => onPeriodo(anioActual())}
-        >
-          <text className={`PeriodoChipText ${periodo.tipo === 'anio' ? 'PeriodoChipText--active' : ''}`}>
-            Año
-          </text>
-        </view>
-      </scroll-view>
+      </view>
 
       {navegable ? (
         <view className="PeriodoNav">
-          <view className="PeriodoNavButton" bindtap={() => onPeriodo(desplazar(periodo, -1))}>
-            <text className="PeriodoNavArrow">‹</text>
+          <text className="PeriodoNavLabel">{etiqueta.charAt(0).toUpperCase() + etiqueta.slice(1)}</text>
+          <view className="IconButton" bindtap={() => onPeriodo(desplazar(periodo, -1))}>
+            <svg className="IconButtonIcon" content={chevronIcon('izq', CHEVRON_ON)} />
           </view>
-          <text className="PeriodoNavLabel">{rangoDe(periodo).etiqueta}</text>
+          {/* Un periodo que aún no ha empezado no tiene nada que enseñar. */}
           <view
-            className={`PeriodoNavButton ${esUltimo(periodo) ? 'PeriodoNavButton--off' : ''}`}
+            className="IconButton"
             bindtap={() => {
-              if (esUltimo(periodo)) return
-              onPeriodo(desplazar(periodo, 1))
+              if (!ultimo) onPeriodo(desplazar(periodo, 1))
             }}
           >
-            <text className={`PeriodoNavArrow ${esUltimo(periodo) ? 'PeriodoNavArrow--off' : ''}`}>
-              ›
-            </text>
+            <svg className="IconButtonIcon" content={chevronIcon('der', ultimo ? CHEVRON_OFF : CHEVRON_ON)} />
           </view>
         </view>
       ) : null}
-
-      <view
-        className={`PeriodoChip PeriodoChip--comparar ${comparar ? 'PeriodoChip--active' : ''}`}
-        bindtap={() => onComparar(!comparar)}
-      >
-        <text className={`PeriodoChipText ${comparar ? 'PeriodoChipText--active' : ''}`}>
-          Comparar con el periodo anterior
-        </text>
-      </view>
     </view>
   )
 }

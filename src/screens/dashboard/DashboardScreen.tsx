@@ -13,11 +13,14 @@ import { useParams } from 'react-router'
 import { getHabitos, getRegistroPorFecha, setProgresoValor, toggleProgreso } from '../../api/marco'
 import type { Habito, ProgresoHabito, RegistroConProgresos } from '../../api/types'
 import { useAuth } from '../../auth/useAuth'
-import { BrandHeader } from '../../components/BrandHeader'
+import { BrandHeader, PrevNextButtons } from '../../components/BrandHeader'
+import { arcoParcial, checkIcon } from '../../components/icons'
 import { LogroOverlay } from '../../components/LogroOverlay'
 import { ProgresoParcialModal } from '../../components/ProgresoParcialModal'
 import { useModalHost } from '../../components/useModalHost'
 import { addDays, formatDisplay, todayISO } from '../../lib/date'
+import { textoSobre } from '../../lib/colors'
+import { formatNumero, formatPct, unidadPara } from '../../lib/formato'
 import { fraccionProgreso, nivelProgreso } from '../../lib/progreso'
 import './DashboardScreen.css'
 
@@ -305,20 +308,18 @@ export function DashboardScreen() {
       0,
     ) ?? 0
   const progresoPct = totalHabitos > 0 ? (completados / totalHabitos) * 100 : 0
+  // Hábitos cumplidos del todo, para el "2 de 4" del resumen. El porcentaje sí
+  // suma los parciales, así que con uno a medias puede pasar del 50 % con 2 de 4.
+  const cumplidos = registro?.progresos.filter((p) => p.completado).length ?? 0
+  const nivel = nivelProgreso(progresoPct)
 
   return (
     <view className="DashboardScreen ScreenEnter">
-      <BrandHeader title={`Hola, ${user?.nombre ?? ''}`} />
-
-      <view className="DateNav">
-        <view className="DateNavButton" bindtap={() => setFecha((f) => addDays(f, -1))}>
-          <text className="DateNavArrow">‹</text>
-        </view>
-        <text className="DateNavLabel">{formatDisplay(fecha)}</text>
-        <view className="DateNavButton" bindtap={() => setFecha((f) => addDays(f, 1))}>
-          <text className="DateNavArrow">›</text>
-        </view>
-      </view>
+      {/* La fecha es el titular: es lo que se navega. El saludo pasa al
+          resumen de abajo. */}
+      <BrandHeader title={formatDisplay(fecha)}>
+        <PrevNextButtons onPrev={() => setFecha((f) => addDays(f, -1))} onNext={() => setFecha((f) => addDays(f, 1))} />
+      </BrandHeader>
 
       {loading ? <text className="DashboardStatus">Cargando…</text> : null}
       {error ? <text className="DashboardStatus DashboardStatus--error">{error}</text> : null}
@@ -327,27 +328,41 @@ export function DashboardScreen() {
       ) : null}
 
       {totalHabitos > 0 ? (
-        <view className="ProgressTrack">
-          <view
-            className={`ProgressFill ProgressFill--n${nivelProgreso(progresoPct)}`}
-            style={{ width: `${progresoPct}%` }}
-          />
+        <view className="DaySummary">
+          <view className="DaySummaryLine">
+            <text className="DaySummaryText">
+              {user?.nombre ? `${user.nombre}, llevas ` : 'Llevas '}
+              <text className="DaySummaryCount">
+                {cumplidos} de {totalHabitos}
+              </text>
+            </text>
+            <text className={`DaySummaryPct DaySummaryPct--n${nivel}`}>{formatPct(progresoPct)}</text>
+          </view>
+          {/* scaleX y no width: el ancho anima en layout y el scale en el
+              compositor. */}
+          <view className="ProgressTrack">
+            <view
+              className={`ProgressFill ProgressFill--n${nivel}`}
+              style={{ transform: `scaleX(${Math.min(progresoPct, 100) / 100})` }}
+            />
+          </view>
         </view>
       ) : null}
 
-      <view className="HabitList">
+      <view className={`HabitList ${totalHabitos > 0 ? 'HabitList--filled' : ''}`}>
         {registro?.progresos.map((progreso, index) => {
           const habito = habitosById.get(progreso.habito_id)
           const isPending = pendingIds.includes(progreso.id)
           // Empezado pero sin llegar a la meta. `completado` lo deriva
           // `setProgresoValor` del valor, así que los dos no pueden discrepar.
           const esParcial = !progreso.completado && progreso.valor > 0
+          const color = habito?.color ?? '#e94560'
+          const tinta = textoSobre(color)
+          const meta = habito?.meta_diaria ?? 0
           return (
             <view
               key={progreso.id}
-              className={`HabitRow StaggerIn ${progreso.completado ? 'HabitRow--done' : ''} ${
-                esParcial ? 'HabitRow--partial' : ''
-              }`}
+              className={`HabitRow StaggerIn ${index > 0 ? 'HabitRow--divided' : ''}`}
               style={{ animationDelay: `${Math.min(index, 10) * 0.045}s` }}
               // Aviso de que la pulsación larga va en camino: una línea del
               // color del hábito recorre el borde durante los mismos ms que
@@ -411,58 +426,61 @@ export function DashboardScreen() {
                 const marca = ultimoLongPress.current
                 if (marca.id === progreso.id && Date.now() - marca.t < 900) return
                 // Feedback instantáneo en el hilo principal — no esperamos el
-                // viaje de red/hilo de background para que el borde reaccione.
+                // viaje de red/hilo de background para que el anillo reaccione.
+                // Se pinta el relleno, el borde y la palomita a la vez; si solo
+                // cambiara el relleno, la palomita aparecería después.
                 const nowDone = !progreso.completado
-                // Se pintan las dos propiedades que distinguen los estados
-                // (ver .HabitRow / .HabitRow--done): si solo se cambiara el
-                // borde, el fondo saltaría después, al llegar la respuesta.
-                event.currentTarget.setStyleProperty('border-color', nowDone ? '#7b2cbf' : '#26222e')
-                event.currentTarget.setStyleProperty(
-                  'background-color',
-                  nowDone ? '#1c1824' : '#161320',
-                )
+                event.currentTarget.querySelector('.HabitRing')?.setStyleProperties({
+                  'background-color': nowDone ? color : 'transparent',
+                  'border-color': nowDone ? color : '#2b2733',
+                })
+                event.currentTarget.querySelector('.HabitRingCheck')?.setStyleProperty('opacity', nowDone ? '1' : '0')
                 runOnBackground(() => handleToggle(progreso.id))()
               }}
             >
               {/* Los cuatro tramos de la línea de carga, en el mismo orden en
                   que los recorre `cargarBorde`. */}
-              <view
-                className="HabitCarga HabitCarga--top"
-                style={{ backgroundColor: habito?.color ?? 'var(--color-accent)' }}
-              />
-              <view
-                className="HabitCarga HabitCarga--right"
-                style={{ backgroundColor: habito?.color ?? 'var(--color-accent)' }}
-              />
-              <view
-                className="HabitCarga HabitCarga--bottom"
-                style={{ backgroundColor: habito?.color ?? 'var(--color-accent)' }}
-              />
-              <view
-                className="HabitCarga HabitCarga--left"
-                style={{ backgroundColor: habito?.color ?? 'var(--color-accent)' }}
-              />
-              <view
-                className="HabitColorBar"
-                style={{ backgroundColor: habito?.color ?? 'var(--color-accent)' }}
-              />
+              <view className="HabitCarga HabitCarga--top" style={{ backgroundColor: color }} />
+              <view className="HabitCarga HabitCarga--right" style={{ backgroundColor: color }} />
+              <view className="HabitCarga HabitCarga--bottom" style={{ backgroundColor: color }} />
+              <view className="HabitCarga HabitCarga--left" style={{ backgroundColor: color }} />
               <view className="HabitInfo">
                 <text className="HabitName">{habito?.nombre ?? `Hábito #${progreso.habito_id}`}</text>
-                <text className={`HabitMeta ${esParcial ? 'HabitMeta--partial' : ''}`}>
-                  {progreso.valor} / {habito?.meta_diaria ?? '—'} {habito?.unidad_medida ?? ''}
+                <text className={`HabitMeta ${progreso.completado ? 'HabitMeta--done' : ''}`}>
+                  {formatNumero(progreso.valor)} / {habito ? formatNumero(meta) : '—'}{' '}
+                  {unidadPara(meta, habito?.unidad_medida ?? '')}
                 </text>
               </view>
-              <view
-                className={`HabitCheckCircle ${progreso.completado ? 'HabitCheckCircle--done PopCheck' : ''} ${
-                  esParcial ? 'HabitCheckCircle--partial' : ''
-                }`}
-              >
-                {progreso.completado ? <text className="HabitCheckMark">✓</text> : null}
+              {/* El anillo del ícono hecho control: vacío es pendiente, arco es
+                  parcial y lleno con el color del hábito es hecho. El relleno
+                  y el borde los reescribe el tap desde el hilo principal, por
+                  eso van inline y no por clase. */}
+              <view className="HabitRingHit">
+                <view
+                  className={`HabitRing ${progreso.completado ? 'PopCheck' : ''}`}
+                  style={{
+                    backgroundColor: progreso.completado ? color : 'transparent',
+                    borderColor: progreso.completado ? color : '#2b2733',
+                  }}
+                >
+                  {esParcial ? (
+                    <svg className="HabitRingArc" content={arcoParcial(color, progreso.valor / (meta || 1))} />
+                  ) : null}
+                  <svg
+                    className="HabitRingCheck"
+                    content={checkIcon(tinta)}
+                    style={{ opacity: progreso.completado ? 1 : 0 }}
+                  />
+                </view>
               </view>
             </view>
           )
         })}
       </view>
+
+      {totalHabitos > 0 ? (
+        <text className="DashboardHelper">Mantén pulsado un hábito para registrar una parte.</text>
+      ) : null}
     </view>
   )
 }

@@ -16,7 +16,7 @@ const TABS: { path: string; label: string; icon: TabIconName }[] = [
 
 // El color del trazo va dentro del markup SVG (a través de la prop `content`
 // no hereda currentColor), así que se decide aquí y no en la hoja de estilos.
-const ICON_ACTIVE = '#e94560'
+const ICON_ACTIVE = '#d2b4f5' // --color-select-fg
 const ICON_INACTIVE = '#7a7488'
 
 export function TabBar() {
@@ -28,18 +28,11 @@ export function TabBar() {
       {TABS.map((tab) => {
         const active = location.pathname.startsWith(tab.path)
         return (
-          <view
-            key={tab.path}
-            className={`TabBarItem ${active ? 'TabBarItem--active' : ''}`}
-            bindtap={() => navigate(tab.path)}
-          >
-            <svg
-              className="TabBarIcon"
-              content={tabIcon(tab.icon, active ? ICON_ACTIVE : ICON_INACTIVE)}
-            />
-            <text className={`TabBarLabel ${active ? 'TabBarLabel--active' : ''}`}>
-              {tab.label}
-            </text>
+          <view key={tab.path} className="TabBarItem" bindtap={() => navigate(tab.path)}>
+            <view className={`TabBarPill ${active ? 'TabBarPill--active' : ''}`}>
+              <svg className="TabBarIcon" content={tabIcon(tab.icon, active ? ICON_ACTIVE : ICON_INACTIVE)} />
+            </view>
+            <text className={`TabBarLabel ${active ? 'TabBarLabel--active' : ''}`}>{tab.label}</text>
           </view>
         )
       })}

@@ -20,8 +20,9 @@ export function deriveHabitoStats(data: CumplimientoHabito[]): HabitoStat[] {
   }))
 }
 
+/** 0.71 → "71 %", con el espacio de lib/formato. */
 export function formatPct(pct: number): string {
-  return `${Math.round(pct * 100)}%`
+  return `${Math.round(pct * 100)} %`
 }
 
 /** Conteo de cumplidos para mostrar. Desde que existe el registro parcial ya no
