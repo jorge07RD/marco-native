@@ -49,6 +49,10 @@ android {
         versionCode = 17
         versionName = "1.16"
 
+        // `-Pdemo` instala una copia aparte (otro paquete, otros datos) para
+        // las capturas del README, sin tocar la app ni los datos reales.
+        if (project.hasProperty("demo")) applicationIdSuffix = ".demo"
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a"))
